@@ -1,0 +1,6 @@
+target/
+ozgreat1.iml
+.idea/
+out/
+.idea_modules/
+*.iml
