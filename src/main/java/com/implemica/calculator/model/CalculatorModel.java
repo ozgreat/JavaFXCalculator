@@ -17,6 +17,8 @@ public class CalculatorModel {
 
   private String operation;
 
+  private static final MathContext mc = new MathContext(16);
+
   private static final BigDecimal SQRT_DIG = new BigDecimal(150); //todo: magical number
   private static final BigDecimal SQRT_PRE = new BigDecimal(10).pow(SQRT_DIG.intValue());
 
@@ -24,16 +26,23 @@ public class CalculatorModel {
 
   private final static Map<String, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
+  private final static Map<String, BinaryOperator<BigDecimal>> percentOperations = new HashMap<>();
+
   static {
     binaryOperations.put("+", BigDecimal::add);
     binaryOperations.put("-", BigDecimal::subtract);
     binaryOperations.put("×", BigDecimal::multiply);
-    binaryOperations.put("÷", BigDecimal::divide);
+    binaryOperations.put("÷", (left, right) -> left.divide(right, mc));
 
-    unaryOperations.put("1/x", BigDecimal.ONE::divide);
+    unaryOperations.put("1/x", x -> BigDecimal.ONE.divide(x, mc));
     unaryOperations.put("pow", x -> x.pow(2));
     unaryOperations.put("±", BigDecimal::negate);
     unaryOperations.put("√", CalculatorModel::sqrt);
+
+    percentOperations.put("+", (left, right) -> left.add(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
+    percentOperations.put("-", (left, right) -> left.subtract(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
+    percentOperations.put("×", (left, right) -> left.multiply(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
+    percentOperations.put("÷", (left, right) -> left.divide(left.multiply(right).divide(BigDecimal.valueOf(100), mc), mc));
   }
 
   public BigDecimal getLeftOperand() {
@@ -76,8 +85,14 @@ public class CalculatorModel {
     return getRoundedIfItsPossible(res).toString();
   }
 
+  public String getPercentOperation() {
+    BigDecimal res = percentOperations.get(operation).apply(leftOperand, rightOperand);
+
+    return getRoundedIfItsPossible(res).toPlainString();
+  }
+
   private static BigDecimal getRoundedIfItsPossible(BigDecimal res) {
-    res = res.round(new MathContext(16));
+    res = res.round(mc);
     BigDecimal integerValue = BigDecimal.valueOf(res.intValue());
     if (res.compareTo(integerValue) == 0) {
       return BigDecimal.valueOf(res.intValueExact());
@@ -87,7 +102,12 @@ public class CalculatorModel {
   }
 
   private static BigDecimal sqrt(BigDecimal c) {
-    BigDecimal res = sqrt(c, BigDecimal.ONE, BigDecimal.ONE.divide(SQRT_PRE));
+    if (c.equals(BigDecimal.ZERO)) {
+      return BigDecimal.ZERO;
+    } else if (c.equals(BigDecimal.ONE)) {
+      return BigDecimal.ONE;
+    }
+    BigDecimal res = sqrt(c, BigDecimal.ONE, BigDecimal.ONE.divide(SQRT_PRE, mc));
 
     return getRoundedIfItsPossible(res);
   }
