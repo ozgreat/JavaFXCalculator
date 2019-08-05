@@ -3,11 +3,35 @@ package com.implemica.calculator.controller;
 import com.implemica.calculator.service.InputService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
 
 public class RootController {
   @FXML
   private TextArea textArea;
+
+  @FXML
+  private Button memoryClearButton;
+
+  @FXML
+  private Button memoryRecallButton;
+
+  @FXML
+  private Button memoryPlusButton;
+
+  @FXML
+  private Button memoryMinusButton;
+
+  @FXML
+  private Button memorySaveButton;
+
+  @FXML
+  private AnchorPane historyPane;
+
+  @FXML
+  private Label historyLabel;
 
   private InputService inputService;
 
@@ -32,7 +56,7 @@ public class RootController {
   @FXML
   public void clearAction() { //button C
     textArea.setText("0");
-    inputService.clear();
+    inputService.clearDisplay();
   }
 
   /**
@@ -57,24 +81,94 @@ public class RootController {
   @FXML
   public void backspaceButton() {
     if (!textArea.getText().isEmpty()) {
-      textArea.setText(textArea.getText().substring(0, textArea.getText().length() - 1));
+      String str = textArea.getText().substring(0, textArea.getText().length() - 1);
+      textArea.setText(inputService.displayFormat(str));
     }
   }
 
   @FXML
   public void equalAction() {
-    textArea.setText(inputService.enterEqual(textArea.getText()));
+    String value = inputService.enterEqual(textArea.getText());
+    textArea.setText(inputService.displayFormat(value));
   }
 
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
     if (!textArea.getText().isEmpty()) {
-      textArea.setText(inputService.unaryOp(ae, textArea.getText()));
+      String value = inputService.unaryOp(ae, textArea.getText());
+      textArea.setText(inputService.displayFormat(value));
     }
   }
 
   @FXML
   public void percentAction() {
-    textArea.setText(inputService.percentOp(textArea.getText()));
+    String value = inputService.percentOp(textArea.getText());
+    textArea.setText(inputService.displayFormat(value));
+  }
+
+  @FXML
+  public void memorySaveAction() {
+    inputService.saveToMemory(textArea.getText());
+
+    if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
+      memoryRecallButton.setDisable(false);
+      memoryClearButton.setDisable(false);
+    }
+  }
+
+  @FXML
+  public void memoryRecallAction() {
+    textArea.setText(inputService.recallFromMemory());
+  }
+
+  @FXML
+  public void memoryClearAction() {
+    inputService.clearMemory();
+
+    memoryClearButton.setDisable(true);
+    memoryRecallButton.setDisable(true);
+  }
+
+  @FXML
+  public void memoryPlusAction() {
+    inputService.addToMemory(textArea.getText());
+
+    if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
+      memoryRecallButton.setDisable(false);
+      memoryClearButton.setDisable(false);
+    }
+  }
+
+  @FXML
+  public void memoryMinusAction() {
+    inputService.subToMemory(textArea.getText());
+
+    if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
+      memoryRecallButton.setDisable(false);
+      memoryClearButton.setDisable(false);
+    }
+  }
+
+  @FXML
+  public void historyAction() {
+    if (historyPane.isDisable()) {
+      historyPane.setDisable(false);
+      historyLabel.setVisible(true);
+
+      memoryClearButton.setDisable(true);
+      memoryRecallButton.setDisable(true);
+      memoryMinusButton.setDisable(true);
+      memoryPlusButton.setDisable(true);
+      memorySaveButton.setDisable(true);
+    } else {
+      historyPane.setDisable(true);
+      historyLabel.setVisible(false);
+
+      memoryClearButton.setDisable(false);
+      memoryRecallButton.setDisable(false);
+      memoryMinusButton.setDisable(false);
+      memoryPlusButton.setDisable(false);
+      memorySaveButton.setDisable(false);
+    }
   }
 }

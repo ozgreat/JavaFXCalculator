@@ -4,28 +4,54 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
 public class CalculatorModel {
+  /**
+   * Left operand of binary and percent operations
+   */
   private BigDecimal leftOperand;
 
+  /**
+   * Right operand of binary and percent operations
+   */
   private BigDecimal rightOperand;
 
-  private BigDecimal memory;
+  /**
+   * Memory cell in calculator
+   */
+  private List<BigDecimal> memory;
 
+  /**
+   * Operation, that user will be use
+   */
   private String operation;
 
-  private static final MathContext mc = new MathContext(16);
+  /**
+   * Setting of precision
+   */
+  public static final MathContext mc = new MathContext(16);
 
   private static final BigDecimal SQRT_DIG = new BigDecimal(150); //todo: magical number
   private static final BigDecimal SQRT_PRE = new BigDecimal(10).pow(SQRT_DIG.intValue());
 
+  /**
+   * Map of binary operations
+   */
   private final static Map<String, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
 
+  /**
+   * Map of unary operations
+   */
   private final static Map<String, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
+  /**
+   * Map of percent operations
+   */
   private final static Map<String, BinaryOperator<BigDecimal>> percentOperations = new HashMap<>();
 
   static {
@@ -42,7 +68,22 @@ public class CalculatorModel {
     percentOperations.put("+", (left, right) -> left.add(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
     percentOperations.put("-", (left, right) -> left.subtract(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
     percentOperations.put("×", (left, right) -> left.multiply(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
-    percentOperations.put("÷", (left, right) -> left.divide(left.multiply(right).divide(BigDecimal.valueOf(100), mc), mc));
+    percentOperations.put("÷", (left, right) -> {
+      if (right.equals(BigDecimal.ZERO)) {
+        throw new ArithmeticException();
+      } else if (left.equals(BigDecimal.ZERO)) {
+        return BigDecimal.ZERO;
+      } else {
+        return left.divide(left.multiply(right).divide(BigDecimal.valueOf(100), mc), mc);
+      }
+    });
+  }
+
+  public CalculatorModel() {
+    memory = new LinkedList<>();
+    operation = "+";
+    leftOperand = BigDecimal.ZERO;
+    rightOperand = BigDecimal.ZERO;
   }
 
   public BigDecimal getLeftOperand() {
@@ -69,9 +110,18 @@ public class CalculatorModel {
     this.operation = operation;
   }
 
+  public List<BigDecimal> getMemory() {
+    return memory;
+  }
+
+  /**
+   * Make calculations for binary operations
+   *
+   * @return string with result of calculation
+   */
   public String getBinaryOperationResult() {
     if (rightOperand.equals(BigDecimal.ZERO) && operation.equals("÷")) {
-      return ""; // todo: replace with throw
+      throw new ArithmeticException(); // todo: add message and test
     }
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
@@ -79,19 +129,55 @@ public class CalculatorModel {
     return getRoundedIfItsPossible(res).toString();
   }
 
+  /**
+   * Make calculations for unary operations
+   *
+   * @param op     Current unary operation
+   * @param number number, that we calc
+   * @return string with result of calculation
+   */
   public String getUnaryOperationResult(String op, String number) {
     BigDecimal res = unaryOperations.get(op).apply(new BigDecimal(number));
 
     return getRoundedIfItsPossible(res).toString();
   }
 
+  /**
+   * Make calculations for binary operations
+   *
+   * @return string with result of calculation
+   */
   public String getPercentOperation() {
     BigDecimal res = percentOperations.get(operation).apply(leftOperand, rightOperand);
 
-    return getRoundedIfItsPossible(res).toPlainString();
+    return getRoundedIfItsPossible(res).toString();
   }
 
-  private static BigDecimal getRoundedIfItsPossible(BigDecimal res) {
+  public void clearMemory() {
+    memory.clear();
+  }
+
+  public BigDecimal recallMemory() {
+    return memory.get(memory.size() - 1);
+  }
+
+  public void memoryAdd(BigDecimal num) {
+    if (memory.size() > 0) {
+      memory.set(memory.size() - 1, memory.get(memory.size() - 1).add(num));
+    } else {
+      memory.add(num);
+    }
+  }
+
+  public void memorySub(BigDecimal num) {
+    if (memory.size() > 0) {
+      memory.set(memory.size() - 1, memory.get(memory.size() - 1).subtract(num));
+    } else {
+      memory.add(num.negate());
+    }
+  }
+
+  public static BigDecimal getRoundedIfItsPossible(BigDecimal res) {
     res = res.round(mc);
     BigDecimal integerValue = BigDecimal.valueOf(res.intValue());
     if (res.compareTo(integerValue) == 0) {

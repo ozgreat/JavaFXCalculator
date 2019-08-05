@@ -5,8 +5,26 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
-enum CalcState {TypeLeft, TypeRight, DisplayResult}
+enum CalcState {
+  /**
+   * CalcState when user is typing left operand
+   */
+  LEFT,
+  /**
+   * CalcState when user is typing right operand
+   */
+  RIGHT,
+  /**
+   * CalcState when user has just typed left operand and will type right operand
+   */
+  TRANSIENT,
+  /**
+   * CalcState after operation
+   */
+  AFTER
+}
 
 public class InputService {
   /**
@@ -19,8 +37,10 @@ public class InputService {
    */
   private CalculatorModel calc;
 
+  private final static int MAX_LENGTH = 21;
+
   public InputService() {
-    calcState = CalcState.TypeLeft;
+    calcState = CalcState.LEFT;
     calc = new CalculatorModel();
   }
 
@@ -33,32 +53,44 @@ public class InputService {
     Button btn = (Button) event.getSource();
     String value = btn.getText();
 
-    if (calcState == CalcState.DisplayResult) {
-      calcState = CalcState.TypeRight;
-      return value;
+    if (calcState == CalcState.AFTER) {
+      calcState = CalcState.LEFT;
+      return displayFormat(value);
+    } else if (calcState == CalcState.TRANSIENT) {
+      calcState = CalcState.RIGHT;
+      return displayFormat(value);
     }
+
+    if (display.length() == MAX_LENGTH) {
+      return displayFormat(display);
+    }
+
 
     if (Character.isDigit(value.charAt(0))) {
       if (display.startsWith("0") && !display.startsWith("0.")) {
-        return value;
+        return displayFormat(value);
       }
+      return displayFormat(display + value);
+    }
 
-      return display + value;
-    } else if (value.charAt(0) == '.') {
+    if (value.equals(".")) {
       if (display.contains(".")) {
-        return "";
+        return display;
       } else if (display.isEmpty()) {
         return "0.";
-      } else return display + value;
+      } else {
+        return displayFormat(display + value);
+      }
     }
+
     return "";
   }
 
   /**
-   * Set calcState to CalcState.TypeLeft to type new numbers like textArea is clear
+   * Set calcState to CalcState.AFTER to type new numbers like textArea is clear
    */
-  public void clear() {
-    calcState = CalcState.TypeLeft;
+  public void clearDisplay() {
+    calcState = CalcState.AFTER;
   }
 
   /**
@@ -69,28 +101,31 @@ public class InputService {
    * @return result of operation if two operands exists or display if not
    */
   public String enterOperation(ActionEvent event, String display) {
-    if (calcState == CalcState.TypeLeft) {
+    display = display.replaceAll(",", "");
+
+    if (calcState == CalcState.LEFT || calcState == CalcState.AFTER) {
       calc.setLeftOperand(new BigDecimal(display));
 
-      calcState = CalcState.DisplayResult;
+      calcState = CalcState.TRANSIENT;
 
       Button btn = (Button) event.getSource();
       calc.setOperation(btn.getText());
 
-      return display;
-    } else if (calcState == CalcState.TypeRight) {
+      return displayFormat(display);
+    } else if (calcState == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(display));
 
-      calcState = CalcState.DisplayResult;
+      calcState = CalcState.TRANSIENT;
 
       String res = calc.getBinaryOperationResult();
 
       Button btn = (Button) event.getSource();
       calc.setOperation(btn.getText());
 
-      return res;
+      return displayFormat(res);
     }
-    return display;
+
+    return displayFormat(display);
   }
 
   /**
@@ -101,14 +136,17 @@ public class InputService {
    */
   public String enterEqual(String right) {
     if (calc.getLeftOperand() != null) {
+      right = right.replaceAll(",", "");
+      BigDecimal b = new BigDecimal(1);
+
       calc.setRightOperand(new BigDecimal(right));
       String result = calc.getBinaryOperationResult();
 
       settingAfterResult(result);
 
-      return result;
+      return displayFormat(result);
     } else {
-      return right;
+      return displayFormat(right);
     }
   }
 
@@ -122,40 +160,167 @@ public class InputService {
    */
   public String unaryOp(ActionEvent event, String display) {
     Button btn = (Button) event.getSource();
+    display = display.replaceAll(",", "");
+
     String res = calc.getUnaryOperationResult(btn.getText(), display);
 
-    if (calcState == CalcState.TypeRight) {
+    if (calcState == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(res));
-    } else if (calcState == CalcState.TypeLeft) {
+    } else if (calcState == CalcState.LEFT) {
       calc.setLeftOperand(new BigDecimal(res));
     }
 
-    return res;
+    return displayFormat(res);
   }
 
   /**
    * Typing percent
+   *
    * @param right right operand typed in calc
    * @return result of percent operation
    */
   public String percentOp(String right) {
     if (calc.getLeftOperand() != null) {
+      right = right.replaceAll(",", "");
       calc.setRightOperand(new BigDecimal(right));
+
       String result = calc.getPercentOperation();
 
       settingAfterResult(result);
 
-      return result;
+      return displayFormat(result);
     } else {
-      return right;
+      return displayFormat(right);
     }
   }
 
+  /**
+   * Save number from display to memory
+   *
+   * @param display number in textArea
+   */
+  public void saveToMemory(String display) {
+    calc.getMemory().add(new BigDecimal(display));
+  }
+
+  /**
+   * Call last element from memory
+   *
+   * @return string with last element of memory
+   */
+  public String recallFromMemory() {
+    return calc.recallMemory().toString();
+  }
+
+  /**
+   * Clear memory
+   */
+  public void clearMemory() {
+    calc.clearMemory();
+  }
+
+  public void addToMemory(String display) {
+    calc.memoryAdd(new BigDecimal(display));
+  }
+
+  public void subToMemory(String display) {
+    calc.memorySub(new BigDecimal(display));
+  }
+
+  public String displayFormat(String display) {
+    display = display.replaceAll(",", "");
+
+    if (display.contains("E")) {
+      return formatLongNums(display);
+    }
+
+    String displayBuf = display;
+
+    if (calcState == CalcState.AFTER) {
+      BigDecimal big = new BigDecimal(display);
+      big = big.round(new MathContext(15));
+      display = big.toString();
+    }
+
+    if (display.contains(".")) {
+      String[] partsOfFrac = display.split("\\.");
+      if (partsOfFrac.length == 2) {
+        return displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1];
+      }else{
+        return displayFormat(display.substring(0, display.indexOf('.'))) + ".";
+      }
+    }
+
+    StringBuilder displayBuilder = new StringBuilder();
+    for (int i = 0; i < display.length(); i++) {
+      displayBuilder.append(display.charAt(i));
+
+      if ((display.length() - i - 1) % 3 == 0) { // comma after every 3d element from the end
+        displayBuilder.append(",");
+      }
+    }
+    display = displayBuilder.toString();
+
+
+    if (display.endsWith(",")) {
+      display = display.substring(0, display.length() - 1);
+    }
+
+
+    return display;
+  }//todo: work with engineer string
+
+  private String formatLongNums(String displayBuf) {
+    String display;
+    display = new BigDecimal(displayBuf, CalculatorModel.mc).toEngineeringString();
+    String[] displayArr = display.split("E");
+    displayArr[0] = CalculatorModel.getRoundedIfItsPossible(new BigDecimal(displayArr[0])).toString();
+
+    if (displayArr[0].contains(".")) {
+      formatEngineer(displayArr);
+    } else {
+      if (displayArr[0].endsWith("0")) {
+        displayArr[1] = incrementEPart(displayArr, displayArr[1]);
+      }
+
+      displayArr[0] += ".";
+    }
+
+    display = displayArr[0] + "E" + displayArr[1];
+    return display;
+  }
+
+  private void formatEngineer(String[] displayArr) { //todo: maybe return String[]
+    String[] displayNumParts = displayArr[0].split("\\.");
+    if (displayNumParts[0].endsWith("0")) {
+      displayArr[1] = incrementEPart(displayNumParts, displayArr[1]);
+
+      displayArr[0] = displayNumParts[0] + "." + displayNumParts[1];
+      displayArr[0] = deleteLastZeroInFrac(displayArr[0]);
+    }
+  }
+
+  private String incrementEPart(String[] displayArr, String ePart) {
+    displayArr[0] = displayArr[0].substring(0, displayArr[0].length() - 1);
+    int lastNum = Integer.parseInt(Character.toString(ePart.charAt(ePart.length() - 1)));
+
+    return ePart.substring(0, ePart.length() - 1) + (lastNum + 1);
+  }
 
   private void settingAfterResult(String result) {
     calc.setOperation(null);
     calc.setLeftOperand(new BigDecimal(result));
     calc.setRightOperand(null);
-    clear();
+    clearDisplay();
   }
+
+  private String deleteLastZeroInFrac(String num) {
+    if (num.endsWith("0")) {
+      return num.substring(0, num.length() - 1);
+    } else {
+      return num;
+    }
+  }
+
+
 }
