@@ -1,84 +1,319 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="17.0" prefWidth="320.0" xmlns="http://javafx.com/javafx/8.0.221" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.calculator.controller.RootController">
-    <children>
-        <AnchorPane layoutX="4.0" maxHeight="480.0" maxWidth="320.0" minHeight="480.0" minWidth="320.0" prefHeight="480.0" prefWidth="311.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-                <TextArea fx:id="textArea" editable="false" layoutY="53.0" prefHeight="94.0" prefWidth="310.0" text="0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" />
-                <GridPane layoutY="177.0" prefHeight="301.0" prefWidth="320.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="174.0">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#percentAction" prefHeight="60.0" prefWidth="80.0" text="\%" />
-                        <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="√" GridPane.columnIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="pow" GridPane.columnIndex="2" />
-                        <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="1/x" GridPane.columnIndex="3" />
-                        <Button mnemonicParsing="false" onAction="#clearEntryAction" prefHeight="60.0" prefWidth="80.0" text="CE" GridPane.rowIndex="1" />
-                        <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearAction" prefHeight="60.0" prefWidth="80.0" text="C" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#backspaceButton" prefHeight="60.0" prefWidth="80.0" text="&lt;-" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="÷" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="7" GridPane.rowIndex="2" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="8" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="9" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="×" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="4" GridPane.rowIndex="3" />
-                        <Button fx:id="fiveButton" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="5" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="6" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                        <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="-" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="1" GridPane.rowIndex="4" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="2" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="3" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                        <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="+" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                        <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="±" GridPane.rowIndex="5" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="79.0" text="." GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                        <Button mnemonicParsing="false" onAction="#equalAction" prefHeight="60.0" prefWidth="80.0" text="=" GridPane.columnIndex="3" GridPane.rowIndex="5" />
-                    </children>
-                </GridPane>
-                <ButtonBar buttonMinWidth="20.0" layoutX="-4.0" layoutY="144.0" prefHeight="30.0" prefWidth="310.0">
-                    <buttons>
-                        <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#memoryClearAction" prefHeight="25.0" prefWidth="141415.0" text="MC" />
-                        <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false" onAction="#memoryRecallAction" text="MR" />
-                        <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction" text="M+" />
-                        <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction" text="M-" />
-                        <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" text="MS" />
-                        <Button disable="true" mnemonicParsing="false" prefHeight="12.0" prefWidth="12.0" text="M" />
-                    </buttons>
-                </ButtonBar>
-                <Label layoutX="49.0" layoutY="8.0" prefHeight="30.0" prefWidth="66.0" text="Standard">
+<BorderPane fx:id="bp" styleClass="bp" stylesheets="@root.css" xmlns="http://javafx.com/javafx/8.0.221" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.calculator.controller.RootController">
+   <center>
+      <AnchorPane prefHeight="487.0" prefWidth="320.0">
+          <children>
+              <AnchorPane layoutX="-14.0" maxHeight="490.0" maxWidth="320.0" minHeight="480.0" minWidth="320.0" prefHeight="490.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="0.0">
+                  <children>
+                      <GridPane layoutX="16.0" layoutY="165.0" prefHeight="320.0" prefWidth="314.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="165.0">
+                          <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="52.0" minHeight="10.0" prefHeight="52.0" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="56.0" minHeight="10.0" prefHeight="56.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                          <children>
+                              <Button mnemonicParsing="false" onAction="#percentAction" prefHeight="60.0" prefWidth="80.0" text="">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="1">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="𝑥²" GridPane.columnIndex="2">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="ex" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="⅟𝑥" GridPane.columnIndex="3">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="ex" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#clearEntryAction" prefHeight="60.0" prefWidth="80.0" text="CE" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearAction" prefHeight="60.0" prefWidth="80.0" text="C" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#backspaceButton" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="arithmeticButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="7" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="8" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="9" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="arithmeticButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="4" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button fx:id="fiveButton" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="6" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="arithmeticButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="1" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="2" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="3" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="arithmeticButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.rowIndex="5">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="digitButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button id="point" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="79.0" text="." GridPane.columnIndex="2" GridPane.rowIndex="5">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="secondaryButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                              <Button mnemonicParsing="false" onAction="#equalAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="5">
+                           <font>
+                              <Font name="Segoe MDL2 Assets" size="15.0" />
+                           </font>
+                           <styleClass>
+                              <String fx:value="arithmeticButton" />
+                              <String fx:value="numpad" />
+                           </styleClass>
+                        </Button>
+                          </children>
+                      </GridPane>
+                      <ButtonBar buttonMinWidth="20.0" layoutY="135.0" prefHeight="30.0" prefWidth="328.0">
+                          <buttons>
+                              <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#memoryClearAction" prefHeight="25.0" prefWidth="141415.0" styleClass="memoryButton" text="MC" />
+                              <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false" onAction="#memoryRecallAction" styleClass="memoryButton" text="MR" />
+                              <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction" styleClass="memoryButton" text="M+" />
+                              <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction" styleClass="memoryButton" text="M-" />
+                              <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" styleClass="memoryButton" text="MS" />
+                              <Button disable="true" mnemonicParsing="false" prefHeight="12.0" prefWidth="12.0" styleClass="memoryButton" text="M" />
+                          </buttons>
+                      </ButtonBar>
+                      <Label id="standard" layoutX="65.0" layoutY="6.0" prefHeight="30.0" prefWidth="89.0" text="Standard">
+                     <font>
+                        <Font name="Segoe MDL2 Assets" size="16.0" />
+                     </font>
+                  </Label>
+                  <Button id="sideMenuButton" layoutX="14.0" layoutY="2.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="40.0" text="">
+                     <font>
+                        <Font name="Segoe MDL2 Assets" size="15.0" />
+                     </font>
+                  </Button>
+                  <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="20.0" layoutY="64.0" prefHeight="42.0" prefWidth="307.0" text="0" textAlignment="RIGHT" wrapText="true">
+                     <font>
+                        <Font name="Segoe MDL2 Assets" size="15.0" />
+                     </font>
+                  </Label>
+                      <Button id="history" fx:id="openHistory" layoutX="287.0" layoutY="1.0" mnemonicParsing="false" onAction="#historyAction" prefHeight="40.0" prefWidth="43.0" text="">
+                     <font>
+                        <Font name="Segoe MDL2 Assets" size="12.0" />
+                     </font>
+                  </Button>
+                  </children>
+              </AnchorPane>
+            <AnchorPane fx:id="historyUpperPane" disable="true" onMouseClicked="#historyAction" prefHeight="173.0" prefWidth="320.0" visible="false" />
+              <AnchorPane fx:id="historyPane" disable="true" layoutY="430.0" prefHeight="314.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="171.0">
+                  <children>
+                      <Label fx:id="historyLabel" prefHeight="42.0" prefWidth="320.0" text="There's no history yet" visible="false" />
+                  </children>
+              </AnchorPane>
+          </children>
+      </AnchorPane>
+   </center>
+   <top>
+      <AnchorPane onMouseDragged="#dragWindow" onMousePressed="#pressWindow" prefHeight="35.0" prefWidth="320.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button id="closeButton" fx:id="closeButton" layoutX="276.0" mnemonicParsing="false" onMouseClicked="#closeWindow" prefHeight="35.0" prefWidth="44.0" styleClass="windowButton" text="">
                <font>
-                  <Font name="System Bold" size="14.0" />
-               </font></Label>
-                <Button fx:id="openHistory" layoutX="272.0" layoutY="10.0" mnemonicParsing="false" onAction="#historyAction" text="H" />
-            <Button layoutX="14.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" text="..." />
-            </children>
-        </AnchorPane>
-        <AnchorPane fx:id="historyPane" disable="true" layoutY="171.0" prefHeight="309.0" prefWidth="312.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="171.0">
-            <children>
-                <Label fx:id="historyLabel" prefHeight="42.0" prefWidth="320.0" text="There's no history yet" visible="false" />
-            </children>
-        </AnchorPane>
-    </children>
-</AnchorPane>
+                  <Font name="Segoe MDL2 Assets" size="12.0" />
+               </font>
+            </Button>
+            <Button disable="true" ellipsisString="" layoutX="238.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="39.0" styleClass="windowButton" text="">
+               <font>
+                  <Font name="Segoe MDL2 Assets" size="12.0" />
+               </font>
+            </Button>
+            <Button layoutX="196.0" mnemonicParsing="false" onMouseClicked="#minimizeWindow" prefHeight="34.0" prefWidth="42.0" styleClass="windowButton" text="">
+               <font>
+                  <Font name="Segoe MDL2 Assets" size="12.0" />
+               </font>
+            </Button>
+            <Label layoutX="14.0" layoutY="6.0" text="Calculator" />
+         </children>
+      </AnchorPane>
+   </top>
+</BorderPane>

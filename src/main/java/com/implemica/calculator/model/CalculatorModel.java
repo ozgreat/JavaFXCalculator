@@ -49,10 +49,6 @@ public class CalculatorModel {
    */
   private final static Map<String, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
-  /**
-   * Map of percent operations
-   */
-  private final static Map<String, BinaryOperator<BigDecimal>> percentOperations = new HashMap<>();
 
   static {
     binaryOperations.put("+", BigDecimal::add);
@@ -60,23 +56,10 @@ public class CalculatorModel {
     binaryOperations.put("×", BigDecimal::multiply);
     binaryOperations.put("÷", (left, right) -> left.divide(right, mc));
 
-    unaryOperations.put("1/x", x -> BigDecimal.ONE.divide(x, mc));
-    unaryOperations.put("pow", x -> x.pow(2));
+    unaryOperations.put("⅟\uD835\uDC65", x -> BigDecimal.ONE.divide(x, mc));//⅟𝑥
+    unaryOperations.put("\uD835\uDC65²", x -> x.pow(2));//𝑥²
     unaryOperations.put("±", BigDecimal::negate);
     unaryOperations.put("√", CalculatorModel::sqrt);
-
-    percentOperations.put("+", (left, right) -> left.add(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
-    percentOperations.put("-", (left, right) -> left.subtract(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
-    percentOperations.put("×", (left, right) -> left.multiply(left.multiply(right).divide(BigDecimal.valueOf(100), mc)));
-    percentOperations.put("÷", (left, right) -> {
-      if (right.equals(BigDecimal.ZERO)) {
-        throw new ArithmeticException();
-      } else if (left.equals(BigDecimal.ZERO)) {
-        return BigDecimal.ZERO;
-      } else {
-        return left.divide(left.multiply(right).divide(BigDecimal.valueOf(100), mc), mc);
-      }
-    });
   }
 
   public CalculatorModel() {
@@ -148,8 +131,8 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getPercentOperation() {
-    BigDecimal res = percentOperations.get(operation).apply(leftOperand, rightOperand);
-
+    BigDecimal res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc));
+    rightOperand = res;
     return getRoundedIfItsPossible(res).toString();
   }
 
@@ -179,12 +162,15 @@ public class CalculatorModel {
 
   public static BigDecimal getRoundedIfItsPossible(BigDecimal res) {
     res = res.round(mc);
-    BigDecimal integerValue = BigDecimal.valueOf(res.intValue());
-    if (res.compareTo(integerValue) == 0) {
-      return BigDecimal.valueOf(res.intValueExact());
-    } else {
-      return res;
+    if (res.toString().contains(".")) {
+      BigDecimal resStrip = res.stripTrailingZeros();
+      if (resStrip.toPlainString().length() < mc.getPrecision() && resStrip.toString().contains("E")) {
+        resStrip = new BigDecimal(resStrip.toPlainString());
+      }
+      return resStrip;
     }
+
+    return res;
   }
 
   private static BigDecimal sqrt(BigDecimal c) {

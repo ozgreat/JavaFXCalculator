@@ -1,0 +1,88 @@
+.bp {
+  -fx-background-color: #e6e6e6;
+  -fx-border-color: black;
+  -fx-border-width: 0.75;
+}
+
+.numpad{
+  -fx-border-color: #e6e6e6;
+  -fx-border-width: 1;
+  -fx-background-color: #f0f0f0;
+  -fx-font-family: "Segoe MDL2 Assets";
+  -fx-font-size: 15;
+  -fx-background-radius: 0;
+}
+
+.numpad:hover{
+  -fx-background-color: #e6e6e6;
+}
+
+.digitButton {
+  -fx-background-color: #fafafa;
+  -fx-font-family: "Segoe UI Semibold";
+  -fx-font-size: 24;
+}
+
+
+.memoryButton {
+  -fx-background-color: transparent;
+  -fx-background-radius: 0;
+  -fx-font-family: "Segoe UI Semibold";
+}
+
+.ex{
+  -fx-font-size: 19;
+}
+
+.arithmeticButton:hover {
+  -fx-background-color: #4c4a48;
+  -fx-text-fill: #fafafa;
+}
+
+.windowButton {
+  -fx-background-color: transparent;
+  -fx-font-family: "Segoe MDL2 Assets";
+  -fx-font-size: 10;
+  -fx-background-radius: 0;
+}
+
+.windowButton:hover {
+  -fx-background-color: #cfcfcf;
+}
+
+#history {
+  -fx-background-color: transparent;
+  -fx-font-family: "Segoe MDL2 Assets";
+  -fx-font-size: 16;
+}
+
+#sideMenuButton {
+  -fx-background-color: transparent;
+  -fx-background-radius: 0;
+}
+
+#sideMenuButton:hover {
+  -fx-background-color: #cfcfcf;
+}
+
+#closeButton:hover {
+  -fx-background-color: #e81123;
+  -fx-text-fill: white;
+}
+
+#standard{
+  -fx-font-size: 19;
+  -fx-font-family: "Segoe UI";
+  -fx-text-fill: black;
+}
+
+#point{
+  -fx-font-family: "Segoe UI Semibold";
+  -fx-font-size: 24;
+}
+
+#display{
+  -fx-font-size: 46;
+  -fx-font-family: "Segoe UI Semibold";
+  -fx-text-alignment: right;
+}

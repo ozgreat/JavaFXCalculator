@@ -5,9 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 import java.io.IOException;
 
 public class Main extends Application {
+
+  private final static String TITLE = "Calculator";
 
   public static void main(String[] args) {
     launch(args);
@@ -16,9 +20,12 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) throws IOException {
     Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("view/root.fxml"));
+//    root.getStylesheets().add(getClass().getResource("view/root.css").toExternalForm());
     primaryStage.setTitle("Calculator");
-    primaryStage.setScene(new Scene(root, 320, 480));
-    primaryStage.setResizable(false);
+    primaryStage.setScene(new Scene(root));
+    primaryStage.initStyle(StageStyle.UNDECORATED);
+    primaryStage.setTitle(TITLE);
+    System.out.println("\uE94E");
     primaryStage.show();
   }
 }

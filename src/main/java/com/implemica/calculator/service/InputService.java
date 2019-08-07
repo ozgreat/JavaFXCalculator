@@ -6,6 +6,8 @@ import javafx.scene.control.Button;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.HashMap;
+import java.util.Map;
 
 enum CalcState {
   /**
@@ -38,6 +40,18 @@ public class InputService {
   private CalculatorModel calc;
 
   private final static int MAX_LENGTH = 21;
+
+  private final static Map<String, String> operationUnicode = new HashMap<>();
+
+  static {
+    operationUnicode.put("\uE948", "+");
+    operationUnicode.put("\uE949", "-");
+    operationUnicode.put("\uE947", "×");
+    operationUnicode.put("\uE94A", "÷");
+    operationUnicode.put("\uE94B", "√");
+    operationUnicode.put("\uE94D", "±");
+
+  }
 
   public InputService() {
     calcState = CalcState.LEFT;
@@ -109,7 +123,7 @@ public class InputService {
       calcState = CalcState.TRANSIENT;
 
       Button btn = (Button) event.getSource();
-      calc.setOperation(btn.getText());
+      calc.setOperation(formatOperation(btn.getText()));
 
       return displayFormat(display);
     } else if (calcState == CalcState.RIGHT) {
@@ -120,8 +134,8 @@ public class InputService {
       String res = calc.getBinaryOperationResult();
 
       Button btn = (Button) event.getSource();
-      calc.setOperation(btn.getText());
-
+      calc.setOperation(formatOperation(btn.getText()));
+      calc.setLeftOperand(new BigDecimal(res));
       return displayFormat(res);
     }
 
@@ -135,9 +149,8 @@ public class InputService {
    * @return result of binary operation
    */
   public String enterEqual(String right) {
-    if (calc.getLeftOperand() != null) {
+    if (calc.getLeftOperand() != null && calc.getOperation() != null) {
       right = right.replaceAll(",", "");
-      BigDecimal b = new BigDecimal(1);
 
       calc.setRightOperand(new BigDecimal(right));
       String result = calc.getBinaryOperationResult();
@@ -162,7 +175,7 @@ public class InputService {
     Button btn = (Button) event.getSource();
     display = display.replaceAll(",", "");
 
-    String res = calc.getUnaryOperationResult(btn.getText(), display);
+    String res = calc.getUnaryOperationResult(formatOperation(btn.getText()), display);
 
     if (calcState == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(res));
@@ -185,8 +198,6 @@ public class InputService {
       calc.setRightOperand(new BigDecimal(right));
 
       String result = calc.getPercentOperation();
-
-      settingAfterResult(result);
 
       return displayFormat(result);
     } else {
@@ -230,11 +241,11 @@ public class InputService {
   public String displayFormat(String display) {
     display = display.replaceAll(",", "");
 
-    if (display.contains("E")) {
-      return formatLongNums(display);
-    }
 
-    String displayBuf = display;
+    if (display.contains("E")) {
+      display = formatLongNums(display);
+      return display;
+    }
 
     if (calcState == CalcState.AFTER) {
       BigDecimal big = new BigDecimal(display);
@@ -245,9 +256,9 @@ public class InputService {
     if (display.contains(".")) {
       String[] partsOfFrac = display.split("\\.");
       if (partsOfFrac.length == 2) {
-        return displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1];
-      }else{
-        return displayFormat(display.substring(0, display.indexOf('.'))) + ".";
+        return deleteLastZeroInFrac(displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1]);
+      } else {
+        return deleteLastZeroInFrac(displayFormat(display.substring(0, display.indexOf('.'))) + ".");
       }
     }
 
@@ -268,11 +279,13 @@ public class InputService {
 
 
     return display;
-  }//todo: work with engineer string
+  }
 
   private String formatLongNums(String displayBuf) {
-    String display;
-    display = new BigDecimal(displayBuf, CalculatorModel.mc).toEngineeringString();
+    String display = new BigDecimal(displayBuf, CalculatorModel.mc).toEngineeringString();
+    if (!display.contains("E")) {
+      return display;
+    }
     String[] displayArr = display.split("E");
     displayArr[0] = CalculatorModel.getRoundedIfItsPossible(new BigDecimal(displayArr[0])).toString();
 
@@ -310,17 +323,23 @@ public class InputService {
   private void settingAfterResult(String result) {
     calc.setOperation(null);
     calc.setLeftOperand(new BigDecimal(result));
-    calc.setRightOperand(null);
     clearDisplay();
   }
 
   private String deleteLastZeroInFrac(String num) {
     if (num.endsWith("0")) {
-      return num.substring(0, num.length() - 1);
+      return deleteLastZeroInFrac(num.substring(0, num.length() - 1));
     } else {
       return num;
     }
   }
 
-
+  private String formatOperation(String op) {
+    String formated = operationUnicode.get(op);
+    if (formated != null) {
+      return formated;
+    } else {
+      return op;
+    }
+  }
 }

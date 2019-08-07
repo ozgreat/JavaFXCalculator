@@ -5,12 +5,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 public class RootController {
+
   @FXML
-  private TextArea textArea;
+  private Label display;
 
   @FXML
   private Button memoryClearButton;
@@ -19,13 +21,7 @@ public class RootController {
   private Button memoryRecallButton;
 
   @FXML
-  private Button memoryPlusButton;
-
-  @FXML
-  private Button memoryMinusButton;
-
-  @FXML
-  private Button memorySaveButton;
+  private AnchorPane historyUpperPane;
 
   @FXML
   private AnchorPane historyPane;
@@ -34,6 +30,10 @@ public class RootController {
   private Label historyLabel;
 
   private InputService inputService;
+
+  private static double xOffset = 0;
+
+  private static double yOffset = 0;
 
   public RootController() {
     inputService = new InputService();
@@ -46,8 +46,8 @@ public class RootController {
    */
   @FXML
   public void addNumberOrComma(ActionEvent event) { // buttons 0-9 and ','
-    String value = inputService.enterNumberOrComma(event, textArea.getText());
-    textArea.setText(value);
+    String value = inputService.enterNumberOrComma(event, display.getText());
+    display.setText(value);
   }
 
   /**
@@ -55,7 +55,7 @@ public class RootController {
    */
   @FXML
   public void clearAction() { //button C
-    textArea.setText("0");
+    display.setText("0");
     inputService.clearDisplay();
   }
 
@@ -64,7 +64,7 @@ public class RootController {
    */
   @FXML
   public void clearEntryAction() {
-    textArea.setText("0");
+    display.setText("0");
   }
 
   /**
@@ -72,7 +72,7 @@ public class RootController {
    */
   @FXML
   public void operationButtonAction(ActionEvent event) {
-    textArea.setText(inputService.enterOperation(event, textArea.getText()));
+    display.setText(inputService.enterOperation(event, display.getText()));
   }
 
   /**
@@ -80,35 +80,35 @@ public class RootController {
    */
   @FXML
   public void backspaceButton() {
-    if (!textArea.getText().isEmpty()) {
-      String str = textArea.getText().substring(0, textArea.getText().length() - 1);
-      textArea.setText(inputService.displayFormat(str));
+    if (!display.getText().isEmpty()) {
+      String str = display.getText().substring(0, display.getText().length() - 1);
+      display.setText(inputService.displayFormat(str));
     }
   }
 
   @FXML
   public void equalAction() {
-    String value = inputService.enterEqual(textArea.getText());
-    textArea.setText(inputService.displayFormat(value));
+    String value = inputService.enterEqual(display.getText());
+    display.setText(inputService.displayFormat(value));
   }
 
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
-    if (!textArea.getText().isEmpty()) {
-      String value = inputService.unaryOp(ae, textArea.getText());
-      textArea.setText(inputService.displayFormat(value));
+    if (!display.getText().isEmpty()) {
+      String value = inputService.unaryOp(ae, display.getText());
+      display.setText(inputService.displayFormat(value));
     }
   }
 
   @FXML
   public void percentAction() {
-    String value = inputService.percentOp(textArea.getText());
-    textArea.setText(inputService.displayFormat(value));
+    String value = inputService.percentOp(display.getText());
+    display.setText(inputService.displayFormat(value));
   }
 
   @FXML
   public void memorySaveAction() {
-    inputService.saveToMemory(textArea.getText());
+    inputService.saveToMemory(display.getText());
 
     if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
       memoryRecallButton.setDisable(false);
@@ -118,7 +118,7 @@ public class RootController {
 
   @FXML
   public void memoryRecallAction() {
-    textArea.setText(inputService.recallFromMemory());
+    display.setText(inputService.recallFromMemory());
   }
 
   @FXML
@@ -131,7 +131,7 @@ public class RootController {
 
   @FXML
   public void memoryPlusAction() {
-    inputService.addToMemory(textArea.getText());
+    inputService.addToMemory(display.getText());
 
     if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
       memoryRecallButton.setDisable(false);
@@ -141,7 +141,7 @@ public class RootController {
 
   @FXML
   public void memoryMinusAction() {
-    inputService.subToMemory(textArea.getText());
+    inputService.subToMemory(display.getText());
 
     if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
       memoryRecallButton.setDisable(false);
@@ -155,20 +155,39 @@ public class RootController {
       historyPane.setDisable(false);
       historyLabel.setVisible(true);
 
-      memoryClearButton.setDisable(true);
-      memoryRecallButton.setDisable(true);
-      memoryMinusButton.setDisable(true);
-      memoryPlusButton.setDisable(true);
-      memorySaveButton.setDisable(true);
+      historyUpperPane.setDisable(false);
+      historyUpperPane.setVisible(true);
     } else {
       historyPane.setDisable(true);
       historyLabel.setVisible(false);
 
-      memoryClearButton.setDisable(false);
-      memoryRecallButton.setDisable(false);
-      memoryMinusButton.setDisable(false);
-      memoryPlusButton.setDisable(false);
-      memorySaveButton.setDisable(false);
+      historyUpperPane.setDisable(true);
+      historyUpperPane.setVisible(false);
     }
+  }
+
+  @FXML
+  public void closeWindow(MouseEvent event) {
+    ((Button) event.getSource()).getScene().getWindow().hide();
+  }
+
+  @FXML
+  public void minimizeWindow(MouseEvent event) {
+    Stage stage = (Stage) (((Button) event.getSource()).getScene().getWindow());
+    stage.setIconified(true);
+  }
+
+  @FXML
+  public void pressWindow(MouseEvent event) {
+    Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
+    xOffset = stage.getX() - event.getScreenX();
+    yOffset = stage.getY() - event.getScreenY();
+  }
+
+  @FXML
+  public void dragWindow(MouseEvent event) {
+    Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
+    stage.setX(event.getScreenX() + xOffset);
+    stage.setY(event.getScreenY() + yOffset);
   }
 }
