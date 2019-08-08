@@ -5,7 +5,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,7 +116,7 @@ public class InputService {
   public String enterOperation(ActionEvent event, String display) {
     display = display.replaceAll(",", "");
 
-    if (calcState == CalcState.LEFT || calcState == CalcState.AFTER) {
+    if (calcState == CalcState.LEFT) {
       calc.setLeftOperand(new BigDecimal(display));
 
       calcState = CalcState.TRANSIENT;
@@ -137,8 +136,17 @@ public class InputService {
       calc.setOperation(formatOperation(btn.getText()));
       calc.setLeftOperand(new BigDecimal(res));
       return displayFormat(res);
+    } else if (calcState == CalcState.AFTER) {
+      calcState = CalcState.TRANSIENT;
+
+      Button btn = (Button) event.getSource();
+      calc.setOperation(formatOperation(btn.getText()));
+
+      return displayFormat(display);
     }
 
+    Button btn = (Button) event.getSource();
+    calc.setOperation(formatOperation(btn.getText()));
     return displayFormat(display);
   }
 
@@ -247,20 +255,22 @@ public class InputService {
       return display;
     }
 
-    if (calcState == CalcState.AFTER) {
-      BigDecimal big = new BigDecimal(display);
-      big = big.round(new MathContext(15));
-      display = big.toString();
+
+    if (display.endsWith(".")) {
+      return displayFormat(display.substring(0, display.indexOf('.'))) + ".";
     }
+
+    BigDecimal big = new BigDecimal(display);
+    big = CalculatorModel.getRounded16IfItsPossible(big);
+    display = big.toString();
 
     if (display.contains(".")) {
       String[] partsOfFrac = display.split("\\.");
       if (partsOfFrac.length == 2) {
-        return deleteLastZeroInFrac(displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1]);
-      } else {
-        return deleteLastZeroInFrac(displayFormat(display.substring(0, display.indexOf('.'))) + ".");
+        return deleteLastZeroInFrac(displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1]); // display format for int part
       }
     }
+
 
     StringBuilder displayBuilder = new StringBuilder();
     for (int i = 0; i < display.length(); i++) {
@@ -282,12 +292,12 @@ public class InputService {
   }
 
   private String formatLongNums(String displayBuf) {
-    String display = new BigDecimal(displayBuf, CalculatorModel.mc).toEngineeringString();
+    String display = new BigDecimal(displayBuf, CalculatorModel.mc32).toEngineeringString();
     if (!display.contains("E")) {
       return display;
     }
     String[] displayArr = display.split("E");
-    displayArr[0] = CalculatorModel.getRoundedIfItsPossible(new BigDecimal(displayArr[0])).toString();
+    displayArr[0] = CalculatorModel.getRounded16IfItsPossible(new BigDecimal(displayArr[0])).toString();
 
     if (displayArr[0].contains(".")) {
       formatEngineer(displayArr);

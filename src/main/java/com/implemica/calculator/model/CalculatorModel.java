@@ -34,7 +34,9 @@ public class CalculatorModel {
   /**
    * Setting of precision
    */
-  public static final MathContext mc = new MathContext(16);
+  public static final MathContext mc32 = new MathContext(32);
+
+  public static final MathContext mc16 = new MathContext(16);
 
   private static final BigDecimal SQRT_DIG = new BigDecimal(150); //todo: magical number
   private static final BigDecimal SQRT_PRE = new BigDecimal(10).pow(SQRT_DIG.intValue());
@@ -54,9 +56,9 @@ public class CalculatorModel {
     binaryOperations.put("+", BigDecimal::add);
     binaryOperations.put("-", BigDecimal::subtract);
     binaryOperations.put("×", BigDecimal::multiply);
-    binaryOperations.put("÷", (left, right) -> left.divide(right, mc));
+    binaryOperations.put("÷", (left, right) -> left.divide(right, mc32));
 
-    unaryOperations.put("⅟\uD835\uDC65", x -> BigDecimal.ONE.divide(x, mc));//⅟𝑥
+    unaryOperations.put("⅟\uD835\uDC65", x -> BigDecimal.ONE.divide(x, mc32));//⅟𝑥
     unaryOperations.put("\uD835\uDC65²", x -> x.pow(2));//𝑥²
     unaryOperations.put("±", BigDecimal::negate);
     unaryOperations.put("√", CalculatorModel::sqrt);
@@ -109,7 +111,7 @@ public class CalculatorModel {
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
-    return getRoundedIfItsPossible(res).toString();
+    return getRounded32IfItsPossible(res).toString();
   }
 
   /**
@@ -122,7 +124,7 @@ public class CalculatorModel {
   public String getUnaryOperationResult(String op, String number) {
     BigDecimal res = unaryOperations.get(op).apply(new BigDecimal(number));
 
-    return getRoundedIfItsPossible(res).toString();
+    return getRounded32IfItsPossible(res).toString();
   }
 
   /**
@@ -131,9 +133,9 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getPercentOperation() {
-    BigDecimal res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc));
+    BigDecimal res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc32));
     rightOperand = res;
-    return getRoundedIfItsPossible(res).toString();
+    return getRounded32IfItsPossible(res).toString();
   }
 
   public void clearMemory() {
@@ -160,18 +162,40 @@ public class CalculatorModel {
     }
   }
 
-  public static BigDecimal getRoundedIfItsPossible(BigDecimal res) {
-    res = res.round(mc);
+  private static BigDecimal getRounded32IfItsPossible(BigDecimal res) {
+    res = res.round(mc32);
+    BigDecimal resStrip = getRounded(res, mc32, mc32.getPrecision());
+    if (resStrip != null) {
+      return resStrip;
+    } else {
+      return res;
+    }
+  }
+
+  public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
+    res = res.round(mc16);
+    BigDecimal resStrip = getRounded(res, mc16, mc16.getPrecision());
+    if (resStrip != null) {
+      return resStrip;
+    } else {
+      return res;
+    }
+  }
+
+  private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
     if (res.toString().contains(".")) {
+      res = res.round(mc);
       BigDecimal resStrip = res.stripTrailingZeros();
-      if (resStrip.toPlainString().length() < mc.getPrecision() && resStrip.toString().contains("E")) {
+      if (resStrip.toPlainString().length() <= precision && resStrip.toString().contains("E")) {
         resStrip = new BigDecimal(resStrip.toPlainString());
+      } else if (resStrip.toPlainString().length() > precision + 1) {
+        resStrip = getRounded(resStrip, new MathContext(mc.getPrecision() - 1), precision);
       }
       return resStrip;
     }
-
-    return res;
+    return null;
   }
+
 
   private static BigDecimal sqrt(BigDecimal c) {
     if (c.equals(BigDecimal.ZERO)) {
@@ -179,9 +203,9 @@ public class CalculatorModel {
     } else if (c.equals(BigDecimal.ONE)) {
       return BigDecimal.ONE;
     }
-    BigDecimal res = sqrt(c, BigDecimal.ONE, BigDecimal.ONE.divide(SQRT_PRE, mc));
+    BigDecimal res = sqrt(c, BigDecimal.ONE, BigDecimal.ONE.divide(SQRT_PRE, mc32));
 
-    return getRoundedIfItsPossible(res);
+    return getRounded32IfItsPossible(res);
   }
 
   private static BigDecimal sqrt(BigDecimal c, BigDecimal xn, BigDecimal precision) {

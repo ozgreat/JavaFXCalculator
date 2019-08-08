@@ -71,7 +71,7 @@
 }
 
 #standard{
-  -fx-font-size: 19;
+  -fx-font-size: 19.5;
   -fx-font-family: "Segoe UI";
   -fx-text-fill: black;
 }
@@ -82,7 +82,12 @@
 }
 
 #display{
-  -fx-font-size: 46;
+  -fx-font-size: 26;/*46*/
   -fx-font-family: "Segoe UI Semibold";
   -fx-text-alignment: right;
+}
+
+#historyLabel{
+  -fx-font-size: 14;
+  -fx-font-family: "Segoe UI Semibold";
 }

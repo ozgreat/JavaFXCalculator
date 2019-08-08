@@ -286,9 +286,9 @@
                   </children>
               </AnchorPane>
             <AnchorPane fx:id="historyUpperPane" disable="true" onMouseClicked="#historyAction" prefHeight="173.0" prefWidth="320.0" visible="false" />
-              <AnchorPane fx:id="historyPane" disable="true" layoutY="430.0" prefHeight="314.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="171.0">
+              <AnchorPane fx:id="historyPane" disable="true" layoutY="162.0" prefHeight="331.0" prefWidth="320.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="162.0">
                   <children>
-                      <Label fx:id="historyLabel" prefHeight="42.0" prefWidth="320.0" text="There's no history yet" visible="false" />
+                      <Label id="historyLabel" fx:id="historyLabel" prefHeight="42.0" prefWidth="320.0" text="There's no history yet" visible="false" />
                   </children>
               </AnchorPane>
           </children>

@@ -20,12 +20,10 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) throws IOException {
     Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("view/root.fxml"));
-//    root.getStylesheets().add(getClass().getResource("view/root.css").toExternalForm());
     primaryStage.setTitle("Calculator");
     primaryStage.setScene(new Scene(root));
     primaryStage.initStyle(StageStyle.UNDECORATED);
     primaryStage.setTitle(TITLE);
-    System.out.println("\uE94E");
     primaryStage.show();
   }
 }
