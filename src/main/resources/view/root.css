@@ -82,7 +82,7 @@
 }
 
 #display{
-  -fx-font-size: 26;/*46*/
+  -fx-font-size: 46;
   -fx-font-family: "Segoe UI Semibold";
   -fx-text-alignment: right;
 }

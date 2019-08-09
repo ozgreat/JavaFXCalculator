@@ -4,6 +4,7 @@ import com.implemica.calculator.service.InputService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -13,6 +14,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class RootController {
@@ -39,14 +41,78 @@ public class RootController {
   @FXML
   private Label historyLabel;
 
+  @FXML
+  private Button percentButton;
+
+  @FXML
+  private Button sqrtButton;
+
+  @FXML
+  private Button powButton;
+
+  @FXML
+  private Button divideButton;
+
+  @FXML
+  private Button reverseButton;
+
+  @FXML
+  private Button multiplyButton;
+
+  @FXML
+  private Button addButton;
+
+  @FXML
+  private Button subtractButton;
+
+  @FXML
+  private Button pointButton;
+
+  @FXML
+  private Button negateButton;
+
+
   private InputService inputService;
 
   private static double xOffset = 0;
 
   private static double yOffset = 0;
 
+  private static final double FONT_CHANGE_WIDTH_DOWN = 31.98;
+  private static final double FONT_CHANGE_WIDTH_UP = 50d;
+
   public RootController() {
     inputService = new InputService();
+  }
+
+  @FXML
+  public void initialize() {
+    display.textProperty().addListener(observable -> {
+      Text text = new Text(display.getText());
+      double fontSize = display.getFont().getSize();
+      text.setFont(new Font("Segoe UI Semibold", fontSize));
+      double width = text.getLayoutBounds().getWidth();
+      Scene scene = display.getScene();
+      double sceneWidth = scene.getWidth();
+
+      while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width) {
+        fontSize--;
+        text.setFont(new Font("Segoe UI Semibold", fontSize));
+        width = text.getLayoutBounds().getWidth();
+      }
+
+      while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && text.getText().length() > 12) {
+        fontSize++;
+        text.setFont(new Font("Segoe UI Semibold", fontSize));
+        width = text.getLayoutBounds().getWidth();
+      }
+
+      display.setStyle(
+          "-fx-font-size:" + fontSize + ";\n" +
+              "  -fx-font-family: \"Segoe UI Semibold\";"
+      );
+
+    });
   }
 
   /**
@@ -56,9 +122,11 @@ public class RootController {
    */
   @FXML
   public void addNumberOrComma(ActionEvent event) { // buttons 0-9 and ','
+    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+      setNormal();
+    }
     String value = inputService.enterNumberOrComma(event, display.getText());
     display.setText(value);
-    fontSizing();
   }
 
   /**
@@ -66,9 +134,11 @@ public class RootController {
    */
   @FXML
   public void clearAction() { //button C
+    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+      setNormal();
+    }
     display.setText("0");
     inputService.clearDisplay();
-    fontSizing();
   }
 
   /**
@@ -77,6 +147,9 @@ public class RootController {
   @FXML
   public void clearEntryAction() {
     display.setText("0");
+    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+      setNormal();
+    }
   }
 
   /**
@@ -84,8 +157,11 @@ public class RootController {
    */
   @FXML
   public void operationButtonAction(ActionEvent event) {
-    display.setText(inputService.enterOperation(event, display.getText()));
-    fontSizing();
+    try {
+      display.setText(inputService.enterOperation(event, display.getText()));
+    } catch (ArithmeticException e) {
+      handleArithmetic(e.getMessage());
+    }
   }
 
   /**
@@ -93,26 +169,39 @@ public class RootController {
    */
   @FXML
   public void backspaceButton() {
-    if (!display.getText().isEmpty()) {
+    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+      setNormal();
+    } else if (display.getText().length() == 1) {
+      clearEntryAction();
+    } else if (!display.getText().isEmpty()) {
       String str = display.getText().substring(0, display.getText().length() - 1);
       display.setText(inputService.displayFormat(str));
-      fontSizing();
     }
   }
 
   @FXML
   public void equalAction() {
-    String value = inputService.enterEqual(display.getText());
-    display.setText(inputService.displayFormat(value));
-    fontSizing();
+    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+      setNormal();
+    }
+    try {
+      String value = inputService.enterEqual(display.getText());
+      display.setText(value);
+    } catch (ArithmeticException e) {
+      handleArithmetic(e.getMessage());
+    }
   }
 
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
     if (!display.getText().isEmpty()) {
-      String value = inputService.unaryOp(ae, display.getText());
-      display.setText(inputService.displayFormat(value));
-      fontSizing();
+      try {
+        String value = inputService.unaryOp(ae, display.getText());
+        display.setText(inputService.displayFormat(value));
+      } catch (ArithmeticException e) {
+        handleArithmetic(e.getMessage());
+      }
+
     }
   }
 
@@ -120,7 +209,6 @@ public class RootController {
   public void percentAction() {
     String value = inputService.percentOp(display.getText());
     display.setText(inputService.displayFormat(value));
-    fontSizing();
   }
 
   @FXML
@@ -168,7 +256,6 @@ public class RootController {
 
   @FXML
   public void historyAction() {
-
     if (historyPane.isDisable()) {
       historyPane.setDisable(false);
       historyLabel.setVisible(true);
@@ -209,10 +296,37 @@ public class RootController {
     stage.setY(event.getScreenY() + yOffset);
   }
 
-  private void fontSizing() {
-    if (display.getText().length() > MAX_LENGTH_TO_STANDARD_FONT) {
-      Font font = new Font(STANDARD_FONT_SIZE - (display.getText().length() + 1 - MAX_LENGTH_TO_STANDARD_FONT));
-      display.setFont(font);
-    }
+
+  private void handleArithmetic(String msg) {
+    display.setText(msg);
+
+    negateButton.setDisable(true);
+    addButton.setDisable(true);
+    subtractButton.setDisable(true);
+    sqrtButton.setDisable(true);
+    percentButton.setDisable(true);
+    pointButton.setDisable(true);
+    powButton.setDisable(true);
+    divideButton.setDisable(true);
+    multiplyButton.setDisable(true);
+    reverseButton.setDisable(true);
   }
+
+  private void setNormal() {
+    display.setText("0");
+    clearAction();
+
+    negateButton.setDisable(false);
+    addButton.setDisable(false);
+    subtractButton.setDisable(false);
+    sqrtButton.setDisable(false);
+    percentButton.setDisable(false);
+    pointButton.setDisable(false);
+    powButton.setDisable(false);
+    divideButton.setDisable(false);
+    multiplyButton.setDisable(false);
+    reverseButton.setDisable(false);
+  }
+
+
 }

@@ -28,6 +28,8 @@ enum CalcState {
 }
 
 public class InputService {
+  public static final String CANNOT_DIVIDE_BY_ZERO = "Cannot divide by zero";
+  public static final String OVERFLOW = "Overflow";
   /**
    * Current state of calculator
    */
@@ -113,7 +115,7 @@ public class InputService {
    * @param display numbers in textArea
    * @return result of operation if two operands exists or display if not
    */
-  public String enterOperation(ActionEvent event, String display) {
+  public String enterOperation(ActionEvent event, String display) throws ArithmeticException {
     display = display.replaceAll(",", "");
 
     if (calcState == CalcState.LEFT) {
@@ -156,12 +158,19 @@ public class InputService {
    * @param right right operand typed in calc
    * @return result of binary operation
    */
-  public String enterEqual(String right) {
+  public String enterEqual(String right) throws ArithmeticException {
     if (calc.getLeftOperand() != null && calc.getOperation() != null) {
-      right = right.replaceAll(",", "");
+      if (calcState != CalcState.AFTER) {
+        right = right.replaceAll(",", "");
+        calc.setRightOperand(new BigDecimal(right));
+      }
 
-      calc.setRightOperand(new BigDecimal(right));
       String result = calc.getBinaryOperationResult();
+
+
+      if (result.equals(CANNOT_DIVIDE_BY_ZERO) || result.equals(OVERFLOW)) {
+        return result;
+      }
 
       settingAfterResult(result);
 
@@ -179,7 +188,7 @@ public class InputService {
    * @param display numbers in textArea
    * @return result of operation
    */
-  public String unaryOp(ActionEvent event, String display) {
+  public String unaryOp(ActionEvent event, String display) throws ArithmeticException{
     Button btn = (Button) event.getSource();
     display = display.replaceAll(",", "");
 
@@ -291,6 +300,7 @@ public class InputService {
     return display;
   }
 
+
   private String formatLongNums(String displayBuf) {
     String display = new BigDecimal(displayBuf, CalculatorModel.mc32).toEngineeringString();
     if (!display.contains("E")) {
@@ -331,7 +341,6 @@ public class InputService {
   }
 
   private void settingAfterResult(String result) {
-    calc.setOperation(null);
     calc.setLeftOperand(new BigDecimal(result));
     clearDisplay();
   }

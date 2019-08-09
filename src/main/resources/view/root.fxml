@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="bp" styleClass="bp" stylesheets="@root.css" xmlns="http://javafx.com/javafx/8.0.221" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.calculator.controller.RootController">
+<BorderPane fx:id="bp" styleClass="bp" stylesheets="@root.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.calculator.controller.RootController">
    <center>
       <AnchorPane prefHeight="487.0" prefWidth="320.0">
           <children>
@@ -33,7 +33,7 @@
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                           <children>
-                              <Button mnemonicParsing="false" onAction="#percentAction" prefHeight="60.0" prefWidth="80.0" text="">
+                              <Button fx:id="percentButton" mnemonicParsing="false" onAction="#percentAction" prefHeight="60.0" prefWidth="80.0" text="">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -42,7 +42,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="1">
+                              <Button fx:id="sqrtButton" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="1">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -51,7 +51,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="𝑥²" GridPane.columnIndex="2">
+                              <Button fx:id="powButton" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="𝑥²" GridPane.columnIndex="2">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -61,7 +61,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="⅟𝑥" GridPane.columnIndex="3">
+                              <Button fx:id="reverseButton" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="⅟𝑥" GridPane.columnIndex="3">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -98,7 +98,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                              <Button fx:id="divideButton" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="1">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -134,7 +134,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                              <Button fx:id="multiplyButton" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="2">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -170,7 +170,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                              <Button fx:id="subtractButton" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="3">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -206,7 +206,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                              <Button fx:id="addButton" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.rowIndex="4">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -215,7 +215,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.rowIndex="5">
+                              <Button fx:id="negateButton" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.rowIndex="5">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -233,7 +233,7 @@
                               <String fx:value="numpad" />
                            </styleClass>
                         </Button>
-                              <Button id="point" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="79.0" text="." GridPane.columnIndex="2" GridPane.rowIndex="5">
+                              <Button id="point" fx:id="pointButton" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="79.0" text="." GridPane.columnIndex="2" GridPane.rowIndex="5">
                            <font>
                               <Font name="Segoe MDL2 Assets" size="15.0" />
                            </font>
@@ -273,7 +273,7 @@
                         <Font name="Segoe MDL2 Assets" size="15.0" />
                      </font>
                   </Button>
-                  <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="20.0" layoutY="64.0" prefHeight="42.0" prefWidth="307.0" text="0" textAlignment="RIGHT" wrapText="true">
+                  <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="13.0" layoutY="67.0" prefHeight="68.0" prefWidth="308.0" text="0" textAlignment="RIGHT" wrapText="true">
                      <font>
                         <Font name="Segoe MDL2 Assets" size="15.0" />
                      </font>

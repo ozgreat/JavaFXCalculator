@@ -38,6 +38,8 @@ public class CalculatorModel {
 
   public static final MathContext mc16 = new MathContext(16);
 
+  private static final BigDecimal max = new BigDecimal("9999999999999999E+8192");
+
   private static final BigDecimal SQRT_DIG = new BigDecimal(150); //todo: magical number
   private static final BigDecimal SQRT_PRE = new BigDecimal(10).pow(SQRT_DIG.intValue());
 
@@ -104,9 +106,9 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  public String getBinaryOperationResult() {
+  public String getBinaryOperationResult() throws ArithmeticException {
     if (rightOperand.equals(BigDecimal.ZERO) && operation.equals("÷")) {
-      throw new ArithmeticException(); // todo: add message and test
+      throw new ArithmeticException("Cannot divide by zero");
     }
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
@@ -121,7 +123,7 @@ public class CalculatorModel {
    * @param number number, that we calc
    * @return string with result of calculation
    */
-  public String getUnaryOperationResult(String op, String number) {
+  public String getUnaryOperationResult(String op, String number) throws ArithmeticException {
     BigDecimal res = unaryOperations.get(op).apply(new BigDecimal(number));
 
     return getRounded32IfItsPossible(res).toString();
@@ -162,7 +164,7 @@ public class CalculatorModel {
     }
   }
 
-  private static BigDecimal getRounded32IfItsPossible(BigDecimal res) {
+  private static BigDecimal getRounded32IfItsPossible(BigDecimal res) throws ArithmeticException {
     res = res.round(mc32);
     BigDecimal resStrip = getRounded(res, mc32, mc32.getPrecision());
     if (resStrip != null) {
@@ -183,6 +185,9 @@ public class CalculatorModel {
   }
 
   private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
+    if (res.compareTo(max) >= 0) {
+      throw new ArithmeticException("Overflow");
+    }
     if (res.toString().contains(".")) {
       res = res.round(mc);
       BigDecimal resStrip = res.stripTrailingZeros();
