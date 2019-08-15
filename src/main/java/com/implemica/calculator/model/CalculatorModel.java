@@ -3,10 +3,7 @@ package com.implemica.calculator.model;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
@@ -60,17 +57,14 @@ public class CalculatorModel {
     binaryOperations.put("×", BigDecimal::multiply);
     binaryOperations.put("÷", (left, right) -> left.divide(right, mc32));
 
-    unaryOperations.put("⅟\uD835\uDC65", x -> BigDecimal.ONE.divide(x, mc32));//⅟𝑥
-    unaryOperations.put("\uD835\uDC65²", x -> x.pow(2));//𝑥²
-    unaryOperations.put("±", BigDecimal::negate);
+    unaryOperations.put("1/", x -> BigDecimal.ONE.divide(x, mc32));//⅟𝑥
+    unaryOperations.put("sqr", x -> x.pow(2));//𝑥²
+    unaryOperations.put("negate", BigDecimal::negate);//±
     unaryOperations.put("√", CalculatorModel::sqrt);
   }
 
   public CalculatorModel() {
-    memory = new LinkedList<>();
-    operation = "+";
-    leftOperand = BigDecimal.ZERO;
-    rightOperand = BigDecimal.ZERO;
+    memory = new ArrayList<>();
   }
 
   public BigDecimal getLeftOperand() {
@@ -111,6 +105,10 @@ public class CalculatorModel {
       throw new ArithmeticException("Cannot divide by zero");
     }
 
+    if (operation == null) {
+      return "0";
+    }
+
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
     return getRounded32IfItsPossible(res).toString();
@@ -135,7 +133,16 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getPercentOperation() {
-    BigDecimal res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc32));
+    BigDecimal res = BigDecimal.ZERO;
+
+    if (operation != null) {
+      if (operation.equals("+") || operation.equals("-")) {
+        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc32));
+      } else if (operation.equals("×") || operation.equals("÷")) {
+        res = rightOperand.divide(BigDecimal.valueOf(100), mc32);
+      }
+    }
+
     rightOperand = res;
     return getRounded32IfItsPossible(res).toString();
   }

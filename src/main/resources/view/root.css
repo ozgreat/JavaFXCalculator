@@ -1,19 +1,18 @@
 .bp {
   -fx-background-color: #e6e6e6;
   -fx-border-color: black;
-  -fx-border-width: 0.75;
+  -fx-border-width: 1;
 }
 
-.numpad{
+.numpad {
   -fx-border-color: #e6e6e6;
-  -fx-border-width: 1;
   -fx-background-color: #f0f0f0;
   -fx-font-family: "Segoe MDL2 Assets";
   -fx-font-size: 15;
   -fx-background-radius: 0;
 }
 
-.numpad:hover{
+.numpad:hover {
   -fx-background-color: #e6e6e6;
 }
 
@@ -30,7 +29,7 @@
   -fx-font-family: "Segoe UI Semibold";
 }
 
-.ex{
+.ex {
   -fx-font-size: 19;
 }
 
@@ -56,6 +55,10 @@
   -fx-font-size: 16;
 }
 
+/*#history:hover{
+  -fx-background-color: black;
+}*/
+
 #sideMenuButton {
   -fx-background-color: transparent;
   -fx-background-radius: 0;
@@ -70,24 +73,30 @@
   -fx-text-fill: white;
 }
 
-#standard{
+#standard {
   -fx-font-size: 19.5;
   -fx-font-family: "Segoe UI";
   -fx-text-fill: black;
 }
 
-#point{
+#point {
   -fx-font-family: "Segoe UI Semibold";
   -fx-font-size: 24;
 }
 
-#display{
+#display {
   -fx-font-size: 46;
   -fx-font-family: "Segoe UI Semibold";
   -fx-text-alignment: right;
 }
 
-#historyLabel{
+#historyLabel {
   -fx-font-size: 14;
   -fx-font-family: "Segoe UI Semibold";
+}
+
+#formula {
+  -fx-font-size: 12;
+  -fx-background-color: transparent;
+  -fx-font-family: "Segoe MDL2 Assets";
 }

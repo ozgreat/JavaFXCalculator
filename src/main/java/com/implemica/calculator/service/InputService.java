@@ -42,16 +42,20 @@ public class InputService {
 
   private final static int MAX_LENGTH = 21;
 
-  private final static Map<String, String> operationUnicode = new HashMap<>();
+  private final static Map<String, String> binaryOperationUnicode = new HashMap<>();
+
+  private final static Map<String, String> unaryOperationUnicode = new HashMap<>();
 
   static {
-    operationUnicode.put("\uE948", "+");
-    operationUnicode.put("\uE949", "-");
-    operationUnicode.put("\uE947", "×");
-    operationUnicode.put("\uE94A", "÷");
-    operationUnicode.put("\uE94B", "√");
-    operationUnicode.put("\uE94D", "±");
+    binaryOperationUnicode.put("\uE948", "+");
+    binaryOperationUnicode.put("\uE949", "-");
+    binaryOperationUnicode.put("\uE947", "×");
+    binaryOperationUnicode.put("\uE94A", "÷");
 
+    unaryOperationUnicode.put("\uE94B", "√");
+    unaryOperationUnicode.put("\uE94D", "negate");
+    unaryOperationUnicode.put("⅟\uD835\uDC65", "1/");//⅟𝑥
+    unaryOperationUnicode.put("\uD835\uDC65²", "sqr");//𝑥²
   }
 
   public InputService() {
@@ -106,6 +110,7 @@ public class InputService {
    */
   public void clearDisplay() {
     calcState = CalcState.AFTER;
+    calc.setOperation(null);
   }
 
   /**
@@ -188,7 +193,7 @@ public class InputService {
    * @param display numbers in textArea
    * @return result of operation
    */
-  public String unaryOp(ActionEvent event, String display) throws ArithmeticException{
+  public String unaryOp(ActionEvent event, String display) throws ArithmeticException {
     Button btn = (Button) event.getSource();
     display = display.replaceAll(",", "");
 
@@ -342,7 +347,7 @@ public class InputService {
 
   private void settingAfterResult(String result) {
     calc.setLeftOperand(new BigDecimal(result));
-    clearDisplay();
+    calcState = CalcState.AFTER;
   }
 
   private String deleteLastZeroInFrac(String num) {
@@ -354,11 +359,51 @@ public class InputService {
   }
 
   private String formatOperation(String op) {
-    String formated = operationUnicode.get(op);
+    String formated = binaryOperationUnicode.get(op);
     if (formated != null) {
       return formated;
-    } else {
-      return op;
     }
+
+    formated = unaryOperationUnicode.get(op);
+    if (formated != null) {
+      return formated;
+    }
+
+    return op;
+  }
+
+  public String highFormula(ActionEvent event, String oldFormula, String display) {
+    Button btn = (Button) event.getSource();
+
+    if (calcState == CalcState.TRANSIENT) {
+      if (binaryOperationUnicode.containsKey(btn.getText())) {
+        return oldFormula.substring(oldFormula.length() - 1) + btn.getText();
+      } else if (unaryOperationUnicode.containsKey(btn.getText())) {
+        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+      }
+    }
+
+    if (calcState == CalcState.LEFT || calcState == CalcState.AFTER) {
+      if (binaryOperationUnicode.containsKey(btn.getText())) {
+        return display + btn.getText();
+      } else if (unaryOperationUnicode.containsKey(btn.getText())) {
+        return unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+      }
+    }
+
+    if (calcState == CalcState.RIGHT) {
+      if (binaryOperationUnicode.containsKey(btn.getText())) {
+        return oldFormula + display + btn.getText();
+      } else if (unaryOperationUnicode.containsKey(btn.getText())) {
+        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+      }
+    }
+
+    //todo: percent
+    return "";
+  }
+
+  public boolean isMemoryEmpty() {
+    return calc.getMemory().isEmpty();
   }
 }

@@ -3,26 +3,28 @@ package com.implemica.calculator.controller;
 import com.implemica.calculator.service.InputService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+enum ResizeState {
+  LEFT_TOP,
+  RIGHT_TOP,
+  LEFT_BOTTOM,
+  RIGHT_BOTTOM
+}
+
 public class RootController {
-
-  private static final int MAX_LENGTH_TO_STANDARD_FONT = 13;
-  private static final int STANDARD_FONT_SIZE = 46;
-  public static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
-
+  private ResizeState res;
   @FXML
   private Label display;
 
@@ -31,6 +33,18 @@ public class RootController {
 
   @FXML
   private Button memoryRecallButton;
+
+  @FXML
+  private Button memoryPlusButton;
+
+  @FXML
+  private Button memoryMinusButton;
+
+  @FXML
+  private Button memorySaveButton;
+
+  @FXML
+  private Button memoryShow;
 
   @FXML
   private AnchorPane historyUpperPane;
@@ -71,6 +85,12 @@ public class RootController {
   @FXML
   private Button negateButton;
 
+  @FXML
+  private BorderPane bp;
+
+  @FXML
+  private Label formula;
+
 
   private InputService inputService;
 
@@ -78,8 +98,27 @@ public class RootController {
 
   private static double yOffset = 0;
 
+  private double dx;
+  private double dy;
+  private double deltaX;
+  private double deltaY;
+  private final static double border = 10;
+  private boolean moveH;
+  private boolean moveV;
+  private boolean resizeH = false;
+  private boolean resizeV = false;
+
+  boolean max = false;
+
+  Dimension2D minSize = new Dimension2D(325, 530);
+
   private static final double FONT_CHANGE_WIDTH_DOWN = 31.98;
   private static final double FONT_CHANGE_WIDTH_UP = 50d;
+  private static final double MAX_FONT_SIZE = 74d;
+  private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
+  private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
+  private static final double MIN_HEIGHT_DELTA = 492.82; // scene - text; debug
+  private static final double MAX_HEIGHT_DELTA = 516.76;
 
   public RootController() {
     inputService = new InputService();
@@ -90,27 +129,41 @@ public class RootController {
     display.textProperty().addListener(observable -> {
       Text text = new Text(display.getText());
       double fontSize = display.getFont().getSize();
-      text.setFont(new Font("Segoe UI Semibold", fontSize));
+      text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
       double width = text.getLayoutBounds().getWidth();
       Scene scene = display.getScene();
       double sceneWidth = scene.getWidth();
+      double textHeight = text.getLayoutBounds().getHeight();
+      double sceneHeight = scene.getHeight();
+      double heightDelta = sceneHeight - textHeight;
 
-      while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width) {
+
+      while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width || heightDelta < MAX_HEIGHT_DELTA) {
         fontSize--;
-        text.setFont(new Font("Segoe UI Semibold", fontSize));
+        text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
         width = text.getLayoutBounds().getWidth();
+        textHeight = text.getLayoutBounds().getHeight();
+        heightDelta = sceneHeight - textHeight;
       }
 
-      while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && text.getText().length() > 12) {
+
+      while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && fontSize <= MAX_FONT_SIZE
+          && heightDelta > MIN_HEIGHT_DELTA) {
         fontSize++;
-        text.setFont(new Font("Segoe UI Semibold", fontSize));
+        text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
         width = text.getLayoutBounds().getWidth();
+        textHeight = text.getLayoutBounds().getHeight();
+        heightDelta = sceneHeight - textHeight;
       }
 
-      display.setStyle(
-          "-fx-font-size:" + fontSize + ";\n" +
-              "  -fx-font-family: \"Segoe UI Semibold\";"
-      );
+      /*if (text.getText().length() <= 13) {
+        fontSize = 46d;
+      }*/
+
+
+      display.setStyle(" -fx-font-size:" + fontSize + ";\n" +
+          "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
+          "  -fx-text-alignment: right;");
 
     });
   }
@@ -139,6 +192,7 @@ public class RootController {
     }
     display.setText("0");
     inputService.clearDisplay();
+    formula.setText("");
   }
 
   /**
@@ -157,6 +211,7 @@ public class RootController {
    */
   @FXML
   public void operationButtonAction(ActionEvent event) {
+    formulaCalc(event);
     try {
       display.setText(inputService.enterOperation(event, display.getText()));
     } catch (ArithmeticException e) {
@@ -184,6 +239,7 @@ public class RootController {
     if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
       setNormal();
     }
+    formula.setText("");
     try {
       String value = inputService.enterEqual(display.getText());
       display.setText(value);
@@ -195,13 +251,13 @@ public class RootController {
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
     if (!display.getText().isEmpty()) {
+      formulaCalc(ae);
       try {
         String value = inputService.unaryOp(ae, display.getText());
         display.setText(inputService.displayFormat(value));
       } catch (ArithmeticException e) {
         handleArithmetic(e.getMessage());
       }
-
     }
   }
 
@@ -214,11 +270,7 @@ public class RootController {
   @FXML
   public void memorySaveAction() {
     inputService.saveToMemory(display.getText());
-
-    if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
-      memoryRecallButton.setDisable(false);
-      memoryClearButton.setDisable(false);
-    }
+    memoryDisableIfEmpty();
   }
 
   @FXML
@@ -229,29 +281,19 @@ public class RootController {
   @FXML
   public void memoryClearAction() {
     inputService.clearMemory();
-
-    memoryClearButton.setDisable(true);
-    memoryRecallButton.setDisable(true);
+    memoryDisableIfEmpty();
   }
 
   @FXML
   public void memoryPlusAction() {
     inputService.addToMemory(display.getText());
-
-    if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
-      memoryRecallButton.setDisable(false);
-      memoryClearButton.setDisable(false);
-    }
+    memoryDisableIfEmpty();
   }
 
   @FXML
   public void memoryMinusAction() {
     inputService.subToMemory(display.getText());
-
-    if (memoryClearButton.isDisable() && memoryRecallButton.isDisable()) {
-      memoryRecallButton.setDisable(false);
-      memoryClearButton.setDisable(false);
-    }
+    memoryDisableIfEmpty();
   }
 
   @FXML
@@ -262,12 +304,22 @@ public class RootController {
       historyPane.setBackground(BACKGROUND);
       historyUpperPane.setDisable(false);
       historyUpperPane.setVisible(true);
+      memoryRecallButton.setDisable(true);
+      memoryClearButton.setDisable(true);
+      memoryPlusButton.setDisable(true);
+      memoryMinusButton.setDisable(true);
+      memoryShow.setDisable(true);
+      memorySaveButton.setDisable(true);
     } else {
       historyPane.setDisable(true);
       historyLabel.setVisible(false);
       historyPane.setBackground(Background.EMPTY);
       historyUpperPane.setDisable(true);
       historyUpperPane.setVisible(false);
+      memoryPlusButton.setDisable(false);
+      memoryMinusButton.setDisable(false);
+      memorySaveButton.setDisable(false);
+      memoryDisableIfEmpty();
     }
   }
 
@@ -285,20 +337,145 @@ public class RootController {
   @FXML
   public void pressWindow(MouseEvent event) {
     Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
-    xOffset = stage.getX() - event.getScreenX();
-    yOffset = stage.getY() - event.getScreenY();
+    if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT)) {
+      xOffset = stage.getX() - event.getScreenX();
+      yOffset = stage.getY() - event.getScreenY();
+    }
   }
 
   @FXML
   public void dragWindow(MouseEvent event) {
-    Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
-    stage.setX(event.getScreenX() + xOffset);
-    stage.setY(event.getScreenY() + yOffset);
+    if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT)) {
+      Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
+      stage.setX(event.getScreenX() + xOffset);
+      stage.setY(event.getScreenY() + yOffset);
+    }
   }
 
+  @FXML
+  public void pressResize(MouseEvent t) {
+    Stage stage = (Stage) bp.getScene().getWindow();
+    dx = stage.getWidth() - t.getX();
+    dy = stage.getHeight() - t.getY();
+    display.setText(display.getText());
+  }
+
+  @FXML
+  public void dragResize(MouseEvent t) {
+    Stage stage = (Stage) bp.getScene().getWindow();
+    if (resizeH) {
+      if (stage.getWidth() <= minSize.getWidth()) {
+        if (moveH) {
+          deltaX = stage.getX() - t.getScreenX();
+          if (t.getX() < 0) {// if new > old, it's permitted
+            stage.setWidth(deltaX + stage.getWidth());
+            stage.setX(t.getScreenX());
+          }
+        } else {
+          if (t.getX() + dx - stage.getWidth() > 0) {
+            stage.setWidth(t.getX() + dx);
+          }
+        }
+      } else if (stage.getWidth() > minSize.getWidth()) {
+        if (moveH) {
+          deltaX = stage.getX() - t.getScreenX();
+          stage.setWidth(deltaX + stage.getWidth());
+          stage.setX(t.getScreenX());
+        } else {
+          stage.setWidth(t.getX() + dx);
+        }
+      }
+    }
+
+    if (resizeV) {
+      if (stage.getHeight() <= minSize.getHeight()) {
+        if (moveV) {
+          deltaY = stage.getY() - t.getScreenY();
+          if (t.getY() < 0) {
+            stage.setHeight(deltaY + stage.getHeight());
+            stage.setY(t.getScreenY());
+          }
+        } else {
+          if (t.getY() + dy - stage.getHeight() > 0) {
+            stage.setHeight(t.getY() + dy);
+          }
+        }
+      } else if (stage.getHeight() > minSize.getHeight()) {
+        if (moveV) {
+          deltaY = stage.getY() - t.getScreenY();
+          stage.setHeight(deltaY + stage.getHeight());
+          stage.setY(t.getScreenY());
+        } else {
+          stage.setHeight(t.getY() + dy);
+        }
+      }
+    }
+  }
+
+  @FXML
+  public void moveResize(MouseEvent t) {
+    Scene scene = bp.getScene();
+    if (t.getX() < border && t.getY() < border) {
+      scene.setCursor(Cursor.NW_RESIZE);
+      resizeH = true;
+      resizeV = true;
+      moveH = true;
+      moveV = true;
+    } else if (t.getX() < border && t.getY() > scene.getHeight() - border) {
+      scene.setCursor(Cursor.SW_RESIZE);
+      resizeH = true;
+      resizeV = true;
+      moveH = true;
+      moveV = false;
+    } else if (t.getX() > scene.getWidth() - border && t.getY() < border) {
+      scene.setCursor(Cursor.NE_RESIZE);
+      resizeH = true;
+      resizeV = true;
+      moveH = false;
+      moveV = true;
+    } else if (t.getX() > scene.getWidth() - border && t.getY() > scene.getHeight() - border) {
+      scene.setCursor(Cursor.SE_RESIZE);
+      resizeH = true;
+      resizeV = true;
+      moveH = false;
+      moveV = false;
+    } else if (t.getX() < border || t.getX() > scene.getWidth() - border) {
+      scene.setCursor(Cursor.E_RESIZE);
+      resizeH = true;
+      resizeV = false;
+      moveH = (t.getX() < border);
+      moveV = false;
+    } else if (t.getY() < border || t.getY() > scene.getHeight() - border) {
+      scene.setCursor(Cursor.N_RESIZE);
+      resizeH = false;
+      resizeV = true;
+      moveH = false;
+      moveV = (t.getY() < border);
+    } else {
+      scene.setCursor(Cursor.DEFAULT);
+      resizeH = false;
+      resizeV = false;
+      moveH = false;
+      moveV = false;
+    }
+  }
+
+  @FXML
+  public void maximize() {
+    Stage primaryStage = (Stage) display.getScene().getWindow();
+    primaryStage.setMaximized(!primaryStage.isMaximized());
+    String str = display.getText();
+    display.setText("");
+    display.setText(str);
+  }
+
+  public void formulaCalc(ActionEvent event) {
+    formula.setText(inputService.highFormula(event, formula.getText(), display.getText()));
+  }
 
   private void handleArithmetic(String msg) {
     display.setText(msg);
+    formula.setText("");
 
     negateButton.setDisable(true);
     addButton.setDisable(true);
@@ -328,5 +505,15 @@ public class RootController {
     reverseButton.setDisable(false);
   }
 
-
+  private void memoryDisableIfEmpty() {
+    if (inputService.isMemoryEmpty()) {
+      memoryShow.setDisable(true);
+      memoryClearButton.setDisable(true);
+      memoryRecallButton.setDisable(true);
+    } else {
+      memoryShow.setDisable(false);
+      memoryClearButton.setDisable(false);
+      memoryRecallButton.setDisable(false);
+    }
+  }
 }
