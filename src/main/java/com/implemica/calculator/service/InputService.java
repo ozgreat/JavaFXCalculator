@@ -377,25 +377,25 @@ public class InputService {
 
     if (calcState == CalcState.TRANSIENT) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula.substring(oldFormula.length() - 1) + btn.getText();
+        return oldFormula.substring(oldFormula.length() - 1) + " " + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+        return oldFormula + " " + unaryOperationUnicode.get(btn.getText()) + "( " + display + " )";
       }
     }
 
     if (calcState == CalcState.LEFT || calcState == CalcState.AFTER) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return display + btn.getText();
+        return display + " " + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+        return unaryOperationUnicode.get(btn.getText()) + "( " + display + " )";
       }
     }
 
     if (calcState == CalcState.RIGHT) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + display + btn.getText();
+        return oldFormula + " " + display + " " + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "( " + display + " )";
       }
     }
 

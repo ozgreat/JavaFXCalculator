@@ -91,6 +91,15 @@ public class RootController {
   @FXML
   private Label formula;
 
+  @FXML
+  private BorderPane sideMenuBorderPane;
+
+  @FXML
+  private AnchorPane sideBarOffPane;
+
+  @FXML
+  private Label standardLabel;
+
 
   private InputService inputService;
 
@@ -108,16 +117,14 @@ public class RootController {
   private boolean resizeH = false;
   private boolean resizeV = false;
 
-  boolean max = false;
+  private Dimension2D minSize = new Dimension2D(325, 530);
 
-  Dimension2D minSize = new Dimension2D(325, 530);
-
-  private static final double FONT_CHANGE_WIDTH_DOWN = 31.98;
+  private static final double FONT_CHANGE_WIDTH_DOWN = 34.98;
   private static final double FONT_CHANGE_WIDTH_UP = 50d;
   private static final double MAX_FONT_SIZE = 74d;
   private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
   private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
-  private static final double MIN_HEIGHT_DELTA = 492.82; // scene - text; debug
+  private static final double MIN_HEIGHT_DELTA = 468.75; // scene - text; debug
   private static final double MAX_HEIGHT_DELTA = 516.76;
 
   public RootController() {
@@ -469,7 +476,22 @@ public class RootController {
     display.setText(str);
   }
 
-  public void formulaCalc(ActionEvent event) {
+  @FXML
+  public void openSideBar() {
+    sideMenuBorderPane.setDisable(!sideMenuBorderPane.isDisabled());
+    sideMenuBorderPane.setVisible(!sideMenuBorderPane.isVisible());
+    standardLabel.setVisible(!standardLabel.isVisible());
+    sideBarOffPane.setVisible(!sideBarOffPane.isVisible());
+  }
+
+  @FXML
+  public void memoryShowAction() {
+    historyAction();
+    historyLabel.setVisible(false);
+    memoryShow.setDisable(!memoryShow.isDisabled());
+  }
+
+  private void formulaCalc(ActionEvent event) {
     formula.setText(inputService.highFormula(event, formula.getText(), display.getText()));
   }
 
@@ -510,10 +532,12 @@ public class RootController {
       memoryShow.setDisable(true);
       memoryClearButton.setDisable(true);
       memoryRecallButton.setDisable(true);
+      memoryShow.setDisable(true);
     } else {
       memoryShow.setDisable(false);
       memoryClearButton.setDisable(false);
       memoryRecallButton.setDisable(false);
+      memoryShow.setDisable(false);
     }
   }
 }
