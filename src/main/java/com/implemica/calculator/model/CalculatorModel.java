@@ -208,7 +208,6 @@ public class CalculatorModel {
     return null;
   }
 
-
   private static BigDecimal sqrt(BigDecimal c) {
     if (c.equals(BigDecimal.ZERO)) {
       return BigDecimal.ZERO;

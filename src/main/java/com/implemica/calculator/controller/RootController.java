@@ -86,10 +86,25 @@ public class RootController {
   private Button negateButton;
 
   @FXML
+  private Button rightFormulaButton;
+
+  @FXML
+  private Button leftFormulaButton;
+
+  @FXML
   private BorderPane bp;
 
   @FXML
   private Label formula;
+
+  @FXML
+  private BorderPane sideMenuBorderPane;
+
+  @FXML
+  private AnchorPane sideBarOffPane;
+
+  @FXML
+  private Label standardLabel;
 
 
   private InputService inputService;
@@ -108,16 +123,18 @@ public class RootController {
   private boolean resizeH = false;
   private boolean resizeV = false;
 
-  boolean max = false;
+  private String formulaStr;
+  private int formulaBegIndex;
+  private int formulaEndIndex;
 
-  Dimension2D minSize = new Dimension2D(325, 530);
+  private Dimension2D minSize = new Dimension2D(325, 530);
 
-  private static final double FONT_CHANGE_WIDTH_DOWN = 31.98;
+  private static final double FONT_CHANGE_WIDTH_DOWN = 34.98;
   private static final double FONT_CHANGE_WIDTH_UP = 50d;
   private static final double MAX_FONT_SIZE = 74d;
   private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
   private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
-  private static final double MIN_HEIGHT_DELTA = 492.82; // scene - text; debug
+  private static final double MIN_HEIGHT_DELTA = 468.75; // scene - text; debug
   private static final double MAX_HEIGHT_DELTA = 516.76;
 
   public RootController() {
@@ -148,7 +165,7 @@ public class RootController {
 
 
       while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && fontSize <= MAX_FONT_SIZE
-          && heightDelta > MIN_HEIGHT_DELTA) {
+              && heightDelta > MIN_HEIGHT_DELTA) {
         fontSize++;
         text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
         width = text.getLayoutBounds().getWidth();
@@ -162,10 +179,11 @@ public class RootController {
 
 
       display.setStyle(" -fx-font-size:" + fontSize + ";\n" +
-          "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
-          "  -fx-text-alignment: right;");
+              "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
+              "  -fx-text-alignment: right;");
 
     });
+
   }
 
   /**
@@ -193,6 +211,8 @@ public class RootController {
     display.setText("0");
     inputService.clearDisplay();
     formula.setText("");
+    leftFormulaButton.setVisible(false);
+    rightFormulaButton.setVisible(false);
   }
 
   /**
@@ -240,6 +260,8 @@ public class RootController {
       setNormal();
     }
     formula.setText("");
+    leftFormulaButton.setVisible(false);
+    rightFormulaButton.setVisible(false);
     try {
       String value = inputService.enterEqual(display.getText());
       display.setText(value);
@@ -469,8 +491,66 @@ public class RootController {
     display.setText(str);
   }
 
-  public void formulaCalc(ActionEvent event) {
-    formula.setText(inputService.highFormula(event, formula.getText(), display.getText()));
+  @FXML
+  public void openSideBar() {
+    sideMenuBorderPane.setDisable(!sideMenuBorderPane.isDisabled());
+    sideMenuBorderPane.setVisible(!sideMenuBorderPane.isVisible());
+    standardLabel.setVisible(!standardLabel.isVisible());
+    sideBarOffPane.setVisible(!sideBarOffPane.isVisible());
+  }
+
+  @FXML
+  public void memoryShowAction() {
+    historyAction();
+    historyLabel.setVisible(false);
+    memoryShow.setDisable(inputService.isMemoryEmpty());
+  }
+
+  @FXML
+  public void rightFormulaButtonAction() {
+    leftFormulaButton.setVisible(true);
+    if (formulaEndIndex + 40 < formulaStr.length()) {
+      formulaBegIndex += 40;
+      formulaEndIndex += 40;
+      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
+    } else {
+      while (formula.getText().length() != formulaStr.length() - formulaBegIndex) {
+        formulaBegIndex++;
+      }
+      formula.setText(formulaStr.substring(formulaBegIndex));
+      formulaEndIndex = formulaStr.length();
+      rightFormulaButton.setVisible(false);
+    }
+  }
+
+  @FXML
+  public void leftFormulaButtonAction() {
+    rightFormulaButton.setVisible(true);
+    if (formulaBegIndex > 40) {
+      formulaBegIndex -= 40;
+      formulaEndIndex -= 40;
+      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
+    } else {
+      formulaBegIndex = 0;
+      formulaEndIndex = formula.getText().length();
+      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
+      leftFormulaButton.setVisible(false);
+    }
+  }
+
+  private void formulaCalc(ActionEvent event) {
+    formulaStr = inputService.highFormula(event, formulaStr, display.getText());
+    Text text = new Text(formulaStr);
+    text.setFont(new Font("Segoe UI", 14));
+    if (text.getLayoutBounds().getWidth() > formula.getWidth()) {
+      leftFormulaButton.setVisible(true);
+      for (int i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) {
+        text.setText(formulaStr.substring(i));
+        formulaBegIndex = i;
+      }
+      formulaEndIndex = formulaStr.length();
+    }
+    formula.setText(text.getText());
   }
 
   private void handleArithmetic(String msg) {
@@ -510,10 +590,12 @@ public class RootController {
       memoryShow.setDisable(true);
       memoryClearButton.setDisable(true);
       memoryRecallButton.setDisable(true);
+      memoryShow.setDisable(true);
     } else {
       memoryShow.setDisable(false);
       memoryClearButton.setDisable(false);
       memoryRecallButton.setDisable(false);
+      memoryShow.setDisable(false);
     }
   }
 }

@@ -264,6 +264,10 @@ public class InputService {
     display = display.replaceAll(",", "");
 
 
+    BigDecimal big = new BigDecimal(display);
+    big = CalculatorModel.getRounded16IfItsPossible(big);
+    display = big.toString();
+
     if (display.contains("E")) {
       display = formatLongNums(display);
       return display;
@@ -274,9 +278,7 @@ public class InputService {
       return displayFormat(display.substring(0, display.indexOf('.'))) + ".";
     }
 
-    BigDecimal big = new BigDecimal(display);
-    big = CalculatorModel.getRounded16IfItsPossible(big);
-    display = big.toString();
+
 
     if (display.contains(".")) {
       String[] partsOfFrac = display.split("\\.");
@@ -286,6 +288,10 @@ public class InputService {
     }
 
 
+    String strBuf = display;
+    if (display.startsWith("-")) {
+      display = display.substring(1);
+    }
     StringBuilder displayBuilder = new StringBuilder();
     for (int i = 0; i < display.length(); i++) {
       displayBuilder.append(display.charAt(i));
@@ -301,6 +307,9 @@ public class InputService {
       display = display.substring(0, display.length() - 1);
     }
 
+    if (strBuf.startsWith("-")) {
+      display = "-" + display;
+    }
 
     return display;
   }
@@ -377,25 +386,25 @@ public class InputService {
 
     if (calcState == CalcState.TRANSIENT) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula.substring(oldFormula.length() - 1) + btn.getText();
+        return oldFormula.substring(0, oldFormula.length() - 1) + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+        return oldFormula + " " + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
       }
     }
 
     if (calcState == CalcState.LEFT || calcState == CalcState.AFTER) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return display + btn.getText();
+        return display.replaceAll(",", "") + " " + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+        return unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
       }
     }
 
     if (calcState == CalcState.RIGHT) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + display + btn.getText();
+        return oldFormula + " " + display.replaceAll(",", "") + " " + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "(" + display + ")";
+        return oldFormula + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
       }
     }
 
