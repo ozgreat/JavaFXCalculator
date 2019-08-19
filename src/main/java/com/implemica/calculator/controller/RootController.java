@@ -553,6 +553,7 @@ public class RootController {
     formula.setText(text.getText());
   }
 
+
   private void handleArithmetic(String msg) {
     display.setText(msg);
     formula.setText("");
