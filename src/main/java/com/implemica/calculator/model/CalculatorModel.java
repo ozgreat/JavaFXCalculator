@@ -1,12 +1,18 @@
 package com.implemica.calculator.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
+@Getter
+@Setter
 public class CalculatorModel {
   /**
    * Left operand of binary and percent operations
@@ -21,7 +27,8 @@ public class CalculatorModel {
   /**
    * Memory cell in calculator
    */
-  private List<BigDecimal> memory;
+  private BigDecimal memory;
+
 
   /**
    * Operation, that user will be use
@@ -63,37 +70,6 @@ public class CalculatorModel {
     unaryOperations.put("√", CalculatorModel::sqrt);
   }
 
-  public CalculatorModel() {
-    memory = new ArrayList<>();
-  }
-
-  public BigDecimal getLeftOperand() {
-    return leftOperand;
-  }
-
-  public void setLeftOperand(BigDecimal leftOperand) {
-    this.leftOperand = leftOperand;
-  }
-
-  public BigDecimal getRightOperand() {
-    return rightOperand;
-  }
-
-  public void setRightOperand(BigDecimal rightOperand) {
-    this.rightOperand = rightOperand;
-  }
-
-  public String getOperation() {
-    return operation;
-  }
-
-  public void setOperation(String operation) {
-    this.operation = operation;
-  }
-
-  public List<BigDecimal> getMemory() {
-    return memory;
-  }
 
   /**
    * Make calculations for binary operations
@@ -102,12 +78,17 @@ public class CalculatorModel {
    */
   public String getBinaryOperationResult() throws ArithmeticException {
     if (rightOperand.equals(BigDecimal.ZERO) && operation.equals("÷")) {
+      if(leftOperand.equals(BigDecimal.ZERO)){
+        throw new ArithmeticException("Result is undefined");
+      }
       throw new ArithmeticException("Cannot divide by zero");
     }
+
 
     if (operation == null) {
       return "0";
     }
+
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
@@ -122,6 +103,9 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getUnaryOperationResult(String op, String number) throws ArithmeticException {
+    if(new BigDecimal(number).equals(BigDecimal.ZERO) && op.equals("1/")){
+      throw new ArithmeticException("Cannot divide by zero");
+    }
     BigDecimal res = unaryOperations.get(op).apply(new BigDecimal(number));
 
     return getRounded32IfItsPossible(res).toString();
@@ -143,31 +127,29 @@ public class CalculatorModel {
       }
     }
 
+
     rightOperand = res;
     return getRounded32IfItsPossible(res).toString();
   }
 
   public void clearMemory() {
-    memory.clear();
+    memory = null;
   }
 
-  public BigDecimal recallMemory() {
-    return memory.get(memory.size() - 1);
-  }
 
   public void memoryAdd(BigDecimal num) {
-    if (memory.size() > 0) {
-      memory.set(memory.size() - 1, memory.get(memory.size() - 1).add(num));
+    if (memory != null) {
+      memory = getRounded32IfItsPossible(memory.add(num));
     } else {
-      memory.add(num);
+      memory = num;
     }
   }
 
   public void memorySub(BigDecimal num) {
-    if (memory.size() > 0) {
-      memory.set(memory.size() - 1, memory.get(memory.size() - 1).subtract(num));
+    if (memory != null) {
+      memory = getRounded32IfItsPossible(memory.subtract(num));
     } else {
-      memory.add(num.negate());
+      memory = num.negate();
     }
   }
 
@@ -182,8 +164,15 @@ public class CalculatorModel {
   }
 
   public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
-    res = res.round(mc16);
-    BigDecimal resStrip = getRounded(res, mc16, mc16.getPrecision());
+    MathContext mc = mc16;
+    if (res.compareTo(BigDecimal.ONE) < 0 && res.compareTo(BigDecimal.valueOf(-3)) > 0) {
+      mc = new MathContext(17);
+    }
+    res = res.round(mc);
+
+
+    BigDecimal resStrip = getRounded(res, mc, mc.getPrecision());
+
     if (resStrip != null) {
       return resStrip;
     } else {

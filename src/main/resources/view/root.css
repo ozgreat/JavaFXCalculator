@@ -31,7 +31,7 @@
 .memoryButton {
   -fx-background-color: transparent;
   -fx-background-radius: 0;
-  -fx-font-family: "Segoe UI Semibold";
+  -fx-font-family: "Calculator MDL2 Assets";
 }
 
 .ex {
@@ -100,9 +100,6 @@
   -fx-background-radius: 2em;
 }
 
-.scroll-bar:vertical {
-  -fx-arrows-visible: false;
-}
 
 .scroll-bar:hover .thumb {
   -fx-background-color: #b8b8b8;
@@ -136,6 +133,8 @@
   -fx-font-family: "Segoe UI Semibold";
   -fx-font-size: 14;
   -fx-background-color: transparent;
+  -fx-pref-width: 10;
+  -fx-pref-height: 10;
 }
 
 .moveFormulaButton:hover {

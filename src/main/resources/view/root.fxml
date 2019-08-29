@@ -3,6 +3,7 @@
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Point3D?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
@@ -14,7 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="bp" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="530.0" minWidth="325.0" onMouseDragged="#dragResize" onMouseMoved="#moveResize" onMousePressed="#pressResize" styleClass="mainBorderPane" stylesheets="@root.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.calculator.controller.RootController">
+<BorderPane fx:id="bp" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="530.0" minWidth="325.0" onKeyPressed="#keyPressProcess" onMouseDragged="#dragResize" onMouseMoved="#moveResize" onMousePressed="#pressResize" styleClass="mainBorderPane" stylesheets="@root.css" xmlns="http://javafx.com/javafx/8.0.221" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.implemica.calculator.controller.RootController">
    <center>
       <AnchorPane prefHeight="450.0" prefWidth="323.0">
          <children>
@@ -41,7 +42,7 @@
                                     <Font name="Segoe MDL2 Assets" size="16.0" />
                                  </font>
                               </Label>
-                              <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="10.0" layoutY="51.0" prefHeight="5.0" prefWidth="303.0" textAlignment="RIGHT" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" />
+                              <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="10.0" layoutY="51.0" prefHeight="5.0" prefWidth="303.0" textAlignment="RIGHT" textOverrun="CLIP" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" />
                               <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="5.0" layoutY="56.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="308.0" prefHeight="57.0" prefWidth="313.0" text="0" textAlignment="RIGHT" wrapText="true" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="56.0">
                                  <font>
                                     <Font name="Segoe MDL2 Assets" size="15.0" />
@@ -58,12 +59,15 @@
                                     <Font name="Segoe MDL2 Assets" size="12.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="leftFormulaButton" layoutX="8.0" layoutY="48.0" mnemonicParsing="false" onAction="#leftFormulaButtonAction" prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" text="&lt;" textAlignment="CENTER" visible="false" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="48.0">
+                              <Button fx:id="leftFormulaButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="8.0" layoutY="48.0" mnemonicParsing="false" onAction="#leftFormulaButtonAction" pickOnBounds="false" prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" text="&lt;" textAlignment="JUSTIFY" textOverrun="CLIP" visible="false" wrapText="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="48.0">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
+                                 <cursor>
+                                    <Cursor fx:constant="DEFAULT" />
+                                 </cursor>
                               </Button>
-                              <Button fx:id="rightFormulaButton" layoutX="294.0" layoutY="76.0" mnemonicParsing="false" onAction="#rightFormulaButtonAction" prefHeight="10.0" prefWidth="29.0" styleClass="moveFormulaButton" text="&gt;" textAlignment="CENTER" visible="false" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="46.0">
+                              <Button fx:id="rightFormulaButton" ellipsisString="&gt;" graphicTextGap="0.0" layoutX="294.0" layoutY="76.0" mnemonicParsing="false" onAction="#rightFormulaButtonAction" prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" text="&gt;" textAlignment="CENTER" textOverrun="CLIP" visible="false" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="46.0">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
@@ -145,7 +149,7 @@
                                           <String fx:value="numpad" />
                                        </styleClass>
                                     </Button>
-                                          <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#backspaceButton" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                                          <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#backspaceButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                                        <font>
                                           <Font name="Segoe MDL2 Assets" size="15.0" />
                                        </font>
@@ -294,8 +298,8 @@
                                           <Font name="Segoe MDL2 Assets" size="15.0" />
                                        </font>
                                        <styleClass>
-                                          <String fx:value="secondaryButton" />
                                           <String fx:value="numpad" />
+                                          <String fx:value="secondaryButton" />
                                        </styleClass>
                                     </Button>
                                           <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#equalAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
@@ -308,15 +312,18 @@
                                        </styleClass>
                                     </Button>
                                       </children>
+                                 <cursor>
+                                    <Cursor fx:constant="DEFAULT" />
+                                 </cursor>
                                   </GridPane>
                                   <ButtonBar buttonMinWidth="20.0" layoutX="-6.0" layoutY="-1.0" maxWidth="450.0" prefHeight="30.0" prefWidth="305.0" AnchorPane.leftAnchor="-6.0" AnchorPane.topAnchor="0.0">
                                       <buttons>
-                                          <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#memoryClearAction" prefHeight="25.0" prefWidth="141415.0" styleClass="memoryButton" text="MC" />
-                                          <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false" onAction="#memoryRecallAction" styleClass="memoryButton" text="MR" />
-                                          <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction" styleClass="memoryButton" text="M+" />
-                                          <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction" styleClass="memoryButton" text="M-" />
-                                          <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" styleClass="memoryButton" text="MS" />
-                                          <Button fx:id="memoryShow" disable="true" mnemonicParsing="false" onAction="#memoryShowAction" prefHeight="12.0" prefWidth="12.0" styleClass="memoryButton" text="M" />
+                                          <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#memoryClearAction" prefHeight="25.0" prefWidth="141415.0" styleClass="memoryButton" text="" />
+                                          <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false" onAction="#memoryRecallAction" styleClass="memoryButton" text="" />
+                                          <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction" styleClass="memoryButton" text="" />
+                                          <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction" styleClass="memoryButton" text="" />
+                                          <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" styleClass="memoryButton" text="" />
+                                          <Button fx:id="memoryShow" disable="true" mnemonicParsing="false" onAction="#memoryShowAction" prefHeight="12.0" prefWidth="12.0" styleClass="memoryButton" text="" />
                                       </buttons>
                                   </ButtonBar>
                            </children>
@@ -503,16 +510,25 @@
                <font>
                   <Font name="Segoe MDL2 Assets" size="12.0" />
                </font>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
             </Button>
             <Button ellipsisString="" layoutX="238.0" mnemonicParsing="false" onMouseClicked="#maximize" prefHeight="34.0" prefWidth="39.0" styleClass="windowButton" text="" AnchorPane.rightAnchor="40.0">
                <font>
                   <Font name="Segoe MDL2 Assets" size="12.0" />
                </font>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
             </Button>
             <Button layoutX="196.0" mnemonicParsing="false" onMouseClicked="#minimizeWindow" prefHeight="34.0" prefWidth="42.0" styleClass="windowButton" text="" AnchorPane.rightAnchor="80.0">
                <font>
                   <Font name="Segoe MDL2 Assets" size="12.0" />
                </font>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
             </Button>
             <Label layoutX="14.0" layoutY="6.0" text="Calculator" />
          </children>

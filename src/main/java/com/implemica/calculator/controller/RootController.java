@@ -1,6 +1,6 @@
 package com.implemica.calculator.controller;
 
-import com.implemica.calculator.service.InputService;
+import com.implemica.calculator.controller.service.InputService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Dimension2D;
@@ -9,22 +9,21 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 
-enum ResizeState {
-  LEFT_TOP,
-  RIGHT_TOP,
-  LEFT_BOTTOM,
-  RIGHT_BOTTOM
-}
+import java.util.Arrays;
+import java.util.List;
 
+@Getter
+@Setter
 public class RootController {
-  private ResizeState res;
   @FXML
   private Label display;
 
@@ -127,6 +126,7 @@ public class RootController {
   private int formulaBegIndex;
   private int formulaEndIndex;
 
+
   private Dimension2D minSize = new Dimension2D(325, 530);
 
   private static final double FONT_CHANGE_WIDTH_DOWN = 34.98;
@@ -136,9 +136,25 @@ public class RootController {
   private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
   private static final double MIN_HEIGHT_DELTA = 468.75; // scene - text; debug
   private static final double MAX_HEIGHT_DELTA = 516.76;
+  private final static KeyCombination SQRT = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN);
+  private final static KeyCombination PERCENT = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN);
+  private final static KeyCombination RECALL = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+  private final static KeyCombination MEMORY_ADD = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
+  private final static KeyCombination MEMORY_SUB = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
+  private final static KeyCombination MEMORY_SAVE = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
+  private final static KeyCombination MEMORY_CLEAR = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN);
+  private final static KeyCombination PLUS = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHIFT_DOWN);
+  private final static KeyCombination MULTIPLY = new KeyCodeCombination(KeyCode.DIGIT8, KeyCombination.SHIFT_DOWN);
+  private final static List<KeyCode> NUMPAD_AND_DIGITS = Arrays.asList(KeyCode.DIGIT0, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,
+      KeyCode.DIGIT4, KeyCode.DIGIT5, KeyCode.DIGIT6, KeyCode.DIGIT7, KeyCode.DIGIT8, KeyCode.DIGIT9, KeyCode.NUMPAD0,
+      KeyCode.NUMPAD1, KeyCode.NUMPAD2, KeyCode.NUMPAD3, KeyCode.NUMPAD4, KeyCode.NUMPAD5, KeyCode.NUMPAD6, KeyCode.NUMPAD7,
+      KeyCode.NUMPAD8, KeyCode.NUMPAD9, KeyCode.PERIOD);
+  private final static List<KeyCode> BINARY_OP = Arrays.asList(KeyCode.MINUS, KeyCode.SUBTRACT, KeyCode.ADD,
+      KeyCode.MULTIPLY, KeyCode.DIVIDE, KeyCode.SLASH);
 
   public RootController() {
     inputService = new InputService();
+    formulaStr = "";
   }
 
   @FXML
@@ -165,7 +181,7 @@ public class RootController {
 
 
       while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && fontSize <= MAX_FONT_SIZE
-              && heightDelta > MIN_HEIGHT_DELTA) {
+          && heightDelta > MIN_HEIGHT_DELTA) {
         fontSize++;
         text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
         width = text.getLayoutBounds().getWidth();
@@ -173,16 +189,61 @@ public class RootController {
         heightDelta = sceneHeight - textHeight;
       }
 
-      /*if (text.getText().length() <= 13) {
-        fontSize = 46d;
-      }*/
-
 
       display.setStyle(" -fx-font-size:" + fontSize + ";\n" +
-              "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
-              "  -fx-text-alignment: right;");
+          "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
+          "  -fx-text-alignment: right;");
 
     });
+
+
+  }
+
+  public void keyPressProcess(KeyEvent event) {
+    Button btn = new Button();
+    if (event.getCode() == KeyCode.ESCAPE) {
+      clearAction();
+    } else if (event.getCode() == KeyCode.DELETE) {
+      clearEntryAction();
+    } else if (event.getCode() == KeyCode.F9) {
+      btn.setText("\uE94D"); // negate
+      unaryOperationAction(new ActionEvent(btn, null));
+    } else if (event.getCode() == KeyCode.BACK_SPACE) {
+      backspaceButtonAction();
+    } else if (SQRT.match(event)) {
+      btn.setText("\uE94B");//sqrt
+      unaryOperationAction(new ActionEvent(btn, null));
+    } else if (PERCENT.match(event)) {
+      btn.setText("\uE94C");//%
+      percentAction(new ActionEvent(btn, null));
+    } else if (RECALL.match(event)) {
+      memoryRecallAction();
+    } else if (MEMORY_ADD.match(event)) {
+      memoryPlusAction();
+    } else if (MEMORY_SUB.match(event)) {
+      memoryMinusAction();
+    } else if (MEMORY_SAVE.match(event)) {
+      memorySaveAction();
+    } else if (MEMORY_CLEAR.match(event)) {
+      memoryClearAction();
+    } else if (PLUS.match(event)) {
+      btn.setText("+");
+      operationButtonAction(new ActionEvent(btn, null));
+    } else if (MULTIPLY.match(event)) {
+      btn.setText("×");
+      operationButtonAction(new ActionEvent(btn, null));
+    } else if (NUMPAD_AND_DIGITS.contains(event.getCode())) {
+      btn.setText(event.getText());
+      addNumberOrComma(new ActionEvent(btn, null));
+    } else if (BINARY_OP.contains(event.getCode())) {
+      btn.setText(event.getText());
+      operationButtonAction(new ActionEvent(btn, null));
+    } else if (event.getCode() == KeyCode.R) {
+      btn.setText("⅟\uD835\uDC65");
+      unaryOperationAction(new ActionEvent(btn, null));
+    } else if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.EQUALS) {
+      equalAction();
+    }
 
   }
 
@@ -211,6 +272,7 @@ public class RootController {
     display.setText("0");
     inputService.clearDisplay();
     formula.setText("");
+    formulaStr = "";
     leftFormulaButton.setVisible(false);
     rightFormulaButton.setVisible(false);
   }
@@ -220,10 +282,10 @@ public class RootController {
    */
   @FXML
   public void clearEntryAction() {
-    display.setText("0");
     if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
       setNormal();
     }
+    display.setText("0");
   }
 
   /**
@@ -243,14 +305,21 @@ public class RootController {
    * removing last symbol in textArea
    */
   @FXML
-  public void backspaceButton() {
+  public void backspaceButtonAction() {
     if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
       setNormal();
-    } else if (display.getText().length() == 1) {
+    } else if (display.getText().length() == 1 && inputService.isBackspaceAvailable()) {
       clearEntryAction();
-    } else if (!display.getText().isEmpty()) {
+    } else if (inputService.isBackspaceAvailable()) {
       String str = display.getText().substring(0, display.getText().length() - 1);
-      display.setText(inputService.displayFormat(str));
+      if (str.endsWith(".")) {
+        display.setText(inputService.displayFormat(str));
+      } else if (str.contains(".")) {
+        String[] strArr = str.split("\\.");
+        display.setText(inputService.displayFormat(strArr[0]) + "." + strArr[1]);
+      } else {
+        display.setText(inputService.displayFormat(str));
+      }
     }
   }
 
@@ -272,21 +341,20 @@ public class RootController {
 
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
-    if (!display.getText().isEmpty()) {
-      formulaCalc(ae);
-      try {
-        String value = inputService.unaryOp(ae, display.getText());
-        display.setText(inputService.displayFormat(value));
-      } catch (ArithmeticException e) {
-        handleArithmetic(e.getMessage());
-      }
+    formulaCalc(ae);
+    try {
+      String value = inputService.unaryOp(ae, display.getText());
+      display.setText(inputService.displayFormat(value));
+    } catch (ArithmeticException e) {
+      handleArithmetic(e.getMessage());
     }
   }
 
   @FXML
-  public void percentAction() {
+  public void percentAction(ActionEvent ae) {
     String value = inputService.percentOp(display.getText());
     display.setText(inputService.displayFormat(value));
+    formulaCalc(ae);
   }
 
   @FXML
@@ -556,7 +624,6 @@ public class RootController {
 
   private void handleArithmetic(String msg) {
     display.setText(msg);
-    formula.setText("");
 
     negateButton.setDisable(true);
     addButton.setDisable(true);
@@ -572,6 +639,7 @@ public class RootController {
 
   private void setNormal() {
     display.setText("0");
+    formula.setText("");
     clearAction();
 
     negateButton.setDisable(false);

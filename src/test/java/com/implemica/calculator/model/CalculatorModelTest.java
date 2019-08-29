@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CalculatorModelTest {
   private static final String REVERSE = "1/";
@@ -966,6 +967,58 @@ class CalculatorModelTest {
 
   // todo: test memory
 
+  @Test
+  void memoryClearTest() {
+    checkMemoryClear("9999999999999999");
+    checkMemoryClear("9999999999999998");
+    checkMemoryClear("5000000000000000");
+    checkMemoryClear("5000000000000001");
+    checkMemoryClear("4999999999999999");
+    checkMemoryClear("0");
+    checkMemoryClear("1");
+    checkMemoryClear("-1");
+    checkMemoryClear("-9999999999999999");
+    checkMemoryClear("-9999999999999998");
+    checkMemoryClear("-5000000000000000");
+    checkMemoryClear("-5000000000000001");
+    checkMemoryClear("-4999999999999999");
+  }
+
+  @Test
+  void memoryAddAsMemorySaveTest() {
+    checkMemoryAdd(new BigDecimal("9999999999999999"), null, new BigDecimal("9999999999999999"));
+    checkMemoryAdd(new BigDecimal("9999999999999998"), null, new BigDecimal("9999999999999998"));
+    checkMemoryAdd(new BigDecimal("5000000000000000"), null, new BigDecimal("5000000000000000"));
+    checkMemoryAdd(new BigDecimal("5000000000000001"), null, new BigDecimal("5000000000000001"));
+    checkMemoryAdd(new BigDecimal("4999999999999999"), null, new BigDecimal("4999999999999999"));
+    checkMemoryAdd(new BigDecimal("0"), null, new BigDecimal("0"));
+    checkMemoryAdd(new BigDecimal("1"), null, new BigDecimal("1"));
+    checkMemoryAdd(new BigDecimal("-1"), null, new BigDecimal("-1"));
+    checkMemoryAdd(new BigDecimal("-9999999999999999"), null, new BigDecimal("-9999999999999999"));
+    checkMemoryAdd(new BigDecimal("-9999999999999998"), null, new BigDecimal("-9999999999999998"));
+    checkMemoryAdd(new BigDecimal("-5000000000000000"), null, new BigDecimal("-5000000000000000"));
+    checkMemoryAdd(new BigDecimal("-5000000000000001"), null, new BigDecimal("-5000000000000001"));
+    checkMemoryAdd(new BigDecimal("-4999999999999999"), null, new BigDecimal("-4999999999999999"));
+  }
+
+  @Test
+  void memorySubAsMemorySaveNegateTest() {
+    checkMemorySub(new BigDecimal("-9999999999999999"), null, new BigDecimal("9999999999999999"));
+    checkMemorySub(new BigDecimal("-9999999999999998"), null, new BigDecimal("9999999999999998"));
+    checkMemorySub(new BigDecimal("-5000000000000000"), null, new BigDecimal("5000000000000000"));
+    checkMemorySub(new BigDecimal("-5000000000000001"), null, new BigDecimal("5000000000000001"));
+    checkMemorySub(new BigDecimal("-4999999999999999"), null, new BigDecimal("4999999999999999"));
+    checkMemorySub(new BigDecimal("-0"), null, new BigDecimal("0"));
+    checkMemorySub(new BigDecimal("-1"), null, new BigDecimal("1"));
+    checkMemorySub(new BigDecimal("1"), null, new BigDecimal("-1"));
+    checkMemorySub(new BigDecimal("9999999999999999"), null, new BigDecimal("-9999999999999999"));
+    checkMemorySub(new BigDecimal("9999999999999998"), null, new BigDecimal("-9999999999999998"));
+    checkMemorySub(new BigDecimal("5000000000000000"), null, new BigDecimal("-5000000000000000"));
+    checkMemorySub(new BigDecimal("5000000000000001"), null, new BigDecimal("-5000000000000001"));
+    checkMemorySub(new BigDecimal("4999999999999999"), null, new BigDecimal("-4999999999999999"));
+  }
+
+
   @BeforeEach
   void before() {
     calc = new CalculatorModel();
@@ -978,6 +1031,14 @@ class CalculatorModelTest {
     String actual = calc.getBinaryOperationResult();
 
     assertEquals(expected, actual);
+
+    if (calc.getOperation().equals("+")) {
+      checkMemoryAdd(new BigDecimal(expected), new BigDecimal(left), new BigDecimal(right));
+    }
+
+    if (calc.getOperation().equals("-")) {
+      checkMemorySub(new BigDecimal(expected), new BigDecimal(left), new BigDecimal(right));
+    }
   }
 
   private void checkUnary(String expected, String num, String op) {
@@ -1008,4 +1069,27 @@ class CalculatorModelTest {
 
     assertEquals(expected, actual);
   }
+
+  private void checkMemoryClear(String num) {
+    calc.setMemory(new BigDecimal(num));
+    calc.clearMemory();
+
+    assertNull(calc.getMemory());
+  }
+
+  private void checkMemoryAdd(BigDecimal expected, BigDecimal memory, BigDecimal num) {
+    calc.setMemory(memory);
+    calc.memoryAdd(num);
+
+    assertEquals(expected, calc.getMemory());
+  }
+
+  private void checkMemorySub(BigDecimal expected, BigDecimal memory, BigDecimal num) {
+    calc.setMemory(memory);
+    calc.memorySub(num);
+
+    assertEquals(expected, calc.getMemory());
+  }
+
+  //todo: check throw
 }
