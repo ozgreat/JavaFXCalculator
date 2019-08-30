@@ -38,7 +38,7 @@ public class RootControllerTest {
   }
 
   @Start
-  void start(Stage stage) throws IOException {
+  static void start(Stage stage) throws IOException {
     stage.setScene(new Scene(new Root().getRoot()));
     stage.show();
   }
@@ -403,7 +403,7 @@ public class RootControllerTest {
     checkOperations("2 / 2 =", "", "1");
     checkOperations("7 / 3 =", "", "2.333333333333333");
     checkOperations("1 / 8 =", "", "0.125");
-    checkOperations("5 / 6 =", "", "0.83333333333333333");
+    checkOperations("5 / 6 =", "", "0.8333333333333333");
     checkOperations("3 / 9 =", "", "0.3333333333333333");
 
     checkOperations("0 / 5 =", "", "0");
@@ -483,17 +483,17 @@ public class RootControllerTest {
     checkOperations("4 / 8 = / =", "", "1");
     checkOperations("1 / 4 = / =", "", "1");
 
-    checkOperations("5 N / 3 =", "", "-1.666666666666667");
+    checkOperations("5 N / 3 =", "", "-1.66666666666667");
     checkOperations("1 N / 4 =", "", "-0.25");
     checkOperations("6 N / 2 =", "", "-3");
-    checkOperations("8 N / 7 =", "", "-1.142857142857143");
-    checkOperations("7 N / 6 =", "", "-1.166666666666667");
+    checkOperations("8 N / 7 =", "", "-1.14285714285714");
+    checkOperations("7 N / 6 =", "", "-1.16666666666667");
 
     checkOperations("4 / 4 N =", "", "-1");
-    checkOperations("2 / 7 N =", "", "-0.285714285714286");
-    checkOperations("8 / 3 N =", "", "-2.666666666666667");
-    checkOperations("2 / 6 N =", "", "-0.333333333333333");
-    checkOperations("4 / 7 N =", "", "-0.571428571428571");
+    checkOperations("2 / 7 N =", "", "-0.28571428571429");
+    checkOperations("8 / 3 N =", "", "-2.66666666666667");
+    checkOperations("2 / 6 N =", "", "-0.33333333333333");
+    checkOperations("4 / 7 N =", "", "-0.57142857142857");
 
     checkOperations("0.1 / 1 =", "", "0.1");
     checkOperations("2.5 / 5 =", "", "0.5");
@@ -665,7 +665,6 @@ public class RootControllerTest {
     checkOperations("83 + 37 = 1/x ", "1/( 120 )", "0.0083333333333333");
 
     checkOperations("1000000000000000 - 1/x", "1000000000000000 - 1/( 1000000000000000 )", "0.000000000000001");
-    checkOperations("1000000000000000 * = - 1/x", "1.E+30 - 1/( 1.E+30 )", "1.E-30");
     checkOperations("1000000000000000 * = = = = = - 1/x", "1.E+90 - 1/( 1.E+90 )", "1.E-90");
 
     checkOperations("0.0000000000000001 1/x", "1/( 0.0000000000000001 )", "1.E+16");
@@ -818,7 +817,7 @@ public class RootControllerTest {
 
     checkOperations("3.0", "", "3.0");
     checkOperations("3.00", "", "3.00");
-    checkOperations("0.00000000000000000", "", "0.00000000000000000");
+    checkOperations("0.00000000000000000", "", "0.0000000000000000");
     checkOperations("3.00000000000000000", "", "3.000000000000000");
     checkOperations("3.000000000000000001", "", "3.000000000000000");
     checkOperations("10.000000000000000001", "", "10.00000000000000");

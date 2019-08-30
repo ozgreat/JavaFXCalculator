@@ -9,9 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +47,7 @@ public class InputService {
     unaryOperationUnicode.put("⅟\uD835\uDC65", "1/");//⅟𝑥
     unaryOperationUnicode.put("\uD835\uDC65²", "sqr");//𝑥²
 
-    displayPattern.put(0, "0.#################");
+    displayPattern.put(0, "0.################");
     displayPattern.put(1, "0.###############");
     displayPattern.put(2, "#0.##############");
     displayPattern.put(3, "##0.#############");
@@ -215,8 +213,12 @@ public class InputService {
 
     if (calcState == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(res));
+//      calcState = CalcState.TRANSIENT;
     } else if (calcState == CalcState.LEFT) {
       calc.setLeftOperand(new BigDecimal(res));
+      if (!formatOperation(btn.getText()).equals("negate")) {
+        calcState = CalcState.TRANSIENT;
+      }
     }
 
     return displayFormat(res);
@@ -283,82 +285,24 @@ public class InputService {
     calc.memorySub(new BigDecimal(display.replaceAll(",", "")));
   }
 
-  /*public String displayFormat(String display) {
-    display = display.replaceAll(",", "");
-
-
-    if (display.endsWith(".")) {
-      return displayFormat(display.substring(0, display.indexOf('.'))) + ".";
-    }
-
-    BigDecimal big = new BigDecimal(display);
-    big = CalculatorModel.getRounded16IfItsPossible(big);
-    display = big.toString();
-
-    if (display.contains("E")) {
-      String displayPlain = new BigDecimal(display).toPlainString();
-      int n = 16;
-      if (displayPlain.startsWith("0")) {
-        n = 17;
-      }
-
-      if (displayPlain.replace("-", "").replace(".", "").length() <= n) {
-        return displayPlain;
-      }
-
-      display = formatLongNums(display);
-      return display;
-    }
-
-
-    if (display.contains(".")) {
-      String[] partsOfFrac = display.split("\\.");
-      if (partsOfFrac.length == 2) {
-        if (display.startsWith("-0")) {
-          return "-" + deleteLastZeroInFrac(displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1]); // display format for int part
-        }
-        return deleteLastZeroInFrac(displayFormat(partsOfFrac[0]) + "." + partsOfFrac[1]); // display format for int part
-      }
-    }
-
-
-    String strBuf = display;
-    if (display.startsWith("-")) {
-      display = display.substring(1);
-    }
-    StringBuilder displayBuilder = new StringBuilder();
-    for (int i = 0; i < display.length(); i++) {
-      displayBuilder.append(display.charAt(i));
-
-      if ((display.length() - i - 1) % 3 == 0) { // comma after every 3d element from the end
-        displayBuilder.append(",");
-      }
-    }
-    display = displayBuilder.toString();
-
-
-    if (display.endsWith(",")) {
-      display = display.substring(0, display.length() - 1);
-    }
-
-    if (strBuf.startsWith("-")) {
-      display = "-" + display;
-    }
-
-    return display;
-  }*/
-
   public String displayFormat(String display) {
     DecimalFormat df;
     if (display.contains(",")) {
       display = display.replaceAll(",", "");
     }
 
+
     BigDecimal big = new BigDecimal(display);
     String displayBuf = CalculatorModel.getRounded16IfItsPossible(big).toPlainString();
 
     if (displayBuf.replace(".", "").length() <= 16 && !display.contains(".")) {
-      df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
+      if ((calcState == CalcState.TRANSIENT || calcState == CalcState.AFTER) && displayBuf.contains(".")) {
+        String[] displayArr = displayBuf.split("\\.");
+        String pattern = displayPattern.get(displayArr[0].length());
+        df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
+      } else {
+        df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
+      }
 
       return df.format(big);
     } else if (displayBuf.startsWith("0") && displayBuf.replace(".", "").length() >= 17 && display.contains(".")) {
@@ -370,17 +314,13 @@ public class InputService {
 
       String pattern = displayPattern.get(0);
       if (calcState == CalcState.LEFT && pattern.contains(".")) {
-        String[] patternArr = pattern.split("\\.");
-        for (int i = 0; i < (display.length() - display.indexOf(".") - 1); i++) {
-          patternArr[1] = patternArr[1].replaceFirst("#", "0");
-        }
-        pattern = patternArr[0] + "." + patternArr[1];
+        pattern = getFracPattern(display, pattern);
       }
 
       df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
 
       return df.format(big);
-    } else if (/*display.replace(".", "").length() <= 16 &&*/ display.contains(".")) {
+    } else if (display.contains(".")) {
       if (display.endsWith(".")) {
         df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
 
@@ -388,81 +328,49 @@ public class InputService {
       }
       String[] displayArr = displayBuf.split("\\.");
       String pattern = displayPattern.get(displayArr[0].length());
-      if (calcState == CalcState.LEFT && pattern.contains(".") && !pattern.endsWith(".")) {
-        String[] patternArr = pattern.split("\\.");
-        for (int i = 0; i < (display.length() - display.indexOf(".") - 1); i++) {
-          patternArr[1] = patternArr[1].replaceFirst("#", "0");
+      if (pattern != null) {
+        if (calcState == CalcState.LEFT && pattern.contains(".") && !pattern.endsWith(".")) {
+          pattern = getFracPattern(display, pattern);
         }
-        pattern = patternArr[0] + "." + patternArr[1];
+        df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
+
+        return df.format(big);
       }
-      df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
+    }
 
+    if (display.contains("E")) {
+      BigDecimal tmp = new BigDecimal(display);
+      if (tmp.toPlainString().replace(".", "").replace("-", "").length() <= 16) {
+        display = tmp.toPlainString();
+      } else {
+        return formatLong(tmp);
+      }
+    }
 
-      return df.format(big);
-    }  /*else if (displayBuf.replace(".", "").length() > 16 && displayBuf.contains(".")) {
-
-    }*/
+    if (!display.contains(".") &&
+        display.replace(",", "").replace("-", "").replace(".", "").length() > 17) {
+      return formatLong(big);
+    }
     return null;
+  }
+
+  private String getFracPattern(String display, String pattern) {
+    String[] patternArr = pattern.split("\\.");
+    for (int i = 0; i < (display.length() - display.indexOf(".") - 1); i++) {
+      patternArr[1] = patternArr[1].replaceFirst("#", "0");
+    }
+    pattern = patternArr[0] + "." + patternArr[1];
+    return pattern;
   }
 
   public boolean isBackspaceAvailable() {
     return calcState != CalcState.AFTER;
   }
 
-  private String formatLongNums(String displayBuf) {
-    String display = new BigDecimal(displayBuf, CalculatorModel.mc32).toEngineeringString();
-    if (!display.contains("E")) {
-      return display;
-    }
-    String[] displayArr = display.split("E");
-    displayArr[0] = CalculatorModel.getRounded16IfItsPossible(new BigDecimal(displayArr[0])).toString();
-
-    if (displayArr[0].contains(".")) {
-      formatEngineer(displayArr);
-    } else {
-      while (displayArr[0].endsWith("0")) {
-        displayArr[1] = incrementEPart(displayArr, displayArr[1]);
-      }
-      displayArr[0] += ".";
-    }
-
-    display = displayArr[0] + "E" + displayArr[1];
-
-    return display;
-  }
-
-  private void formatEngineer(String[] displayArr) {
-    String[] displayNumParts = displayArr[0].split("\\.");
-    if (displayNumParts[0].endsWith("0")) {
-      displayArr[1] = incrementEPart(displayNumParts, displayArr[1]);
-
-      displayArr[0] = displayNumParts[0] + "." + displayNumParts[1];
-      displayArr[0] = deleteLastZeroInFrac(displayArr[0]);
-    }
-  }
-
-  private String incrementEPart(String[] displayArr, String ePart) {
-    displayArr[0] = displayArr[0].substring(0, displayArr[0].length() - 1);
-    int lastNum = Integer.parseInt(/*Character.toString(ePart.charAt(ePart.length() - 1))*/ePart);
-
-    if (lastNum + 1 >= 0) {
-      return "+" + (lastNum + 1);
-    } else {
-      return String.valueOf(lastNum + 1);
-    }
-  }
 
   private void settingAfterResult(String result) {
     calc.setLeftOperand(new BigDecimal(result));
     calcState = CalcState.AFTER;
-  }
-
-  private String deleteLastZeroInFrac(String num) {
-    if (num.endsWith("0")) {
-      return deleteLastZeroInFrac(num.substring(0, num.length() - 1));
-    } else {
-      return num;
-    }
   }
 
   private String formatOperation(String op) {
@@ -506,24 +414,45 @@ public class InputService {
 
   private String transientHighFormula(Button btn, String oldFormula, String display) {
     if (binaryOperationUnicode.containsKey(btn.getText())) {
+      if (oldFormula.endsWith(")")) {
+        return oldFormula + " " + binaryOperationUnicode.get(btn.getText());
+      }
       return oldFormula.substring(0, oldFormula.length() - 1) + binaryOperationUnicode.get(btn.getText());
     } else if (unaryOperationUnicode.containsKey(btn.getText())) {
       if (oldFormula.endsWith(")")) {
         String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + " " + unaryOperationUnicode.get(btn.getText()) + "("
+        return oldFormula.substring(0, oldFormula.indexOf(str)) + unaryOperationUnicode.get(btn.getText()) + "( "
             + str + " )";
       }
-      return oldFormula + " " + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
+      if (unaryOperationUnicode.get(btn.getText()).equals("negate") && calc.getOperation() == null) {
+        return oldFormula;
+      }
+      if (!oldFormula.isBlank()) {
+        oldFormula += " ";
+      }
+      return oldFormula + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
     } else if (btn.getText().equals("\uE94C")) { //%
+      if (oldFormula.isBlank()) {
+        return "";
+      }
       return oldFormula + " " + display.replaceAll(",", "");
     } else if (binaryOperationUnicode.containsValue(btn.getText())) {
+      if (oldFormula.endsWith(")")) {
+        return oldFormula + " " + btn.getText();
+      }
       return oldFormula.substring(0, oldFormula.length() - 1) + btn.getText();
     } else if (unaryOperationUnicode.containsValue(btn.getText())) {
       if (oldFormula.endsWith(")")) {
         String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + btn.getText() + "(" + str + " )";
+        return oldFormula.substring(0, oldFormula.indexOf(str)) + btn.getText() + "( " + str + " )";
       }
-      return oldFormula + " " + btn.getText() + "( " + display.replaceAll(",", "") + " )";
+      if (btn.getText().equals("negate")) {
+        return oldFormula;
+      }
+      if (!oldFormula.isBlank()) {
+        oldFormula += " ";
+      }
+      return oldFormula + btn.getText() + "( " + display.replaceAll(",", "") + " )";
     }
     return "";
   }
@@ -551,8 +480,14 @@ public class InputService {
       }
 
       return btn.getText() + "( " + display.replaceAll(",", "") + " )";
+    } else if (btn.getText().equals("\uE94C")) { //%
+      if (oldFormula.isBlank()) {
+        return "";
+      } else if (Character.isDigit(oldFormula.charAt(oldFormula.length() - 1))) {
+        return "";
+      }
+      return oldFormula + " " + display.replaceAll(",", "");
     }
-
     return "";
   }
 
@@ -567,6 +502,9 @@ public class InputService {
       }
       return oldFormula + " " + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
     } else if (btn.getText().equals("\uE94C")) { //%
+      if (oldFormula.isBlank()) {
+        return "";
+      }
       return oldFormula + " " + display.replaceAll(",", "");
     } else if (binaryOperationUnicode.containsValue(btn.getText())) {
       return oldFormula + " " + display.replaceAll(",", "") + " " + btn.getText();
@@ -583,9 +521,84 @@ public class InputService {
   }
 
   private String unaryOpSubStringFinder(String formula) {
-    Pattern p = Pattern.compile("\\s\\D.+[(]");
-    Matcher matcher = p.matcher(formula);
-    matcher.find();
-    return formula.substring(matcher.start() + 2);
+    Pattern p;
+    List<Integer> index = new ArrayList<>();
+    List<String> list = new ArrayList<>(unaryOperationUnicode.values());
+    for (String op : list) {
+      p = Pattern.compile("\\b" + op + "\\b");
+      Matcher matcher = p.matcher(formula);
+      if (matcher.find()) {
+        index.add(matcher.start());
+      }
+    }
+
+    if (formula.contains("√")) {
+      index.add(formula.indexOf("√"));
+    }
+
+    if (formula.contains("1/")) {
+      index.add((formula.indexOf("1/")));
+    }
+
+    int min = index.indexOf(Collections.min(index));
+    return formula.substring(index.get(min));
+  }
+
+  private String formatLongN(BigDecimal big) {
+    big = big.round(CalculatorModel.mc32);
+    DecimalFormat df = new DecimalFormat("#,##0.###############E0###", new DecimalFormatSymbols(Locale.ENGLISH));
+    String res = df.format(big);
+    return res;
+  }
+
+  private String formatLong(BigDecimal big) {
+    String display = big.round(CalculatorModel.mc32).toEngineeringString();
+    if (!display.contains("E")) {
+      display = formatLongN(big);
+    }
+    String[] displayArr = display.split("E");
+    displayArr[0] = CalculatorModel.getRounded16IfItsPossible(new BigDecimal(displayArr[0])).toString();
+
+    if (displayArr[0].contains(".")) {
+      formatEngineer(displayArr);
+    } else {
+      while (displayArr[0].endsWith("0")) {
+        displayArr[1] = incrementEPart(displayArr, displayArr[1]);
+      }
+      displayArr[0] += ".";
+    }
+
+    display = displayArr[0] + "E" + displayArr[1];
+
+    return display;
+  }
+
+  private void formatEngineer(String[] displayArr) {
+    String[] displayNumParts = displayArr[0].split("\\.");
+    if (displayNumParts[0].endsWith("0")) {
+      displayArr[1] = incrementEPart(displayNumParts, displayArr[1]);
+
+      displayArr[0] = displayNumParts[0] + "." + displayNumParts[1];
+      displayArr[0] = deleteLastZeroInFrac(displayArr[0]);
+    }
+  }
+
+  private String deleteLastZeroInFrac(String num) {
+    if (num.endsWith("0")) {
+      return deleteLastZeroInFrac(num.substring(0, num.length() - 1));
+    } else {
+      return num;
+    }
+  }
+
+  private String incrementEPart(String[] displayArr, String ePart) {
+    displayArr[0] = displayArr[0].substring(0, displayArr[0].length() - 1);
+    int lastNum = Integer.parseInt(/*Character.toString(ePart.charAt(ePart.length() - 1))*/ePart);
+
+    if (lastNum + 1 >= 0) {
+      return "+" + (lastNum + 1);
+    } else {
+      return String.valueOf(lastNum + 1);
+    }
   }
 }

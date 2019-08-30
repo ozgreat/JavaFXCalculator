@@ -329,6 +329,7 @@ public class RootController {
       setNormal();
     }
     formula.setText("");
+    formulaStr = "";
     leftFormulaButton.setVisible(false);
     rightFormulaButton.setVisible(false);
     try {

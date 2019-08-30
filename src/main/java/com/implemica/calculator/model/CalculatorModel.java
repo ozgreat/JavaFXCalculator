@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -44,9 +43,6 @@ public class CalculatorModel {
 
   private static final BigDecimal max = new BigDecimal("9999999999999999E+8192");
 
-  private static final BigDecimal SQRT_DIG = new BigDecimal(150); //todo: magical number
-  private static final BigDecimal SQRT_PRE = new BigDecimal(10).pow(SQRT_DIG.intValue());
-
   /**
    * Map of binary operations
    */
@@ -67,7 +63,7 @@ public class CalculatorModel {
     unaryOperations.put("1/", x -> BigDecimal.ONE.divide(x, mc32));//⅟𝑥
     unaryOperations.put("sqr", x -> x.pow(2));//𝑥²
     unaryOperations.put("negate", BigDecimal::negate);//±
-    unaryOperations.put("√", CalculatorModel::sqrt);
+    unaryOperations.put("√", x -> x.sqrt(mc32));
   }
 
 
@@ -78,7 +74,7 @@ public class CalculatorModel {
    */
   public String getBinaryOperationResult() throws ArithmeticException {
     if (rightOperand.equals(BigDecimal.ZERO) && operation.equals("÷")) {
-      if(leftOperand.equals(BigDecimal.ZERO)){
+      if (leftOperand.equals(BigDecimal.ZERO)) {
         throw new ArithmeticException("Result is undefined");
       }
       throw new ArithmeticException("Cannot divide by zero");
@@ -103,7 +99,7 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getUnaryOperationResult(String op, String number) throws ArithmeticException {
-    if(new BigDecimal(number).equals(BigDecimal.ZERO) && op.equals("1/")){
+    if (new BigDecimal(number).equals(BigDecimal.ZERO) && op.equals("1/")) {
       throw new ArithmeticException("Cannot divide by zero");
     }
     BigDecimal res = unaryOperations.get(op).apply(new BigDecimal(number));
@@ -196,33 +192,4 @@ public class CalculatorModel {
     }
     return null;
   }
-
-  private static BigDecimal sqrt(BigDecimal c) {
-    if (c.equals(BigDecimal.ZERO)) {
-      return BigDecimal.ZERO;
-    } else if (c.equals(BigDecimal.ONE)) {
-      return BigDecimal.ONE;
-    }
-    BigDecimal res = sqrt(c, BigDecimal.ONE, BigDecimal.ONE.divide(SQRT_PRE, mc32));
-
-    return getRounded32IfItsPossible(res);
-  }
-
-  private static BigDecimal sqrt(BigDecimal c, BigDecimal xn, BigDecimal precision) {
-    BigDecimal fx = xn.pow(2).add(c.negate());
-    BigDecimal fpx = xn.multiply(new BigDecimal(2));
-    BigDecimal xn1 = fx.divide(fpx, 2 * SQRT_DIG.intValue(), RoundingMode.HALF_DOWN);
-    xn1 = xn.add(xn1.negate());
-
-    BigDecimal currentSquare = xn1.pow(2);
-
-    BigDecimal currentPrecision = currentSquare.subtract(c);
-    currentPrecision = currentPrecision.abs();
-    if (currentPrecision.compareTo(precision) <= -1) {
-      return xn1;
-    }
-
-    return sqrt(c, xn1, precision);
-  }
-
 }

@@ -35,10 +35,9 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     operationsKeyCode.put("%", new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN));
   }
 
-  @Override
   @Start
-  void start(Stage stage) throws IOException {
-    super.start(stage);
+  static void start(Stage stage) throws IOException {
+    RootControllerTest.start(stage);
   }
   @Override
 
