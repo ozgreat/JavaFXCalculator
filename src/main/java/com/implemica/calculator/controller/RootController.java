@@ -15,14 +15,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Getter
-@Setter
 public class RootController {
   @FXML
   private Label display;
@@ -366,7 +362,9 @@ public class RootController {
 
   @FXML
   public void memoryRecallAction() {
-    display.setText(inputService.recallFromMemory());
+    if (!inputService.isMemoryEmpty()) {
+      display.setText(inputService.recallFromMemory());
+    }
   }
 
   @FXML

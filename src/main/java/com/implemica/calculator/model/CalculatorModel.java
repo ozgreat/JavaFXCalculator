@@ -110,10 +110,15 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getUnaryOperationResult(String op, String number) throws ArithmeticException {
-    if (new BigDecimal(number).equals(BigDecimal.ZERO) && op.equals("1/")) {
+    BigDecimal num = new BigDecimal(number);
+    if (num.equals(BigDecimal.ZERO) && op.equals("1/")) {
       throw new ArithmeticException("Cannot divide by zero");
+    } else if (num.compareTo(BigDecimal.ZERO) < 0 && op.equals("√")) {
+      throw new ArithmeticException("Result is undefined");
     }
-    BigDecimal res = unaryOperations.get(op).apply(new BigDecimal(number));
+
+
+    BigDecimal res = unaryOperations.get(op).apply(num);
 
     return getRounded32IfItsPossible(res).toString();
   }
@@ -148,6 +153,7 @@ public class CalculatorModel {
 
   /**
    * Add number to memory. Set memory as num.
+   *
    * @param num number that we add
    */
   public void memoryAdd(BigDecimal num) {
@@ -160,6 +166,7 @@ public class CalculatorModel {
 
   /**
    * Subtract number to memory. Set memory as num.
+   *
    * @param num number that we subtract
    */
   public void memorySub(BigDecimal num) {

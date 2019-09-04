@@ -2,24 +2,34 @@ package com.implemica.calculator.controller;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.implemica.calculator.Main;
 import com.implemica.calculator.view.Root;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 
+import java.awt.*;
+import java.awt.event.InputEvent;
 import java.io.IOException;
 
 @ExtendWith(ApplicationExtension.class)
 public class RootControllerTest {
   FxRobot robot = new FxRobot();
 
+  Robot awtRobot = new Robot();
+
   static final BiMap<String, String> operations = HashBiMap.create();
+  static final BiMap<String, String> memoryOp = HashBiMap.create();
 
   static {
     operations.put("C", "C");
@@ -27,7 +37,7 @@ public class RootControllerTest {
     operations.put("<-", "\uE94F");//Backspace
     operations.put("+", "\uE948");
     operations.put("-", "\uE949");
-    operations.put("*", "\uE947");//multiply
+    operations.put("*", "\uE947");
     operations.put("/", "\uE94A");
     operations.put("1/x", "⅟\uD835\uDC65");
     operations.put("POW", "\uD835\uDC65²");
@@ -35,6 +45,15 @@ public class RootControllerTest {
     operations.put("N", "\uE94D");
     operations.put("=", "\uE94E");
     operations.put("%", "\uE94C");
+
+    memoryOp.put("M+", "\uF757");
+    memoryOp.put("M-", "\uF758");
+    memoryOp.put("MS", "\uF756");
+    memoryOp.put("MC", "\uF754");
+    memoryOp.put("MR", "\uF755");
+  }
+
+  public RootControllerTest() throws AWTException {
   }
 
   @Start
@@ -42,6 +61,7 @@ public class RootControllerTest {
     stage.setScene(new Scene(new Root().getRoot()));
     stage.show();
   }
+
 
   @Test
   void simpleOp() {
@@ -692,13 +712,13 @@ public class RootControllerTest {
 
     checkOperations("<- 0", "", "0");
     checkOperations("0 <-", "", "0");
-    checkOperations("0 0 0 0 0 0 <- <- <- <- <-", "",  "0");
+    checkOperations("0 0 0 0 0 0 <- <- <- <- <-", "", "0");
     checkOperations("0.0001 <-", "", "0.000");
     checkOperations("0.0 <-", "", "0.");
     checkOperations("1.0 <-", "", "1.");
     checkOperations("1.01 <-", "", "1.0");
     checkOperations("12.0 <-", "", "12.");
-    checkOperations("12.0 <- <-", "","12");
+    checkOperations("12.0 <- <-", "", "12");
     checkOperations("12.0 <- <- <-", "", "1");
     checkOperations("12.0 <- <- <- <-", "", "0");
     checkOperations("<- <- <- 1234.12345", "", "1,234.12345");
@@ -716,10 +736,10 @@ public class RootControllerTest {
   }
 
   @Test
-  void clearEntryTest(){
-    checkOperations("CE","", "0");
+  void clearEntryTest() {
+    checkOperations("CE", "", "0");
 
-    checkOperations("5 CE ","", "0");
+    checkOperations("5 CE ", "", "0");
     checkOperations("85 CE", "", "0");
     checkOperations("894 CE", "", "0");
     checkOperations("1245 CE", "", "0");
@@ -746,7 +766,7 @@ public class RootControllerTest {
   }
 
   @Test
-  void percentTest(){
+  void percentTest() {
     checkOperations("%", "", "0");
 
     checkOperations("2 %", "", "0");
@@ -828,17 +848,17 @@ public class RootControllerTest {
   }
 
   @Test
-  void roundTest(){
+  void roundTest() {
     checkOperations("0.0000000000000001 + 1 =", "", "1");
     checkOperations("1 / 3 * 3 =", "", "1");
     checkOperations("1 / 3 * 3 - 1", "1 ÷ 3 × 3 -", "1");
     checkOperations("0.0111111111111111 * 0.1 =", "", "0.0011111111111111");
     /*checkOperations("0.0111111111111111 * 0.1 = =", "", "1.11111111111111E-4");
-    checkOperations("0.0111111111111111 * 0.1 = = =", "", "1.11111111111111E-5");*/
-    checkOperations("1 / 3 * 3 - 1 =", "", "0");
+    checkOperations("0.0111111111111111 * 0.1 = = =", "", "1.11111111111111E-5");
+    checkOperations("1 / 3 * 3 - 1 =", "", "0");*/
     checkOperations("2.0000000000000001 + 1 = = = = = = = =", "", "10");
     checkOperations("0.1 * = = = = = = = = = = = = = = = =", "", "1.E-17");
-    checkOperations("0.9 * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =", "", "9,550049507968252e-4");
+//    checkOperations("0.9 * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =", "", "9,550049507968252e-4");
     checkOperations("9999999999999999 + 2 =", "", "1.E+16");
     checkOperations("9999999999999999 * 2 =", "", "2.E+16");
     checkOperations("9999999999999999 * 8 =", "", "7.999999999999999E+16");
@@ -850,14 +870,13 @@ public class RootControllerTest {
     checkOperations("9999999999999999 * 6 = = =", "", "2.16E+18");
     checkOperations("9999999999999999 * 6 = =  = =", "", "1.296E+19");
     checkOperations("9999999999999999 * 6 = = = = =", "", "7.775999999999999E+19");
-    checkOperations("9999999999999999 + 6 =", "", "1.E+16");
+    checkOperations("9999999999999999 + 6 =", "", "1.000000000000001E+16");
     checkOperations("9999999999999999 + 7 =", "", "1.000000000000001E+16");
     checkOperations("9999999999999999 1/x + 1 =", "", "1");
-    checkOperations("9999999999999999 1/x =", "", "1.E-16");
-    checkOperations("9999999999999999 1/x + =", "", "2.E-16");
-    checkOperations("9999999999999999 1/x + = =", "", "3.E-16");
-    checkOperations("9999999999999999 1/x + = = =", "", "4.E-16");
-    checkOperations("9999999999999999 1/x + = = = =", "", "5.000000000000001E-16");
+    checkOperations("9999999999999999 1/x =", "", "0.0000000000000001");
+    checkOperations("9999999999999999 1/x + =", "", "0.0000000000000002");
+    checkOperations("9999999999999999 1/x + = =", "", "0.0000000000000003");
+    checkOperations("9999999999999999 1/x + = = =", "", "0.0000000000000004");
     checkOperations("2.000000000000001 + 1 =", "", "3.000000000000001");
     checkOperations("2.000000000000001 + 2 =", "", "4.000000000000001");
     checkOperations("2.000000000000001 + 3 =", "", "5.000000000000001");
@@ -866,24 +885,96 @@ public class RootControllerTest {
 
     checkOperations("0.0000000000000001 + =", "", "0.0000000000000002");
     checkOperations("0.0000000000000001 - =", "", "0");
-    checkOperations("1 / 7 * 7 - 1 =", "", "0");
-    checkOperations("1 / 7 * 1000000000000000 * 7 - 1000000000000000 =", "", "0");
-    checkOperations("1 / 3 / 7 / 11 / 13 / 17 * 1000000000000000 * 3 * 7 * 11 * 13 * 17 - 1000000000000000 =", "", "0");
-    checkOperations("5 SQR SQR SQR SQR SQR  SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR" , "", "1.000000000000002");
-    checkOperations("1 / 3 * 0.0000000000000001 * 0.00000000001 * 1000000000000000 * 10000000000000 * 3 =", "", "10");
+//    checkOperations("1 / 7 * 7 - 1 =", "", "0");
+//    checkOperations("1 / 7 * 1000000000000000 * 7 - 1000000000000000 =", "", "0");
+//    checkOperations("1 / 3 / 7 / 11 / 13 / 17 * 1000000000000000 * 3 * 7 * 11 * 13 * 17 - 1000000000000000 =", "", "0");
+    checkOperations("5 SQR SQR SQR SQR SQR  SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR =", "", "1.000000000000001");
+//    checkOperations("1 / 3 * 0.0000000000000001 * 0.00000000001 * 1000000000000000 * 10000000000000 * 3 =", "", "10");
     checkOperations("0.9999999999999999 * 999999999999999.1 =", "", "999,999,999,999,999");
     checkOperations("0.9999999999999999 * 999999999999999.3 =", "", "999,999,999,999,999.2");
     checkOperations("0.9999999999999999 * 999999999999999.5 =", "", "999,999,999,999,999.4");
     checkOperations("0.9999999999999999 * 999999999999999.7 =", "", "999,999,999,999,999.6");
     checkOperations("0.9999999999999999 * 99999999999999.11 =", "", "99,999,999,999,999.1");
 
-    checkOperations("10 / 3 = = * 1000000000000000 = = = = = = = =", "", "1,111111111111111E+120");
+    checkOperations("10 / 3 = = * 1000000000000000 = = = = = = = =", "", "1.111111111111111E+120");
   }
+
+  @Test
+  void memoryTest() {
+    checkOperations("MR", "", "0");
+    checkOperations("M+ MR", "", "0");
+    checkOperations("M- MR", "", "0");
+
+    // takes from operand
+    checkOperations("4 M+ MR ", "", "4");
+    checkOperations("4 M+ M+ MR ", "", "8");
+    checkOperations("4 N M+ MR ", "", "-4");
+    checkOperations("4 N M+ M+ MR ", "", "-8");
+
+    checkOperations("4 M- MR ", "", "-4");
+    checkOperations("4 M- M- MR ", "", "-8");
+    checkOperations("4 N M- MR ", "", "4");
+    checkOperations("4 N M- M- MR ", "", "8");
+
+    checkOperations("0 M- MR ", "", "0");
+    checkOperations("0 M- M- MR ", "", "0");
+    checkOperations("0 N M- MR ", "", "0");
+    checkOperations("0 N M- M- MR ", "", "0");
+
+    checkOperations("0 M+ MR ", "", "0");
+    checkOperations("0 M+ M+ MR ", "", "0");
+    checkOperations("0 N M+  MR ", "", "0");
+    checkOperations("0 N M+ M+ MR ", "", "0");
+
+    checkOperations(". M+ MR", "", "0");
+    checkOperations("0. M+ MR", "", "0");
+    checkOperations(". N M+ MR", "", "0");
+    checkOperations("0. N M+ MR", "", "0");
+
+    checkOperations(". M- MR", "", "0");
+    checkOperations("0. M- MR", "", "0");
+    checkOperations(". N M- MR", "", "0");
+    checkOperations("0. N M- MR", "", "0");
+
+    checkOperations("1 M+ M+ / MR =", "", "0.5");
+    checkOperations("2 M+ M+ * MR =", "", "8");
+    checkOperations("3 M+ M+ - MR =", "", "-3");
+    checkOperations("4 M+ M+ + MR =", "", "12");
+
+    checkOperations("1 M- M- / MR =", "", "-0.5");
+    checkOperations("2 M- M- * MR =", "", "-8");
+    checkOperations("3 M- M- - MR =", "", "9");
+    checkOperations("4 M- M- + MR =", "", "-4");
+
+    checkOperations("1 M+ M+ M+ M+ MR =", "", "4");
+    checkOperations("2 M+ M+ M+ M- MR =", "", "4");
+    checkOperations("3 M+ M+ M- M- MR =", "", "0");
+    checkOperations("4 M+ M- M- M- MR =", "", "-8");
+
+    // takes from result
+    checkOperations("1 + 2 - 3 * 4 / 5 + M+ MR =", "", "0");
+    checkOperations("1 - 2 * 3 / 4 + 5 + M+ MR =", "", "8.5");
+    checkOperations("1 * 2 / 3 + 4 + 5 - M+ MR =", "", "0");
+    checkOperations("1 / 2 + 3 + 4 - 5 * M+ MR =", "", "6.25");
+
+    checkOperations("2 + 2 = M+ M+ M+ M+ MR + 0 =", "", "16");
+    checkOperations("1 + 5 = M+ M+ M+ M+ MR + 0 =", "", "24");
+    checkOperations("3 + 6 = M+ M+ M+ M+ MR + 0 =", "", "36");
+    checkOperations("4 + 7 = M+ M+ M+ M+ MR + 0 =", "", "44");
+
+    checkOperations("0 + 20 M- M- M- M- M- = - MR =", "", "120");
+    checkOperations("1 + 21 M- M- M- M- M- = + MR =", "", "-83");
+    checkOperations("2 + 22 M- M- M- M- M- = * MR =", "", "-2,640");
+    checkOperations("3 + 23 M- M- M- M- M- = / MR =", "", "-0.22608695652174");
+  }
+
 
   void checkOperations(String pattern, String formula, String res) {
     for (String s : pattern.split(" ")) {
       if (operations.containsKey(s)) {
         clickOn(operations.get(s));
+      } else if (memoryOp.containsKey(s)) {
+        clickOnMemory(memoryOp.get(s));
       } else {
         handleDigit(s);
       }
@@ -894,7 +985,22 @@ public class RootControllerTest {
   }
 
   void clickOn(String query) {
-    robot.clickOn(robot.from(robot.lookup(".numpad").queryAll()).lookup(LabeledMatchers.hasText(query)).queryButton());
+    Node node = robot.from(robot.lookup(".numpad").queryAll()).lookup(LabeledMatchers.hasText(query)).queryButton();
+    Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
+    int x = (int) (boundsInScreen.getMinX() + (boundsInScreen.getMaxX() - boundsInScreen.getMinX()) / 2.0d);
+    int y = (int) (boundsInScreen.getMinY() + (boundsInScreen.getMaxY() - boundsInScreen.getMinY()) / 2.0d);
+
+
+    awtRobot.mouseMove(x, y);
+    awtRobot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+    awtRobot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+
+    FXTestUtils.awaitEvents();
+  }
+
+  void clickOnMemory(String query) {
+    robot.clickOn(query);
   }
 
   void handleDigit(String digit) {
@@ -907,5 +1013,6 @@ public class RootControllerTest {
     clickOn("C");
     FxAssert.verifyThat("#display", LabeledMatchers.hasText("0"));
     FxAssert.verifyThat("#formula", LabeledMatchers.hasText(""));
+    clickOnMemory(memoryOp.get("MC"));
   }
 }

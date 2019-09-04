@@ -131,11 +131,11 @@
 }
 
 .moveFormulaButton {
-  -fx-font-family: "Segoe UI Semibold";
-  -fx-font-size: 14;
+  -fx-font-family: "Calculator MDL2 Assets";
+  -fx-font-size: 12;
   -fx-background-color: transparent;
-  -fx-pref-width: 10;
-  -fx-pref-height: 10;
+  -fx-pref-width: 15;
+  -fx-pref-height: 15;
 }
 
 .moveFormulaButton:hover {

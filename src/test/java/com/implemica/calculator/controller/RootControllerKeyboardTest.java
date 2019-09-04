@@ -10,6 +10,7 @@ import org.testfx.api.FxAssert;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -33,14 +34,22 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     operationsKeyCode.put("N", new KeyCodeCombination(KeyCode.F9));
     operationsKeyCode.put("=", new KeyCodeCombination(KeyCode.EQUALS));
     operationsKeyCode.put("%", new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN));
+    operationsKeyCode.put("MC", new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN));
+    operationsKeyCode.put("MS", new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN));
+    operationsKeyCode.put("MR", new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+    operationsKeyCode.put("M+", new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN));
+    operationsKeyCode.put("M-", new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
+  }
+
+  public RootControllerKeyboardTest() throws AWTException {
   }
 
   @Start
   static void start(Stage stage) throws IOException {
     RootControllerTest.start(stage);
   }
-  @Override
 
+  @Override
   void checkOperations(String pattern, String formula, String res) {
     for (String s : pattern.split(" ")) {
       if (operationsKeyCode.containsKey(s)) {
@@ -74,5 +83,6 @@ public class RootControllerKeyboardTest extends RootControllerTest {
   @Override
   void clear() {
     pressOn("C");
+    pressOn("MC");
   }
 }

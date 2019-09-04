@@ -139,6 +139,10 @@ public class InputService {
       Button btn = (Button) event.getSource();
       calc.setOperation(formatOperation(btn.getText()));
 
+      if (calc.getRightOperand() == null) {
+        calc.setRightOperand(calc.getLeftOperand());
+      }
+
       return displayFormat(display);
     } else if (calcState == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(display));
@@ -267,6 +271,14 @@ public class InputService {
    * @return string with last element of memory
    */
   public String recallFromMemory() {
+    if (calcState == CalcState.LEFT) {
+      calcState = CalcState.TRANSIENT;
+    } else if (calcState == CalcState.TRANSIENT) {
+      calcState = CalcState.RIGHT;
+    } else if (calcState == CalcState.AFTER) {
+      calcState = CalcState.LEFT;
+    }
+
     return displayFormat(calc.getMemory().toString());
   }
 
@@ -287,6 +299,7 @@ public class InputService {
 
   public String displayFormat(String display) {
     DecimalFormat df;
+
     if (display.contains(",")) {
       display = display.replaceAll(",", "");
     }
@@ -294,8 +307,9 @@ public class InputService {
 
     BigDecimal big = new BigDecimal(display);
     String displayBuf = CalculatorModel.getRounded16IfItsPossible(big).toPlainString();
+    int length = displayBuf.replace(".", "").replace("-", "").length();
 
-    if (displayBuf.replace(".", "").length() <= 16 && !display.contains(".")) {
+    if (length <= 16 && !display.contains(".")) {
       if ((calcState == CalcState.TRANSIENT || calcState == CalcState.AFTER) && displayBuf.contains(".")) {
         String[] displayArr = displayBuf.split("\\.");
         String pattern = displayPattern.get(displayArr[0].length());
@@ -305,7 +319,7 @@ public class InputService {
       }
 
       return df.format(big);
-    } else if (displayBuf.startsWith("0") && displayBuf.replace(".", "").length() >= 17 && displayBuf.replace(".", "").length() <= 18 && display.contains(".")) {
+    } else if (displayBuf.startsWith("0") && length >= 17 && length <= 18 && display.contains(".")) {
       if (display.endsWith(".")) {
         df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
 
@@ -334,7 +348,12 @@ public class InputService {
         }
         df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
 
-        return df.format(big);
+        String res = df.format(big);
+        if (res.equals("-0")) {
+          res = "0";
+        }
+
+        return res;
       }
     }
 
@@ -344,7 +363,7 @@ public class InputService {
       if (tmpStr.replace(".", "").replace("-", "").length() <= 16) {
         display = tmpStr;
         return displayFormat(display);
-      } else if (tmpStr.startsWith("0") && tmpStr.replace(".", "").length() <= 18) {
+      } else if (tmpStr.startsWith("0") && tmpStr.replace(".", "").length() <= 17) {
         display = tmpStr;
         return displayFormat(display);
       } else {
@@ -352,9 +371,6 @@ public class InputService {
       }
     }
 
-    /*if (!display.contains(".") && display.replace(",", "").replace("-", "").length() > 17) {
-      return formatLong(big);
-    }*/
     return formatLong(big);
   }
 
@@ -393,6 +409,10 @@ public class InputService {
 
   public String highFormula(ActionEvent event, String oldFormula, String display) {
     Button btn = (Button) event.getSource();
+
+    if (calcState == CalcState.TRANSIENT && oldFormula.isBlank()) {
+      calcState = CalcState.LEFT;
+    }
 
     if (!oldFormula.equals("") && Character.isDigit(oldFormula.charAt(oldFormula.length() - 1))) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
@@ -558,18 +578,7 @@ public class InputService {
 
     if (!res.contains(".")) {
       res = res.replace("E", ".E");
-    } /*else {
-      Pattern p = Pattern.compile("[-]?\\d\\.");
-      Matcher matcher = p.matcher(res);
-      while (!matcher.find()) {
-        StringBuilder sb = new StringBuilder(res);
-        int pointIndex = sb.indexOf(".");
-        sb.deleteCharAt(pointIndex);
-        sb.insert(pointIndex - 1, ".");
-        res = sb.toString();
-        matcher = p.matcher(res);
-      }
-    }*/
+    }
 
     return res;
   }
