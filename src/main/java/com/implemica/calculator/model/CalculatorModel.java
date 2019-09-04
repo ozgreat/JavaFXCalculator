@@ -35,13 +35,24 @@ public class CalculatorModel {
   private String operation;
 
   /**
-   * Setting of precision
+   * Setting of precision for inner methods
    */
   public static final MathContext mc32 = new MathContext(32);
 
+  /**
+   * Setting of precision for outer methods
+   */
   public static final MathContext mc16 = new MathContext(16);
 
-  private static final BigDecimal max = new BigDecimal("9999999999999999E+8192");
+  /**
+   * Maximum processed value in the calculator
+   */
+  private static final BigDecimal MAX = new BigDecimal("9999999999999999E+8192");
+
+  /**
+   * Minimum processed value in the calculator
+   */
+  private static final BigDecimal MIN = new BigDecimal("-9999999999999999E+8192");
 
   /**
    * Map of binary operations
@@ -128,11 +139,17 @@ public class CalculatorModel {
     return getRounded32IfItsPossible(res).toString();
   }
 
+  /**
+   * Setting memory null value
+   */
   public void clearMemory() {
     memory = null;
   }
 
-
+  /**
+   * Add number to memory. Set memory as num.
+   * @param num number that we add
+   */
   public void memoryAdd(BigDecimal num) {
     if (memory != null) {
       memory = getRounded32IfItsPossible(memory.add(num));
@@ -141,6 +158,10 @@ public class CalculatorModel {
     }
   }
 
+  /**
+   * Subtract number to memory. Set memory as num.
+   * @param num number that we subtract
+   */
   public void memorySub(BigDecimal num) {
     if (memory != null) {
       memory = getRounded32IfItsPossible(memory.subtract(num));
@@ -177,7 +198,7 @@ public class CalculatorModel {
   }
 
   private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
-    if (res.compareTo(max) >= 0) {
+    if (res.compareTo(MAX) >= 0 || res.compareTo(MIN) <= 0) {
       throw new ArithmeticException("Overflow");
     }
     if (res.toString().contains(".")) {

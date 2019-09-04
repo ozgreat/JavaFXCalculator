@@ -241,7 +241,7 @@ public class RootController {
     } else if (event.getCode() == KeyCode.R) {
       btn.setText("⅟\uD835\uDC65");
       unaryOperationAction(new ActionEvent(btn, null));
-    } else if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.EQUALS) {
+    } else if (event.getCode() == KeyCode.EQUALS) {
       equalAction();
     }
 
@@ -345,7 +345,7 @@ public class RootController {
     formulaCalc(ae);
     try {
       String value = inputService.unaryOp(ae, display.getText());
-      display.setText(inputService.displayFormat(value));
+      display.setText(value);
     } catch (ArithmeticException e) {
       handleArithmetic(e.getMessage());
     }

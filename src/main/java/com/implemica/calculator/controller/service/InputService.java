@@ -305,7 +305,7 @@ public class InputService {
       }
 
       return df.format(big);
-    } else if (displayBuf.startsWith("0") && displayBuf.replace(".", "").length() >= 17 && display.contains(".")) {
+    } else if (displayBuf.startsWith("0") && displayBuf.replace(".", "").length() >= 17 && displayBuf.replace(".", "").length() <= 18 && display.contains(".")) {
       if (display.endsWith(".")) {
         df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
 
@@ -340,18 +340,22 @@ public class InputService {
 
     if (display.contains("E")) {
       BigDecimal tmp = new BigDecimal(display);
-      if (tmp.toPlainString().replace(".", "").replace("-", "").length() <= 16) {
-        display = tmp.toPlainString();
+      String tmpStr = tmp.toPlainString();
+      if (tmpStr.replace(".", "").replace("-", "").length() <= 16) {
+        display = tmpStr;
+        return displayFormat(display);
+      } else if (tmpStr.startsWith("0") && tmpStr.replace(".", "").length() <= 18) {
+        display = tmpStr;
+        return displayFormat(display);
       } else {
         return formatLong(tmp);
       }
     }
 
-    if (!display.contains(".") &&
-        display.replace(",", "").replace("-", "").replace(".", "").length() > 17) {
+    /*if (!display.contains(".") && display.replace(",", "").replace("-", "").length() > 17) {
       return formatLong(big);
-    }
-    return null;
+    }*/
+    return formatLong(big);
   }
 
   private String getFracPattern(String display, String pattern) {
@@ -546,8 +550,27 @@ public class InputService {
 
   private String formatLongN(BigDecimal big) {
     big = big.round(CalculatorModel.mc32);
-    DecimalFormat df = new DecimalFormat("#,##0.###############E0###", new DecimalFormatSymbols(Locale.ENGLISH));
+    DecimalFormat df = new DecimalFormat("0.###############E0###", new DecimalFormatSymbols(Locale.ENGLISH));
     String res = df.format(big);
+    if (!res.contains("E-")) {
+      res = res.replace("E", "E+");
+    }
+
+    if (!res.contains(".")) {
+      res = res.replace("E", ".E");
+    } /*else {
+      Pattern p = Pattern.compile("[-]?\\d\\.");
+      Matcher matcher = p.matcher(res);
+      while (!matcher.find()) {
+        StringBuilder sb = new StringBuilder(res);
+        int pointIndex = sb.indexOf(".");
+        sb.deleteCharAt(pointIndex);
+        sb.insert(pointIndex - 1, ".");
+        res = sb.toString();
+        matcher = p.matcher(res);
+      }
+    }*/
+
     return res;
   }
 
@@ -593,7 +616,7 @@ public class InputService {
 
   private String incrementEPart(String[] displayArr, String ePart) {
     displayArr[0] = displayArr[0].substring(0, displayArr[0].length() - 1);
-    int lastNum = Integer.parseInt(/*Character.toString(ePart.charAt(ePart.length() - 1))*/ePart);
+    int lastNum = Integer.parseInt(ePart);
 
     if (lastNum + 1 >= 0) {
       return "+" + (lastNum + 1);

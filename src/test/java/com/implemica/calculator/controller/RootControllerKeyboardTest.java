@@ -31,7 +31,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     operationsKeyCode.put("1/x", new KeyCodeCombination(KeyCode.R));
     operationsKeyCode.put("SQR", new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN));
     operationsKeyCode.put("N", new KeyCodeCombination(KeyCode.F9));
-    operationsKeyCode.put("=", new KeyCodeCombination(KeyCode.ENTER));
+    operationsKeyCode.put("=", new KeyCodeCombination(KeyCode.EQUALS));
     operationsKeyCode.put("%", new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN));
   }
 
