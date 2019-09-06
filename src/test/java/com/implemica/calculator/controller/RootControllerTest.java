@@ -14,20 +14,20 @@ import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.LabeledMatchers;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 @ExtendWith(ApplicationExtension.class)
 public class RootControllerTest {
-  FxRobot robot = new FxRobot();
-  static RootController controller;
+  private FxRobot robot = new FxRobot();
+  private static RootController controller;
 
-  Robot awtRobot = new Robot();
+  static Robot awtRobot;
 
   static final BiMap<String, String> operations = HashBiMap.create();
   static final BiMap<String, String> memoryOp = HashBiMap.create();
@@ -54,11 +54,10 @@ public class RootControllerTest {
     memoryOp.put("MR", "\uF755");
   }
 
-  public RootControllerTest() throws AWTException {
-  }
 
   @Start
-  static void start(Stage stage) throws IOException {
+  static void start(Stage stage) throws IOException, AWTException {
+    awtRobot = new Robot();
     Root root = new Root();
     Scene scene = new Scene(root.getFXML());
     controller = root.getLoader().getController();
@@ -666,8 +665,6 @@ public class RootControllerTest {
 
   @Test
   void reverseTest() {
-    checkOperations("1/x ", "1/( 0 )", "Cannot divide by zero");
-
     checkOperations("1 1/x", "1/( 1 )", "1");
     checkOperations("2 1/x", "1/( 2 )", "0.5");
     checkOperations("10 1/x", "1/( 10 )", "0.1");
@@ -984,7 +981,7 @@ public class RootControllerTest {
     checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
     checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
 
-   checkOperations("9999999999999999 + 1 = * = * = * = * = * = * = * = * = * =", "", "1.E+8192");
+    checkOperations("9999999999999999 + 1 = * = * = * = * = * = * = * = * = * =", "", "1.E+8192");
     checkOperations("9999999999999999 + 1 = * = * = * = * = * = * = * = * = * = * =", "", "Overflow");
     checkOperations("9999999999999999 N - 1 = * = * = * = * = * = * = * = * = * = * =", "", "Overflow");
   }
@@ -1013,7 +1010,7 @@ public class RootControllerTest {
     checkErrorOp("0 / 0 =", "", "Result is undefined");
 
     for (int i = 1; i <= 100; i++) {
-      checkErrorOp(i + " N SQR", "√( -" + i +" )", "Result is undefined");
+      checkErrorOp(i + " N SQR", "√( -" + i + " )", "Result is undefined");
     }
     checkErrorOp("9999999999999998 = N SQR", "√( -9999999999999998 )", "Result is undefined");
     checkErrorOp("9999999999999999 = N SQR", "√( -9999999999999999 )", "Result is undefined");
@@ -1021,7 +1018,7 @@ public class RootControllerTest {
   }
 
   @Test
-  void setNormalTest(){
+  void setNormalTest() {
     checkSetNormal("0 1/x =", "", "0");
     checkSetNormal("0 1/x <-", "", "0");
     checkSetNormal("0 1/x C", "", "0");
@@ -1036,17 +1033,16 @@ public class RootControllerTest {
     //todo: more cases
   }
 
-
   void checkOperations(String pattern, String formula, String res) {
     clicker(pattern);
-    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
-    FxAssert.verifyThat("#formula", LabeledMatchers.hasText(formula));
+    FxAssert.verifyThat("#display", hasText(res));
+    FxAssert.verifyThat("#formula", hasText(formula));
     clear();
   }
 
-  void checkSetNormal(String pattern, String formula, String res){
+  void checkSetNormal(String pattern, String formula, String res) {
     clicker(pattern);
-    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
+    FxAssert.verifyThat("#display", hasText(res));
     assertEquals(formula, controller.getFormulaStr());
     assertFalse(controller.getAddButton().isDisabled());
     assertFalse(controller.getSubtractButton().isDisabled());
@@ -1079,7 +1075,7 @@ public class RootControllerTest {
 
   void checkForBigFormula(String pattern, String formula, String res) {
     clicker(pattern);
-    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
+    FxAssert.verifyThat("#display", hasText(res));
 
     assertEquals(formula, controller.getFormulaStr());
     clear();
@@ -1088,7 +1084,7 @@ public class RootControllerTest {
   void checkErrorOp(String pattern, String formula, String res) {
     clicker(pattern);
 
-    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
+    FxAssert.verifyThat("#display", hasText(res));
     assertEquals(formula, controller.getFormulaStr());
     assertTrue(controller.getAddButton().isDisabled());
     assertTrue(controller.getSubtractButton().isDisabled());
@@ -1108,7 +1104,7 @@ public class RootControllerTest {
   }
 
   void clickOn(String query) {
-    Node node = robot.from(robot.lookup(".numpad").queryAll()).lookup(LabeledMatchers.hasText(query)).queryButton();
+    Node node = robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(query)).queryButton();
     Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
     int x = (int) (boundsInScreen.getMinX() + (boundsInScreen.getMaxX() - boundsInScreen.getMinX()) / 2.0d);
     int y = (int) (boundsInScreen.getMinY() + (boundsInScreen.getMaxY() - boundsInScreen.getMinY()) / 2.0d);
@@ -1145,8 +1141,8 @@ public class RootControllerTest {
 
   void clear() {
     clickOn("C");
-    FxAssert.verifyThat("#display", LabeledMatchers.hasText("0"));
-    FxAssert.verifyThat("#formula", LabeledMatchers.hasText(""));
+    FxAssert.verifyThat("#display", hasText("0"));
+    FxAssert.verifyThat("#formula", hasText(""));
     clickOnMemory(memoryOp.get("MC"));
   }
 }

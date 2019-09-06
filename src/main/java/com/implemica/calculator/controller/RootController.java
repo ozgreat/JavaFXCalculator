@@ -20,6 +20,8 @@ import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Getter
@@ -461,7 +463,7 @@ public class RootController {
     if (resizeH) {
       if (stage.getWidth() <= minSize.getWidth()) {
         if (moveH) {
-          deltaX = stage.getX() - t.getScreenX();
+          deltaX = stage.getX() - t.getScreenX() + 1;
           if (t.getX() < 0) {// if new > old, it's permitted
             stage.setWidth(deltaX + stage.getWidth());
             stage.setX(t.getScreenX());
@@ -473,7 +475,7 @@ public class RootController {
         }
       } else if (stage.getWidth() > minSize.getWidth()) {
         if (moveH) {
-          deltaX = stage.getX() - t.getScreenX();
+          deltaX = stage.getX() - t.getScreenX() + 1;
           stage.setWidth(deltaX + stage.getWidth());
           stage.setX(t.getScreenX());
         } else {
@@ -485,7 +487,7 @@ public class RootController {
     if (resizeV) {
       if (stage.getHeight() <= minSize.getHeight()) {
         if (moveV) {
-          deltaY = stage.getY() - t.getScreenY();
+          deltaY = stage.getY() - t.getScreenY() + 1;
           if (t.getY() < 0) {
             stage.setHeight(deltaY + stage.getHeight());
             stage.setY(t.getScreenY());
@@ -497,7 +499,7 @@ public class RootController {
         }
       } else if (stage.getHeight() > minSize.getHeight()) {
         if (moveV) {
-          deltaY = stage.getY() - t.getScreenY();
+          deltaY = stage.getY() - t.getScreenY() + 1;
           stage.setHeight(deltaY + stage.getHeight());
           stage.setY(t.getScreenY());
         } else {
@@ -633,24 +635,9 @@ public class RootController {
 
   private void handleArithmetic(String msg) {
     display.setText(msg);
-
-    negateButton.setDisable(true);
-    addButton.setDisable(true);
-    subtractButton.setDisable(true);
-    sqrtButton.setDisable(true);
-    percentButton.setDisable(true);
-    pointButton.setDisable(true);
-    powButton.setDisable(true);
-    divideButton.setDisable(true);
-    multiplyButton.setDisable(true);
-    reverseButton.setDisable(true);
-
-    memoryClearButton.setDisable(true);
-    memoryMinusButton.setDisable(true);
-    memoryPlusButton.setDisable(true);
-    memoryRecallButton.setDisable(true);
-    memorySaveButton.setDisable(true);
-    memoryShow.setDisable(true);
+    Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
+        multiplyButton, reverseButton, memoryClearButton, memoryMinusButton, memoryPlusButton, memoryRecallButton,
+        memorySaveButton, memoryShow).collect(Collectors.toList()).forEach(button -> button.setDisable(true));
   }
 
   private void setNormal() {
@@ -658,20 +645,12 @@ public class RootController {
     formula.setText("");
     clearAction();
 
-    negateButton.setDisable(false);
-    addButton.setDisable(false);
-    subtractButton.setDisable(false);
-    sqrtButton.setDisable(false);
-    percentButton.setDisable(false);
-    pointButton.setDisable(false);
-    powButton.setDisable(false);
-    divideButton.setDisable(false);
-    multiplyButton.setDisable(false);
-    reverseButton.setDisable(false);
+    Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
+        multiplyButton, reverseButton, memoryMinusButton, memoryPlusButton, memorySaveButton).
+        collect(Collectors.toList()).forEach(button -> button.setDisable(false));
+
     memoryDisableIfEmpty();
-    memoryMinusButton.setDisable(false);
-    memoryPlusButton.setDisable(false);
-    memorySaveButton.setDisable(false);
+
   }
 
   private void memoryDisableIfEmpty() {

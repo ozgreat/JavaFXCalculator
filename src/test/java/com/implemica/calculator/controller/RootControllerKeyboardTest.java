@@ -3,12 +3,9 @@ package com.implemica.calculator.controller;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
-import org.testfx.api.FxAssert;
+import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.control.LabeledMatchers;
 
 import java.awt.*;
 import java.io.IOException;
@@ -16,51 +13,61 @@ import java.util.Arrays;
 import java.util.List;
 
 public class RootControllerKeyboardTest extends RootControllerTest {
-  private static final BiMap<String, KeyCodeCombination> operationsKeyCode = HashBiMap.create();
+  private static final BiMap<String, KeyCode[]> operationsKeyCode = HashBiMap.create();
 
   private static final List<KeyCode> digits = Arrays.asList(KeyCode.DIGIT0, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,
       KeyCode.DIGIT4, KeyCode.DIGIT5, KeyCode.DIGIT6, KeyCode.DIGIT7, KeyCode.DIGIT8, KeyCode.DIGIT9);
 
-  static {
-    operationsKeyCode.put("C", new KeyCodeCombination(KeyCode.ESCAPE));
-    operationsKeyCode.put("CE", new KeyCodeCombination(KeyCode.DELETE));
-    operationsKeyCode.put("<-", new KeyCodeCombination(KeyCode.BACK_SPACE));//Backspace
-    operationsKeyCode.put("+", new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHIFT_DOWN));
-    operationsKeyCode.put("-", new KeyCodeCombination(KeyCode.SUBTRACT));
-    operationsKeyCode.put("*", new KeyCodeCombination(KeyCode.DIGIT8, KeyCombination.SHIFT_DOWN));//multiply
-    operationsKeyCode.put("/", new KeyCodeCombination(KeyCode.DIVIDE));
-    operationsKeyCode.put("1/x", new KeyCodeCombination(KeyCode.R));
-    operationsKeyCode.put("SQR", new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN));
-    operationsKeyCode.put("N", new KeyCodeCombination(KeyCode.F9));
-    operationsKeyCode.put("=", new KeyCodeCombination(KeyCode.EQUALS));
-    operationsKeyCode.put("%", new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN));
-    operationsKeyCode.put("MC", new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN));
-    operationsKeyCode.put("MS", new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN));
-    operationsKeyCode.put("MR", new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
-    operationsKeyCode.put("M+", new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN));
-    operationsKeyCode.put("M-", new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
-  }
 
-  public RootControllerKeyboardTest() throws AWTException {
+  static {
+    operationsKeyCode.put("C", new KeyCode[]{KeyCode.ESCAPE});
+    operationsKeyCode.put("CE", new KeyCode[]{KeyCode.DELETE});
+    operationsKeyCode.put("<-", new KeyCode[]{KeyCode.BACK_SPACE});
+    operationsKeyCode.put("+", new KeyCode[]{KeyCode.SHIFT, KeyCode.EQUALS});
+    operationsKeyCode.put("-", new KeyCode[]{KeyCode.SUBTRACT});
+    operationsKeyCode.put("*", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT8});//multiply
+    operationsKeyCode.put("/", new KeyCode[]{KeyCode.DIVIDE});
+    operationsKeyCode.put("1/x", new KeyCode[]{KeyCode.R});
+    operationsKeyCode.put("SQR", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT2});
+    operationsKeyCode.put("N", new KeyCode[]{KeyCode.F9});
+    operationsKeyCode.put("=", new KeyCode[]{KeyCode.EQUALS});
+    operationsKeyCode.put("%", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT5});
+    operationsKeyCode.put("MC", new KeyCode[]{KeyCode.CONTROL, KeyCode.L});
+    operationsKeyCode.put("MS", new KeyCode[]{KeyCode.CONTROL, KeyCode.M});
+    operationsKeyCode.put("MR", new KeyCode[]{KeyCode.CONTROL, KeyCode.R});
+    operationsKeyCode.put("M+", new KeyCode[]{KeyCode.CONTROL, KeyCode.P});
+    operationsKeyCode.put("M-", new KeyCode[]{KeyCode.CONTROL, KeyCode.Q});
   }
 
   @Start
-  static void start(Stage stage) throws IOException {
+  static void start(Stage stage) throws IOException, AWTException {
     RootControllerTest.start(stage);
   }
 
   private void pressOn(String query) {
-    robot.push(operationsKeyCode.get(query));
+//    robot.push(operationsKeyCode.get(query));
+    KeyCode[] comb = operationsKeyCode.get(query);
+    for (KeyCode k : comb) {
+      awtRobot.keyPress(k.getCode());
+    }
+    for (KeyCode k : comb) {
+      awtRobot.keyRelease(k.getCode());
+    }
+
+    FXTestUtils.awaitEvents();
   }
 
   @Override
   void handleDigit(String digit) {
     for (char ch : digit.toCharArray()) {
       if (ch == '.') {
-        robot.push(KeyCode.PERIOD);
+        awtRobot.keyPress(KeyCode.PERIOD.getCode());
+        awtRobot.keyRelease(KeyCode.PERIOD.getCode());
       } else {
-        robot.push(digits.get(Character.getNumericValue(ch)));
+        awtRobot.keyPress(digits.get(Character.getNumericValue(ch)).getCode());
+        awtRobot.keyRelease(digits.get(Character.getNumericValue(ch)).getCode());
       }
+      FXTestUtils.awaitEvents();
     }
   }
 
@@ -81,5 +88,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
         handleDigit(s);
       }
     }
+    FXTestUtils.awaitEvents();
   }
+
 }
