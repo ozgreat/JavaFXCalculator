@@ -49,22 +49,6 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     RootControllerTest.start(stage);
   }
 
-  @Override
-  void checkOperations(String pattern, String formula, String res) {
-    for (String s : pattern.split(" ")) {
-      if (operationsKeyCode.containsKey(s)) {
-        pressOn(s);
-      } else if (s.equals("POW")) {
-        clickOn(operations.get(s));
-      } else {
-        handleDigit(s);
-      }
-    }
-    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
-    FxAssert.verifyThat("#formula", LabeledMatchers.hasText(formula));
-    clear();
-  }
-
   private void pressOn(String query) {
     robot.push(operationsKeyCode.get(query));
   }
@@ -84,5 +68,18 @@ public class RootControllerKeyboardTest extends RootControllerTest {
   void clear() {
     pressOn("C");
     pressOn("MC");
+  }
+
+  @Override
+  void clicker(String pattern) {
+    for (String s : pattern.split(" ")) {
+      if (operationsKeyCode.containsKey(s)) {
+        pressOn(s);
+      } else if (s.equals("POW")) {
+        clickOn(operations.get(s));
+      } else {
+        handleDigit(s);
+      }
+    }
   }
 }

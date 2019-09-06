@@ -2,13 +2,20 @@ package com.implemica.calculator.view;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class Root {
   private static final String ROOT_FXML_PATH = "view/root.fxml";
+  private FXMLLoader loader;
 
-  public Parent getRoot() throws IOException {
-    return FXMLLoader.load(getClass().getClassLoader().getResource(ROOT_FXML_PATH));
+  public Root() {
+    loader = new FXMLLoader(getClass().getClassLoader().getResource(ROOT_FXML_PATH));
+  }
+
+  public Parent getFXML() throws IOException {
+    return loader.load();
   }
 }

@@ -134,9 +134,10 @@
   -fx-font-family: "Calculator MDL2 Assets";
   -fx-font-size: 12;
   -fx-background-color: transparent;
-  -fx-pref-width: 15;
-  -fx-pref-height: 15;
+  -fx-pref-width: 20;
+  -fx-pref-height: 20;
 }
+
 
 .moveFormulaButton:hover {
   -fx-background-color: #b9b9b9;
@@ -190,5 +191,9 @@
   -fx-font-family: "Segoe UI";
   -fx-text-fill: #5c5c5c;
 }
+
+/*#formulaPane {
+  -fx-background-color: transparent;
+}*/
 
 

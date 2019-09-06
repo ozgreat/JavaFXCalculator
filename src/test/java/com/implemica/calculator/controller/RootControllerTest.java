@@ -2,12 +2,10 @@ package com.implemica.calculator.controller;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.implemica.calculator.Main;
 import com.implemica.calculator.view.Root;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,9 +20,12 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(ApplicationExtension.class)
 public class RootControllerTest {
   FxRobot robot = new FxRobot();
+  static RootController controller;
 
   Robot awtRobot = new Robot();
 
@@ -58,7 +59,10 @@ public class RootControllerTest {
 
   @Start
   static void start(Stage stage) throws IOException {
-    stage.setScene(new Scene(new Root().getRoot()));
+    Root root = new Root();
+    Scene scene = new Scene(root.getFXML());
+    controller = root.getLoader().getController();
+    stage.setScene(scene);
     stage.show();
   }
 
@@ -968,8 +972,100 @@ public class RootControllerTest {
     checkOperations("3 + 23 M- M- M- M- M- = / MR =", "", "-0.22608695652174");
   }
 
+  @Test
+  void overflowTest() {
+    checkForBigFormula("1000000000000000 POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) )", "1.E+7680");
+    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+
+    checkForBigFormula("0.0000000000000001 POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) )", "1.E-8192");
+    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+
+   checkOperations("9999999999999999 + 1 = * = * = * = * = * = * = * = * = * =", "", "1.E+8192");
+    checkOperations("9999999999999999 + 1 = * = * = * = * = * = * = * = * = * = * =", "", "Overflow");
+    checkOperations("9999999999999999 N - 1 = * = * = * = * = * = * = * = * = * = * =", "", "Overflow");
+  }
+
+  @Test
+  void cannotDivideByZeroTest() {
+    checkErrorOp("0 1/x", "1/( 0 )", "Cannot divide by zero");
+
+
+    for (int i = 1; i <= 100; i++) {
+      checkErrorOp(i + " / 0 =", "", "Cannot divide by zero");
+      checkErrorOp(i + " N / 0 =", "", "Cannot divide by zero");
+    }
+
+    checkErrorOp("9999999999999998 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("9999999999999999 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("9999999999999998 N / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("9999999999999999 N / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("9999999999999999 + 1 = / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("9999999999999999 + 1 = N / 0 =", "", "Cannot divide by zero");
+  }
+
+
+  @Test
+  void resultIsUndefinedTest() {
+    checkErrorOp("0 / 0 =", "", "Result is undefined");
+
+    for (int i = 1; i <= 100; i++) {
+      checkErrorOp(i + " N SQR", "√( -" + i +" )", "Result is undefined");
+    }
+    checkErrorOp("9999999999999998 = N SQR", "√( -9999999999999998 )", "Result is undefined");
+    checkErrorOp("9999999999999999 = N SQR", "√( -9999999999999999 )", "Result is undefined");
+    checkErrorOp("9999999999999999 + 1 = N SQR", "√( -1.E+16 )", "Result is undefined");
+  }
+
+  @Test
+  void setNormalTest(){
+    checkSetNormal("0 1/x =", "", "0");
+    checkSetNormal("0 1/x <-", "", "0");
+    checkSetNormal("0 1/x C", "", "0");
+    checkSetNormal("0 1/x CE", "", "0");
+    checkSetNormal("0 1/x 9", "", "9");
+
+
+    for (int i = 1; i <= 100; i++) {
+      checkSetNormal(i + " / 0 = =", "", "0");
+      checkSetNormal(i + " N / 0 = =", "", "0");
+    }
+    //todo: more cases
+  }
+
 
   void checkOperations(String pattern, String formula, String res) {
+    clicker(pattern);
+    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
+    FxAssert.verifyThat("#formula", LabeledMatchers.hasText(formula));
+    clear();
+  }
+
+  void checkSetNormal(String pattern, String formula, String res){
+    clicker(pattern);
+    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
+    assertEquals(formula, controller.getFormulaStr());
+    assertFalse(controller.getAddButton().isDisabled());
+    assertFalse(controller.getSubtractButton().isDisabled());
+    assertFalse(controller.getMultiplyButton().isDisabled());
+    assertFalse(controller.getDivideButton().isDisabled());
+    assertFalse(controller.getSqrtButton().isDisabled());
+    assertFalse(controller.getPowButton().isDisabled());
+    assertFalse(controller.getPointButton().isDisabled());
+    assertFalse(controller.getReverseButton().isDisabled());
+    /*assertFalse(controller.getMemoryClearButton().isDisabled());
+    assertFalse(controller.getMemoryMinusButton().isDisabled());
+    assertFalse(controller.getMemoryPlusButton().isDisabled());
+    assertFalse(controller.getMemoryRecallButton().isDisabled());
+    assertFalse(controller.getMemorySaveButton().isDisabled());
+    assertFalse(controller.getMemoryShow().isDisabled());*/
+    clear();
+  }
+
+  void clicker(String pattern) {
     for (String s : pattern.split(" ")) {
       if (operations.containsKey(s)) {
         clickOn(operations.get(s));
@@ -979,8 +1075,35 @@ public class RootControllerTest {
         handleDigit(s);
       }
     }
+  }
+
+  void checkForBigFormula(String pattern, String formula, String res) {
+    clicker(pattern);
     FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
-    FxAssert.verifyThat("#formula", LabeledMatchers.hasText(formula));
+
+    assertEquals(formula, controller.getFormulaStr());
+    clear();
+  }
+
+  void checkErrorOp(String pattern, String formula, String res) {
+    clicker(pattern);
+
+    FxAssert.verifyThat("#display", LabeledMatchers.hasText(res));
+    assertEquals(formula, controller.getFormulaStr());
+    assertTrue(controller.getAddButton().isDisabled());
+    assertTrue(controller.getSubtractButton().isDisabled());
+    assertTrue(controller.getMultiplyButton().isDisabled());
+    assertTrue(controller.getDivideButton().isDisabled());
+    assertTrue(controller.getSqrtButton().isDisabled());
+    assertTrue(controller.getPowButton().isDisabled());
+    assertTrue(controller.getPointButton().isDisabled());
+    assertTrue(controller.getReverseButton().isDisabled());
+    assertTrue(controller.getMemoryClearButton().isDisabled());
+    assertTrue(controller.getMemoryMinusButton().isDisabled());
+    assertTrue(controller.getMemoryPlusButton().isDisabled());
+    assertTrue(controller.getMemoryRecallButton().isDisabled());
+    assertTrue(controller.getMemorySaveButton().isDisabled());
+    assertTrue(controller.getMemoryShow().isDisabled());
     clear();
   }
 
@@ -1000,7 +1123,18 @@ public class RootControllerTest {
   }
 
   void clickOnMemory(String query) {
-    robot.clickOn(query);
+    Node node = robot.lookup(query).queryButton();
+
+    Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
+    int x = (int) (boundsInScreen.getMinX() + (boundsInScreen.getMaxX() - boundsInScreen.getMinX()) / 2.0d);
+    int y = (int) (boundsInScreen.getMinY() + (boundsInScreen.getMaxY() - boundsInScreen.getMinY()) / 2.0d);
+
+
+    awtRobot.mouseMove(x, y);
+    awtRobot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+    awtRobot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+    FXTestUtils.awaitEvents();
   }
 
   void handleDigit(String digit) {

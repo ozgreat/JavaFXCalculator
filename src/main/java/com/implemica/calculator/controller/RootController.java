@@ -15,10 +15,15 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
 
+
+@Getter
+@Setter
 public class RootController {
   @FXML
   private Label display;
@@ -190,6 +195,7 @@ public class RootController {
           "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
           "  -fx-text-alignment: right;");
 
+
     });
 
 
@@ -250,7 +256,7 @@ public class RootController {
    */
   @FXML
   public void addNumberOrComma(ActionEvent event) { // buttons 0-9 and ','
-    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
       setNormal();
     }
     String value = inputService.enterNumberOrComma(event, display.getText());
@@ -262,7 +268,7 @@ public class RootController {
    */
   @FXML
   public void clearAction() { //button C
-    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
       setNormal();
     }
     display.setText("0");
@@ -278,7 +284,7 @@ public class RootController {
    */
   @FXML
   public void clearEntryAction() {
-    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
       setNormal();
     }
     display.setText("0");
@@ -302,7 +308,7 @@ public class RootController {
    */
   @FXML
   public void backspaceButtonAction() {
-    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
       setNormal();
     } else if (display.getText().length() == 1 && inputService.isBackspaceAvailable()) {
       clearEntryAction();
@@ -321,7 +327,7 @@ public class RootController {
 
   @FXML
   public void equalAction() {
-    if (display.getText().equals(InputService.CANNOT_DIVIDE_BY_ZERO) || display.getText().equals(InputService.OVERFLOW)) {
+    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
       setNormal();
     }
     formula.setText("");
@@ -616,6 +622,10 @@ public class RootController {
         formulaBegIndex = i;
       }
       formulaEndIndex = formulaStr.length();
+    } else {
+      leftFormulaButton.setVisible(false);
+      rightFormulaButton.setVisible(false);
+      text.setText(formulaStr);
     }
     formula.setText(text.getText());
   }
@@ -634,6 +644,13 @@ public class RootController {
     divideButton.setDisable(true);
     multiplyButton.setDisable(true);
     reverseButton.setDisable(true);
+
+    memoryClearButton.setDisable(true);
+    memoryMinusButton.setDisable(true);
+    memoryPlusButton.setDisable(true);
+    memoryRecallButton.setDisable(true);
+    memorySaveButton.setDisable(true);
+    memoryShow.setDisable(true);
   }
 
   private void setNormal() {
@@ -651,6 +668,10 @@ public class RootController {
     divideButton.setDisable(false);
     multiplyButton.setDisable(false);
     reverseButton.setDisable(false);
+    memoryDisableIfEmpty();
+    memoryMinusButton.setDisable(false);
+    memoryPlusButton.setDisable(false);
+    memorySaveButton.setDisable(false);
   }
 
   private void memoryDisableIfEmpty() {

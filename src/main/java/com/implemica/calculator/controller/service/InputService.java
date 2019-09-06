@@ -16,8 +16,7 @@ import java.util.regex.Pattern;
 @Getter
 @Setter
 public class InputService {
-  public static final String CANNOT_DIVIDE_BY_ZERO = "Cannot divide by zero";
-  public static final String OVERFLOW = "Overflow";
+  public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero","Overflow","Result is undefined");
   /**
    * Current state of calculator
    */
@@ -186,10 +185,10 @@ public class InputService {
 
       String result = calc.getBinaryOperationResult();
 
-
-      if (result.equals(CANNOT_DIVIDE_BY_ZERO) || result.equals(OVERFLOW)) {
+/*
+      if (EXCEPTION_MESSAGES.contains(result)) {
         return result;
-      }
+      }*/
 
       settingAfterResult(result);
 

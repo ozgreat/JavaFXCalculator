@@ -21,7 +21,7 @@ public class Main extends Application {
 
   @Override
   public void start(Stage primaryStage) throws IOException {
-    Parent root = new Root().getRoot();
+    Parent root = new Root().getFXML();
     primaryStage.getIcons().add(new Image(getClass().getResource(ICON_PATH).toExternalForm()));
     primaryStage.setTitle("Calculator");
     primaryStage.setScene(new Scene(root));

@@ -5,10 +5,13 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
+
+import static java.lang.Integer.parseInt;
 
 @Getter
 @Setter
@@ -45,14 +48,10 @@ public class CalculatorModel {
   public static final MathContext mc16 = new MathContext(16);
 
   /**
-   * Maximum processed value in the calculator
+   * Maximum E degree
    */
-  private static final BigDecimal MAX = new BigDecimal("9999999999999999E+8192");
+  private static final int MAX = 10000;
 
-  /**
-   * Minimum processed value in the calculator
-   */
-  private static final BigDecimal MIN = new BigDecimal("-9999999999999999E+8192");
 
   /**
    * Map of binary operations
@@ -92,9 +91,9 @@ public class CalculatorModel {
     }
 
 
-    if (operation == null) {
+   /* if (operation == null) {
       return "0";
-    }
+    }*/
 
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
@@ -205,8 +204,12 @@ public class CalculatorModel {
   }
 
   private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
-    if (res.compareTo(MAX) >= 0 || res.compareTo(MIN) <= 0) {
-      throw new ArithmeticException("Overflow");
+    if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
+      DecimalFormat df = new DecimalFormat("0.################E0###");
+      String[] strArr = df.format(res).split("E");
+      if (MAX < Math.abs(parseInt(strArr[1]))) {
+        throw new ArithmeticException("Overflow");
+      }
     }
     if (res.toString().contains(".")) {
       res = res.round(mc);

@@ -42,18 +42,6 @@
                                     <Font name="Segoe MDL2 Assets" size="16.0" />
                                  </font>
                               </Label>
-                              <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="10.0" layoutY="51.0" prefHeight="5.0" prefWidth="303.0" textAlignment="RIGHT" textOverrun="CLIP" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="51.0" />
-                              <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="5.0" layoutY="56.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="308.0" prefHeight="57.0" prefWidth="313.0" text="0" textAlignment="RIGHT" wrapText="true" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="56.0">
-                                 <font>
-                                    <Font name="Segoe MDL2 Assets" size="15.0" />
-                                 </font>
-                                 <rotationAxis>
-                                    <Point3D />
-                                 </rotationAxis>
-                                 <padding>
-                                    <Insets right="3.0" />
-                                 </padding>
-                              </Label>
                                   <Button id="history" fx:id="openHistory" layoutX="275.0" layoutY="-3.0" mnemonicParsing="false" onAction="#historyAction" prefHeight="40.0" prefWidth="43.0" text="" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
                                  <font>
                                     <Font name="Segoe MDL2 Assets" size="12.0" />
@@ -86,6 +74,18 @@
                                     </Label>
                                  </graphic>
                               </Button>
+                              <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" layoutX="14.0" layoutY="51.0" prefHeight="18.0" prefWidth="3000.0" textAlignment="RIGHT" textOverrun="CLIP" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="51.0" />
+                              <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="5.0" layoutY="56.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="308.0" prefHeight="57.0" prefWidth="313.0" text="0" textAlignment="RIGHT" wrapText="true" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="56.0">
+                                 <font>
+                                    <Font name="Segoe MDL2 Assets" size="15.0" />
+                                 </font>
+                                 <rotationAxis>
+                                    <Point3D />
+                                 </rotationAxis>
+                                 <padding>
+                                    <Insets right="3.0" />
+                                 </padding>
+                              </Label>
                               </children>
                           </AnchorPane>
                         <AnchorPane fx:id="historyUpperPane" layoutY="-2.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#historyAction" prefHeight="153.0" prefWidth="325.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
