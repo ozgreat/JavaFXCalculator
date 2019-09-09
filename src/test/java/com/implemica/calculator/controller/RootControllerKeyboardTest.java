@@ -3,12 +3,8 @@ package com.implemica.calculator.controller;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import javafx.scene.input.KeyCode;
-import javafx.stage.Stage;
 import org.loadui.testfx.utils.FXTestUtils;
-import org.testfx.framework.junit5.Start;
 
-import java.awt.*;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,11 +33,6 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     operationsKeyCode.put("MR", new KeyCode[]{KeyCode.CONTROL, KeyCode.R});
     operationsKeyCode.put("M+", new KeyCode[]{KeyCode.CONTROL, KeyCode.P});
     operationsKeyCode.put("M-", new KeyCode[]{KeyCode.CONTROL, KeyCode.Q});
-  }
-
-  @Start
-  static void start(Stage stage) throws IOException, AWTException {
-    RootControllerTest.start(stage);
   }
 
   private void pressOn(String query) {

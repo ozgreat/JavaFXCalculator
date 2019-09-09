@@ -6,11 +6,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxRobot;
-import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
+import org.testfx.framework.junit5.ApplicationTest;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -49,11 +47,11 @@ enum DragPoint {
   }
 }
 
-@ExtendWith(ApplicationExtension.class)
-public class RootViewTest {
+public class RootViewTest extends ApplicationTest {
   static Robot awtRobot;
   static RootController controller;
   private FxRobot fxRobot = new FxRobot();
+  private Scene scene;
 
   private static Map<DragPoint, Function<Window, Point2D>> dragFunc = new HashMap<>();
 
@@ -68,12 +66,14 @@ public class RootViewTest {
     dragFunc.put(CENTER_TOP, w -> new Point2D(w.getX() + w.getWidth() / 2, w.getY() + 1.0d));
   }
 
-  @Start
-  static void start(Stage stage) throws AWTException, IOException {
+  @Override
+  public void start(Stage stage) throws AWTException, IOException {
     awtRobot = new Robot();
-    Root root = new Root();
-    Scene scene = new Scene(root.getFXML(), 325, 530);
-    controller = root.getLoader().getController();
+    if (Window.getWindows().size() == 0) {
+      Root root = Root.getRoot();
+      scene = root.getScene();
+      controller = root.getLoader().getController();
+    }
     stage.setScene(scene);
     stage.show();
   }
@@ -92,16 +92,30 @@ public class RootViewTest {
     checkDrag(LEFT_TOP, -10, 0);
     checkDrag(LEFT_TOP, 0, -10);
 
-
     //Left side
     checkDrag(LEFT_CENTER, -10, -10);
-    checkDrag(LEFT_CENTER, -10,0);
+    checkDrag(LEFT_CENTER, -10, 0);
     checkDrag(LEFT_CENTER, 0, -10);
 
     //Left bottom corner
-    checkDrag(LEFT_BOTTOM, -10,10);
+    checkDrag(LEFT_BOTTOM, -10, 10);
     checkDrag(LEFT_BOTTOM, -10, 0);
     checkDrag(LEFT_BOTTOM, 0, 10);
+
+    //Right top corner
+    checkDrag(RIGHT_TOP, 10, -10);
+    checkDrag(RIGHT_TOP, 0, -10);
+    checkDrag(RIGHT_TOP, 10, 0);
+
+    //Right side
+    checkDrag(RIGHT_CENTER, 10, 10);
+    checkDrag(RIGHT_CENTER, 0, 10);
+    checkDrag(RIGHT_CENTER, 10, 0);
+
+    //Right bottom corner
+    checkDrag(RIGHT_BOTTOM, 10, 10);
+    checkDrag(RIGHT_BOTTOM, 0, 10);
+    checkDrag(RIGHT_BOTTOM, 10, 0);
   }
 
 

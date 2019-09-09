@@ -10,24 +10,25 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
-public class Main extends Application {
+import static javafx.application.Application.launch;
 
-  private final static String TITLE = "Calculator";
-  private static final String ICON_PATH = "/icons/icon.png";
+public class Main {
+
+
 
   public static void main(String[] args) {
-    launch(args);
+    launch(Root.class);
   }
 
-  @Override
+  /*@Override
   public void start(Stage primaryStage) throws IOException {
-    Parent root = new Root().getFXML();
+    Parent root = Root.getFXML();
     primaryStage.getIcons().add(new Image(getClass().getResource(ICON_PATH).toExternalForm()));
     primaryStage.setTitle("Calculator");
     primaryStage.setScene(new Scene(root));
     primaryStage.initStyle(StageStyle.UNDECORATED);
     primaryStage.setTitle(TITLE);
     primaryStage.show();
-  }
+  }*/
 }
 

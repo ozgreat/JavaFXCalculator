@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
-@Setter
+//@Setter
 public class InputService {
   public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero","Overflow","Result is undefined");
   /**
@@ -413,13 +413,13 @@ public class InputService {
       calcState = CalcState.LEFT;
     }
 
-    if (!oldFormula.equals("") && Character.isDigit(oldFormula.charAt(oldFormula.length() - 1))) {
+    /*if (!oldFormula.equals("") && Character.isDigit(oldFormula.charAt(oldFormula.length() - 1))) {
       if (binaryOperationUnicode.containsKey(btn.getText())) {
         return oldFormula + binaryOperationUnicode.get(btn.getText());
       } else if (unaryOperationUnicode.containsKey(btn.getText())) {
         return oldFormula + binaryOperationUnicode.get(btn.getText());
       }
-    }
+    }*/
 
 
     if (calcState == CalcState.TRANSIENT) {

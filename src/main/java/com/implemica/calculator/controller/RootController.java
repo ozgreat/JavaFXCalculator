@@ -3,20 +3,18 @@ package com.implemica.calculator.controller;
 import com.implemica.calculator.controller.service.InputService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +23,6 @@ import java.util.stream.Stream;
 
 
 @Getter
-@Setter
 public class RootController {
   @FXML
   private Label display;
@@ -108,37 +105,12 @@ public class RootController {
   @FXML
   private Label standardLabel;
 
-
   private InputService inputService;
-
-  private static double xOffset = 0;
-
-  private static double yOffset = 0;
-
-  private double dx;
-  private double dy;
-  private double deltaX;
-  private double deltaY;
-  private final static double border = 10;
-  private boolean moveH;
-  private boolean moveV;
-  private boolean resizeH = false;
-  private boolean resizeV = false;
-
   private String formulaStr;
   private int formulaBegIndex;
   private int formulaEndIndex;
 
-
-  private Dimension2D minSize = new Dimension2D(325, 530);
-
-  private static final double FONT_CHANGE_WIDTH_DOWN = 34.98;
-  private static final double FONT_CHANGE_WIDTH_UP = 50d;
-  private static final double MAX_FONT_SIZE = 74d;
   private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
-  private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
-  private static final double MIN_HEIGHT_DELTA = 468.75; // scene - text; debug
-  private static final double MAX_HEIGHT_DELTA = 516.76;
   private final static KeyCombination SQRT = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN);
   private final static KeyCombination PERCENT = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN);
   private final static KeyCombination RECALL = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
@@ -158,49 +130,6 @@ public class RootController {
   public RootController() {
     inputService = new InputService();
     formulaStr = "";
-  }
-
-  @FXML
-  public void initialize() {
-    display.textProperty().addListener(observable -> {
-      Text text = new Text(display.getText());
-      double fontSize = display.getFont().getSize();
-      text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
-      double width = text.getLayoutBounds().getWidth();
-      Scene scene = display.getScene();
-      double sceneWidth = scene.getWidth();
-      double textHeight = text.getLayoutBounds().getHeight();
-      double sceneHeight = scene.getHeight();
-      double heightDelta = sceneHeight - textHeight;
-
-
-      while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width || heightDelta < MAX_HEIGHT_DELTA) {
-        fontSize--;
-        text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
-        width = text.getLayoutBounds().getWidth();
-        textHeight = text.getLayoutBounds().getHeight();
-        heightDelta = sceneHeight - textHeight;
-      }
-
-
-      while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && fontSize <= MAX_FONT_SIZE
-          && heightDelta > MIN_HEIGHT_DELTA) {
-        fontSize++;
-        text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
-        width = text.getLayoutBounds().getWidth();
-        textHeight = text.getLayoutBounds().getHeight();
-        heightDelta = sceneHeight - textHeight;
-      }
-
-
-      display.setStyle(" -fx-font-size:" + fontSize + ";\n" +
-          "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
-          "  -fx-text-alignment: right;");
-
-
-    });
-
-
   }
 
   public void keyPressProcess(KeyEvent event) {
@@ -418,152 +347,6 @@ public class RootController {
       memorySaveButton.setDisable(false);
       memoryDisableIfEmpty();
     }
-  }
-
-  @FXML
-  public void closeWindow(MouseEvent event) {
-    ((Button) event.getSource()).getScene().getWindow().hide();
-  }
-
-  @FXML
-  public void minimizeWindow(MouseEvent event) {
-    Stage stage = (Stage) (((Button) event.getSource()).getScene().getWindow());
-    stage.setIconified(true);
-  }
-
-  @FXML
-  public void pressWindow(MouseEvent event) {
-    Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
-    if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT)) {
-      xOffset = stage.getX() - event.getScreenX();
-      yOffset = stage.getY() - event.getScreenY();
-    }
-  }
-
-  @FXML
-  public void dragWindow(MouseEvent event) {
-    if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT)) {
-      Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
-      stage.setX(event.getScreenX() + xOffset);
-      stage.setY(event.getScreenY() + yOffset);
-    }
-  }
-
-  @FXML
-  public void pressResize(MouseEvent t) {
-    Stage stage = (Stage) bp.getScene().getWindow();
-    dx = stage.getWidth() - t.getX();
-    dy = stage.getHeight() - t.getY();
-    display.setText(display.getText());
-  }
-
-  @FXML
-  public void dragResize(MouseEvent t) {
-    Stage stage = (Stage) bp.getScene().getWindow();
-    if (resizeH) {
-      if (stage.getWidth() <= minSize.getWidth()) {
-        if (moveH) {
-          deltaX = stage.getX() - t.getScreenX() + 1;
-          if (t.getX() < 0) {// if new > old, it's permitted
-            stage.setWidth(deltaX + stage.getWidth());
-            stage.setX(t.getScreenX());
-          }
-        } else {
-          if (t.getX() + dx - stage.getWidth() > 0) {
-            stage.setWidth(t.getX() + dx);
-          }
-        }
-      } else if (stage.getWidth() > minSize.getWidth()) {
-        if (moveH) {
-          deltaX = stage.getX() - t.getScreenX() + 1;
-          stage.setWidth(deltaX + stage.getWidth());
-          stage.setX(t.getScreenX());
-        } else {
-          stage.setWidth(t.getX() + dx);
-        }
-      }
-    }
-
-    if (resizeV) {
-      if (stage.getHeight() <= minSize.getHeight()) {
-        if (moveV) {
-          deltaY = stage.getY() - t.getScreenY() + 1;
-          if (t.getY() < 0) {
-            stage.setHeight(deltaY + stage.getHeight());
-            stage.setY(t.getScreenY());
-          }
-        } else {
-          if (t.getY() + dy - stage.getHeight() > 0) {
-            stage.setHeight(t.getY() + dy);
-          }
-        }
-      } else if (stage.getHeight() > minSize.getHeight()) {
-        if (moveV) {
-          deltaY = stage.getY() - t.getScreenY() + 1;
-          stage.setHeight(deltaY + stage.getHeight());
-          stage.setY(t.getScreenY());
-        } else {
-          stage.setHeight(t.getY() + dy);
-        }
-      }
-    }
-  }
-
-  @FXML
-  public void moveResize(MouseEvent t) {
-    Scene scene = bp.getScene();
-    if (t.getX() < border && t.getY() < border) {
-      scene.setCursor(Cursor.NW_RESIZE);
-      resizeH = true;
-      resizeV = true;
-      moveH = true;
-      moveV = true;
-    } else if (t.getX() < border && t.getY() > scene.getHeight() - border) {
-      scene.setCursor(Cursor.SW_RESIZE);
-      resizeH = true;
-      resizeV = true;
-      moveH = true;
-      moveV = false;
-    } else if (t.getX() > scene.getWidth() - border && t.getY() < border) {
-      scene.setCursor(Cursor.NE_RESIZE);
-      resizeH = true;
-      resizeV = true;
-      moveH = false;
-      moveV = true;
-    } else if (t.getX() > scene.getWidth() - border && t.getY() > scene.getHeight() - border) {
-      scene.setCursor(Cursor.SE_RESIZE);
-      resizeH = true;
-      resizeV = true;
-      moveH = false;
-      moveV = false;
-    } else if (t.getX() < border || t.getX() > scene.getWidth() - border) {
-      scene.setCursor(Cursor.E_RESIZE);
-      resizeH = true;
-      resizeV = false;
-      moveH = (t.getX() < border);
-      moveV = false;
-    } else if (t.getY() < border || t.getY() > scene.getHeight() - border) {
-      scene.setCursor(Cursor.N_RESIZE);
-      resizeH = false;
-      resizeV = true;
-      moveH = false;
-      moveV = (t.getY() < border);
-    } else {
-      scene.setCursor(Cursor.DEFAULT);
-      resizeH = false;
-      resizeV = false;
-      moveH = false;
-      moveV = false;
-    }
-  }
-
-  @FXML
-  public void maximize() {
-    Stage primaryStage = (Stage) display.getScene().getWindow();
-    primaryStage.setMaximized(!primaryStage.isMaximized());
-    String str = display.getText();
-    display.setText("");
-    display.setText(str);
   }
 
   @FXML

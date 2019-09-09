@@ -5,6 +5,7 @@ import com.google.common.collect.HashBiMap;
 import com.implemica.calculator.view.Root;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
+import org.testfx.framework.junit5.ApplicationTest;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -23,9 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 @ExtendWith(ApplicationExtension.class)
-public class RootControllerTest {
+public class RootControllerTest extends ApplicationTest {
   private FxRobot robot = new FxRobot();
   private static RootController controller;
+  protected Root root;
+  protected Parent parent;
+  protected Scene scene;
 
   static Robot awtRobot;
 
@@ -55,13 +59,15 @@ public class RootControllerTest {
   }
 
 
-  @Start
-  static void start(Stage stage) throws IOException, AWTException {
+  @Override
+  public void start(Stage stage) throws IOException, AWTException {
     awtRobot = new Robot();
-    Root root = new Root();
-    Scene scene = new Scene(root.getFXML());
+    if(Window.getWindows().length == 0){
+      root = new Root();
+      scene = root.getScene();
+      stage.setScene(scene);
+    }
     controller = root.getLoader().getController();
-    stage.setScene(scene);
     stage.show();
   }
 
@@ -989,12 +995,17 @@ public class RootControllerTest {
   @Test
   void cannotDivideByZeroTest() {
     checkErrorOp("0 1/x", "1/( 0 )", "Cannot divide by zero");
+    checkErrorOp("1 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("1 N / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("2 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("2 N / 0 =", "", "Cannot divide by zero");
 
-
-    for (int i = 1; i <= 100; i++) {
-      checkErrorOp(i + " / 0 =", "", "Cannot divide by zero");
-      checkErrorOp(i + " N / 0 =", "", "Cannot divide by zero");
-    }
+    checkErrorOp("111110 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("111110 N / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("111111 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("111111 N / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("111112 / 0 =", "", "Cannot divide by zero");
+    checkErrorOp("111112 N / 0 =", "", "Cannot divide by zero");
 
     checkErrorOp("9999999999999998 / 0 =", "", "Cannot divide by zero");
     checkErrorOp("9999999999999999 / 0 =", "", "Cannot divide by zero");
@@ -1008,10 +1019,13 @@ public class RootControllerTest {
   @Test
   void resultIsUndefinedTest() {
     checkErrorOp("0 / 0 =", "", "Result is undefined");
+    checkErrorOp("1 N SQR", "√( -1 )", "Result is undefined");
+    checkErrorOp("2 N SQR", "√( -2 )", "Result is undefined");
 
-    for (int i = 1; i <= 100; i++) {
-      checkErrorOp(i + " N SQR", "√( -" + i + " )", "Result is undefined");
-    }
+    checkErrorOp("111110 N SQR", "√( -111110 )", "Result is undefined");
+    checkErrorOp("111111 N SQR", "√( -111111 )", "Result is undefined");
+    checkErrorOp("111112 N SQR", "√( -111112 )", "Result is undefined");
+
     checkErrorOp("9999999999999998 = N SQR", "√( -9999999999999998 )", "Result is undefined");
     checkErrorOp("9999999999999999 = N SQR", "√( -9999999999999999 )", "Result is undefined");
     checkErrorOp("9999999999999999 + 1 = N SQR", "√( -1.E+16 )", "Result is undefined");
@@ -1019,18 +1033,23 @@ public class RootControllerTest {
 
   @Test
   void setNormalTest() {
-    checkSetNormal("0 1/x =", "", "0");
-    checkSetNormal("0 1/x <-", "", "0");
-    checkSetNormal("0 1/x C", "", "0");
-    checkSetNormal("0 1/x CE", "", "0");
-    checkSetNormal("0 1/x 9", "", "9");
+    checkSetNormal("0 1/x 9", "9");
+    checkSetNormal("1 / 0 = 8", "8");
+    checkSetNormal("1 N / 0 = 7", "7");
+    checkSetNormal("2 / 0 = 6", "6");
+    checkSetNormal("2 N / 0 = 5", "5");
 
+    checkSetNormal("9999999999999998 = N SQR 4", "4");
+    checkSetNormal("9999999999999999 = N SQR 3", "3");
+    checkSetNormal("9999999999999999 + 1 = N SQR 2", "2");
 
-    for (int i = 1; i <= 100; i++) {
-      checkSetNormal(i + " / 0 = =", "", "0");
-      checkSetNormal(i + " N / 0 = =", "", "0");
-    }
-    //todo: more cases
+    checkSetNormal("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW 1", "1");
+    checkSetNormal("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW 0", "0");
+
+    checkSetNormal("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW CE", "0");
+    checkSetNormal("0 1/x =", "0");
+    checkSetNormal("111110 N SQR C", "0");
+    checkSetNormal("9999999999999998 / 0 = <-", "0");
   }
 
   void checkOperations(String pattern, String formula, String res) {
@@ -1040,10 +1059,10 @@ public class RootControllerTest {
     clear();
   }
 
-  void checkSetNormal(String pattern, String formula, String res) {
+  void checkSetNormal(String pattern, String res) {
     clicker(pattern);
     FxAssert.verifyThat("#display", hasText(res));
-    assertEquals(formula, controller.getFormulaStr());
+    assertEquals("", controller.getFormulaStr());
     assertFalse(controller.getAddButton().isDisabled());
     assertFalse(controller.getSubtractButton().isDisabled());
     assertFalse(controller.getMultiplyButton().isDisabled());

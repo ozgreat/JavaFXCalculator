@@ -5,8 +5,8 @@ module calculator {
   requires javafx.controls;
   requires static lombok;
 
-
   opens com.implemica.calculator;
   opens com.implemica.calculator.controller;
-  opens view;
+  opens com.implemica.calculator.view;
+  opens layout;
 }
