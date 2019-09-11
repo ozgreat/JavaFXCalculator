@@ -36,7 +36,6 @@ public class RootControllerKeyboardTest extends RootControllerTest {
   }
 
   private void pressOn(String query) {
-//    robot.push(operationsKeyCode.get(query));
     KeyCode[] comb = operationsKeyCode.get(query);
     for (KeyCode k : comb) {
       awtRobot.keyPress(k.getCode());

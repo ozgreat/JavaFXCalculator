@@ -17,6 +17,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 import java.io.IOException;
 
@@ -47,11 +48,12 @@ public class Root extends Application {
   private double dy;
   private double deltaX;
   private double deltaY;
-  private final static double border = 10;
+  private final static double border = 5;
   private boolean moveH;
   private boolean moveV;
   private boolean resizeH = false;
   private boolean resizeV = false;
+  private boolean isFullscreen = false;
 
   private Dimension2D minSize = new Dimension2D(325, 530);
 
@@ -173,7 +175,9 @@ public class Root extends Application {
   }
 
   private void closeWindow(MouseEvent event) {
-    stage.hide();
+    if (scene.getCursor().equals(Cursor.DEFAULT)) {
+      stage.hide();
+    }
   }
 
   private void minimizeWindow(MouseEvent event) {
@@ -183,10 +187,12 @@ public class Root extends Application {
   private void maximizeWindow(MouseEvent event) {
     if (stage.isMaximized()) {
       stage.setMaximized(false);
+      isFullscreen = false;
       Button btn = (Button) event.getSource();
       btn.setText("\uE922");
     } else {
       stage.setMaximized(true);
+      isFullscreen = true;
       Button btn = (Button) event.getSource();
       btn.setText("\uE923");
     }
@@ -196,7 +202,7 @@ public class Root extends Application {
   }
 
   private void pressWindow(MouseEvent event) {
-    Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
+    Window stage = scene.getWindow();
     if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT)) {
       xOffset = stage.getX() - event.getScreenX();
       yOffset = stage.getY() - event.getScreenY();
@@ -204,42 +210,43 @@ public class Root extends Application {
   }
 
   private void dragWindow(MouseEvent event) {
-    if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT)) {
-      Stage stage = (Stage) (((AnchorPane) event.getSource()).getScene().getWindow());
+    if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT) && !isFullscreen) {
+      Window stage = scene.getWindow();
+
       stage.setX(event.getScreenX() + xOffset);
       stage.setY(event.getScreenY() + yOffset);
     }
   }
 
-  private void pressResize(MouseEvent t) {
+  private void pressResize(MouseEvent event) {
     Stage stage = (Stage) mainPane.getScene().getWindow();
-    dx = stage.getWidth() - t.getX();
-    dy = stage.getHeight() - t.getY();
+    dx = stage.getWidth() - event.getX();
+    dy = stage.getHeight() - event.getY();
     display.setText(display.getText());
   }
 
-  private void dragResize(MouseEvent t) {
+  private void dragResize(MouseEvent event) {
     Stage stage = (Stage) mainPane.getScene().getWindow();
     if (resizeH) {
       if (stage.getWidth() <= minSize.getWidth()) {
         if (moveH) {
-          deltaX = stage.getX() - t.getScreenX() + 1;
-          if (t.getX() < 0) {// if new > old, it's permitted
+          deltaX = stage.getX() - event.getScreenX() + 1;
+          if (event.getX() < 0) {// if new > old, it's permitted
             stage.setWidth(deltaX + stage.getWidth());
-            stage.setX(t.getScreenX());
+            stage.setX(event.getScreenX());
           }
         } else {
-          if (t.getX() + dx - stage.getWidth() > 0) {
-            stage.setWidth(t.getX() + dx);
+          if (event.getX() + dx - stage.getWidth() > 0) {
+            stage.setWidth(event.getX() + dx);
           }
         }
       } else if (stage.getWidth() > minSize.getWidth()) {
         if (moveH) {
-          deltaX = stage.getX() - t.getScreenX() + 1;
+          deltaX = stage.getX() - event.getScreenX() + 1;
           stage.setWidth(deltaX + stage.getWidth());
-          stage.setX(t.getScreenX());
+          stage.setX(event.getScreenX());
         } else {
-          stage.setWidth(t.getX() + dx);
+          stage.setWidth(event.getX() + dx);
         }
       }
     }
@@ -247,23 +254,29 @@ public class Root extends Application {
     if (resizeV) {
       if (stage.getHeight() <= minSize.getHeight()) {
         if (moveV) {
-          deltaY = stage.getY() - t.getScreenY() + 1;
-          if (t.getY() < 0) {
+          deltaY = stage.getY() - event.getScreenY() + 1;
+          if (scene.getCursor().equals(Cursor.NE_RESIZE)) {
+            deltaY--;
+          }
+          if (event.getY() < 0) {
             stage.setHeight(deltaY + stage.getHeight());
-            stage.setY(t.getScreenY());
+            stage.setY(event.getScreenY());
           }
         } else {
-          if (t.getY() + dy - stage.getHeight() > 0) {
-            stage.setHeight(t.getY() + dy);
+          if (event.getY() + dy - stage.getHeight() > 0) {
+            stage.setHeight(event.getY() + dy);
           }
         }
       } else if (stage.getHeight() > minSize.getHeight()) {
         if (moveV) {
-          deltaY = stage.getY() - t.getScreenY() + 1;
+          deltaY = stage.getY() - event.getScreenY() + 1;
+          if (scene.getCursor().equals(Cursor.NE_RESIZE)) {
+            deltaY--;
+          }
           stage.setHeight(deltaY + stage.getHeight());
-          stage.setY(t.getScreenY());
+          stage.setY(event.getScreenY());
         } else {
-          stage.setHeight(t.getY() + dy);
+          stage.setHeight(event.getY() + dy);
         }
       }
     }

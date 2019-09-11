@@ -205,8 +205,8 @@ public class CalculatorModel {
 
   private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
     if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
-      DecimalFormat df = new DecimalFormat("0.################E0###");
-      String[] strArr = df.format(res).split("E");
+      DecimalFormat df = new DecimalFormat("0.################E0####");
+      String[] strArr = df.format(res).split("Е");
       if (MAX < Math.abs(parseInt(strArr[1]))) {
         throw new ArithmeticException("Overflow");
       }

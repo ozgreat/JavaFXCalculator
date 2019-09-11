@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.loadui.testfx.utils.FXTestUtils;
@@ -26,7 +27,7 @@ import static org.testfx.matcher.control.LabeledMatchers.hasText;
 @ExtendWith(ApplicationExtension.class)
 public class RootControllerTest extends ApplicationTest {
   private FxRobot robot = new FxRobot();
-  private static RootController controller;
+  private RootController controller;
   protected Root root;
   protected Parent parent;
   protected Scene scene;
@@ -62,11 +63,9 @@ public class RootControllerTest extends ApplicationTest {
   @Override
   public void start(Stage stage) throws IOException, AWTException {
     awtRobot = new Robot();
-    if(Window.getWindows().length == 0){
-      root = new Root();
-      scene = root.getScene();
-      stage.setScene(scene);
-    }
+    root = Root.getRoot();
+    scene = root.getScene();
+    stage.setScene(scene);
     controller = root.getLoader().getController();
     stage.show();
   }
@@ -908,71 +907,71 @@ public class RootControllerTest extends ApplicationTest {
 
   @Test
   void memoryTest() {
-    checkOperations("MR", "", "0");
-    checkOperations("M+ MR", "", "0");
-    checkOperations("M- MR", "", "0");
+    memoryCheck("MR", "", "0");
+    memoryCheck("M+ MR", "", "0");
+    memoryCheck("M- MR", "", "0");
 
     // takes from operand
-    checkOperations("4 M+ MR ", "", "4");
-    checkOperations("4 M+ M+ MR ", "", "8");
-    checkOperations("4 N M+ MR ", "", "-4");
-    checkOperations("4 N M+ M+ MR ", "", "-8");
+    memoryCheck("4 M+ MR ", "", "4");
+    memoryCheck("4 M+ M+ MR ", "", "8");
+    memoryCheck("4 N M+ MR ", "", "-4");
+    memoryCheck("4 N M+ M+ MR ", "", "-8");
 
-    checkOperations("4 M- MR ", "", "-4");
-    checkOperations("4 M- M- MR ", "", "-8");
-    checkOperations("4 N M- MR ", "", "4");
-    checkOperations("4 N M- M- MR ", "", "8");
+    memoryCheck("4 M- MR ", "", "-4");
+    memoryCheck("4 M- M- MR ", "", "-8");
+    memoryCheck("4 N M- MR ", "", "4");
+    memoryCheck("4 N M- M- MR ", "", "8");
 
-    checkOperations("0 M- MR ", "", "0");
-    checkOperations("0 M- M- MR ", "", "0");
-    checkOperations("0 N M- MR ", "", "0");
-    checkOperations("0 N M- M- MR ", "", "0");
+    memoryCheck("0 M- MR ", "", "0");
+    memoryCheck("0 M- M- MR ", "", "0");
+    memoryCheck("0 N M- MR ", "", "0");
+    memoryCheck("0 N M- M- MR ", "", "0");
 
-    checkOperations("0 M+ MR ", "", "0");
-    checkOperations("0 M+ M+ MR ", "", "0");
-    checkOperations("0 N M+  MR ", "", "0");
-    checkOperations("0 N M+ M+ MR ", "", "0");
+    memoryCheck("0 M+ MR ", "", "0");
+    memoryCheck("0 M+ M+ MR ", "", "0");
+    memoryCheck("0 N M+  MR ", "", "0");
+    memoryCheck("0 N M+ M+ MR ", "", "0");
 
-    checkOperations(". M+ MR", "", "0");
-    checkOperations("0. M+ MR", "", "0");
-    checkOperations(". N M+ MR", "", "0");
-    checkOperations("0. N M+ MR", "", "0");
+    memoryCheck(". M+ MR", "", "0");
+    memoryCheck("0. M+ MR", "", "0");
+    memoryCheck(". N M+ MR", "", "0");
+    memoryCheck("0. N M+ MR", "", "0");
 
-    checkOperations(". M- MR", "", "0");
-    checkOperations("0. M- MR", "", "0");
-    checkOperations(". N M- MR", "", "0");
-    checkOperations("0. N M- MR", "", "0");
+    memoryCheck(". M- MR", "", "0");
+    memoryCheck("0. M- MR", "", "0");
+    memoryCheck(". N M- MR", "", "0");
+    memoryCheck("0. N M- MR", "", "0");
 
-    checkOperations("1 M+ M+ / MR =", "", "0.5");
-    checkOperations("2 M+ M+ * MR =", "", "8");
-    checkOperations("3 M+ M+ - MR =", "", "-3");
-    checkOperations("4 M+ M+ + MR =", "", "12");
+    memoryCheck("1 M+ M+ / MR =", "", "0.5");
+    memoryCheck("2 M+ M+ * MR =", "", "8");
+    memoryCheck("3 M+ M+ - MR =", "", "-3");
+    memoryCheck("4 M+ M+ + MR =", "", "12");
 
-    checkOperations("1 M- M- / MR =", "", "-0.5");
-    checkOperations("2 M- M- * MR =", "", "-8");
-    checkOperations("3 M- M- - MR =", "", "9");
-    checkOperations("4 M- M- + MR =", "", "-4");
+    memoryCheck("1 M- M- / MR =", "", "-0.5");
+    memoryCheck("2 M- M- * MR =", "", "-8");
+    memoryCheck("3 M- M- - MR =", "", "9");
+    memoryCheck("4 M- M- + MR =", "", "-4");
 
-    checkOperations("1 M+ M+ M+ M+ MR =", "", "4");
-    checkOperations("2 M+ M+ M+ M- MR =", "", "4");
-    checkOperations("3 M+ M+ M- M- MR =", "", "0");
-    checkOperations("4 M+ M- M- M- MR =", "", "-8");
+    memoryCheck("1 M+ M+ M+ M+ MR =", "", "4");
+    memoryCheck("2 M+ M+ M+ M- MR =", "", "4");
+    memoryCheck("3 M+ M+ M- M- MR =", "", "0");
+    memoryCheck("4 M+ M- M- M- MR =", "", "-8");
 
     // takes from result
-    checkOperations("1 + 2 - 3 * 4 / 5 + M+ MR =", "", "0");
-    checkOperations("1 - 2 * 3 / 4 + 5 + M+ MR =", "", "8.5");
-    checkOperations("1 * 2 / 3 + 4 + 5 - M+ MR =", "", "0");
-    checkOperations("1 / 2 + 3 + 4 - 5 * M+ MR =", "", "6.25");
+    memoryCheck("1 + 2 - 3 * 4 / 5 + M+ MR =", "", "0");
+    memoryCheck("1 - 2 * 3 / 4 + 5 + M+ MR =", "", "8.5");
+    memoryCheck("1 * 2 / 3 + 4 + 5 - M+ MR =", "", "0");
+    memoryCheck("1 / 2 + 3 + 4 - 5 * M+ MR =", "", "6.25");
 
-    checkOperations("2 + 2 = M+ M+ M+ M+ MR + 0 =", "", "16");
-    checkOperations("1 + 5 = M+ M+ M+ M+ MR + 0 =", "", "24");
-    checkOperations("3 + 6 = M+ M+ M+ M+ MR + 0 =", "", "36");
-    checkOperations("4 + 7 = M+ M+ M+ M+ MR + 0 =", "", "44");
+    memoryCheck("2 + 2 = M+ M+ M+ M+ MR + 0 =", "", "16");
+    memoryCheck("1 + 5 = M+ M+ M+ M+ MR + 0 =", "", "24");
+    memoryCheck("3 + 6 = M+ M+ M+ M+ MR + 0 =", "", "36");
+    memoryCheck("4 + 7 = M+ M+ M+ M+ MR + 0 =", "", "44");
 
-    checkOperations("0 + 20 M- M- M- M- M- = - MR =", "", "120");
-    checkOperations("1 + 21 M- M- M- M- M- = + MR =", "", "-83");
-    checkOperations("2 + 22 M- M- M- M- M- = * MR =", "", "-2,640");
-    checkOperations("3 + 23 M- M- M- M- M- = / MR =", "", "-0.22608695652174");
+    memoryCheck("0 + 20 M- M- M- M- M- = - MR =", "", "120");
+    memoryCheck("1 + 21 M- M- M- M- M- = + MR =", "", "-83");
+    memoryCheck("2 + 22 M- M- M- M- M- = * MR =", "", "-2,640");
+    memoryCheck("3 + 23 M- M- M- M- M- = / MR =", "", "-0.22608695652174");
   }
 
   @Test
@@ -1015,7 +1014,6 @@ public class RootControllerTest extends ApplicationTest {
     checkErrorOp("9999999999999999 + 1 = N / 0 =", "", "Cannot divide by zero");
   }
 
-
   @Test
   void resultIsUndefinedTest() {
     checkErrorOp("0 / 0 =", "", "Result is undefined");
@@ -1050,6 +1048,12 @@ public class RootControllerTest extends ApplicationTest {
     checkSetNormal("0 1/x =", "0");
     checkSetNormal("111110 N SQR C", "0");
     checkSetNormal("9999999999999998 / 0 = <-", "0");
+  }
+
+  @BeforeEach
+  void before() {
+    clear();
+    clickOnMemory(memoryOp.get("MC"));
   }
 
   void checkOperations(String pattern, String formula, String res) {
@@ -1152,6 +1156,11 @@ public class RootControllerTest extends ApplicationTest {
     FXTestUtils.awaitEvents();
   }
 
+  void memoryCheck(String pattern, String formula, String res){
+    checkOperations(pattern,formula,res);
+    clickOnMemory(memoryOp.get("MC"));
+  }
+
   void handleDigit(String digit) {
     for (Character c : digit.toCharArray()) {
       clickOn(c.toString());
@@ -1162,6 +1171,5 @@ public class RootControllerTest extends ApplicationTest {
     clickOn("C");
     FxAssert.verifyThat("#display", hasText("0"));
     FxAssert.verifyThat("#formula", hasText(""));
-    clickOnMemory(memoryOp.get("MC"));
   }
 }

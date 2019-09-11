@@ -31,9 +31,14 @@
 
 
 .memoryButton {
+  -fx-font-size: 16;
   -fx-background-color: transparent;
   -fx-background-radius: 0;
   -fx-font-family: "Calculator MDL2 Assets";
+}
+
+.memoryButton:hover{
+
 }
 
 .ex {
@@ -43,6 +48,10 @@
 .arithmeticButton:hover {
   -fx-background-color: #4c4a48;
   -fx-text-fill: #fafafa;
+}
+
+.secondaryButton{
+  -fx-font-size: 16;
 }
 
 
@@ -58,10 +67,15 @@
 }
 
 .sideMenuButton {
-  -fx-font-size: 14;
+  -fx-font-size: 16;
   -fx-font-family: "Calculator MDL2 Assets";
   -fx-border-width: 0;
   -fx-background-color: transparent;
+}
+
+.sideMenuButtonText{
+  -fx-font-family: "Segoe UI";
+  -fx-font-size: 14;
 }
 
 .sideMenuButton:hover {
