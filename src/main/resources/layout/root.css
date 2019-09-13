@@ -37,7 +37,7 @@
   -fx-font-family: "Calculator MDL2 Assets";
 }
 
-.memoryButton:hover{
+.memoryButton:hover {
 
 }
 
@@ -50,7 +50,7 @@
   -fx-text-fill: #fafafa;
 }
 
-.secondaryButton{
+.secondaryButton {
   -fx-font-size: 16;
 }
 
@@ -73,7 +73,7 @@
   -fx-background-color: transparent;
 }
 
-.sideMenuButtonText{
+.sideMenuButtonText {
   -fx-font-family: "Segoe UI";
   -fx-font-size: 14;
 }

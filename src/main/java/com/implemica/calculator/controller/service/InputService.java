@@ -4,7 +4,6 @@ import com.implemica.calculator.model.CalculatorModel;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -13,24 +12,40 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Getter
-//@Setter
 public class InputService {
-  public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero","Overflow","Result is undefined");
+  /**
+   * List of possible exception messages to calculator display
+   */
+  public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero", "Overflow", "Result is undefined");
+
   /**
    * Current state of calculator
    */
   private CalcState calcState;
 
   /**
-   * Calculator com.implemica.calculator.model
+   * Calculator model to do calculations
    */
   private CalculatorModel calc;
 
+  /**
+   * Maximum possible number length in calculator's display
+   */
   private final static int MAX_LENGTH = 21;
 
+  /**
+   * Map of unicode symbols for binary operations
+   */
   private final static Map<String, String> binaryOperationUnicode = new HashMap<>();
+
+  /**
+   * Map of unicode symbols for unary operations
+   */
   private final static Map<String, String> unaryOperationUnicode = new HashMap<>();
+
+  /**
+   * Possible patterns to DecimalFormat
+   */
   private final static Map<Integer, String> displayPattern = new HashMap<>();
 
   static {
@@ -282,20 +297,36 @@ public class InputService {
   }
 
   /**
-   * Clear memory
+   * Call clear memory in model
    */
   public void clearMemory() {
     calc.clearMemory();
   }
 
+  /**
+   * Call memory add in model and give number from display to method
+   *
+   * @param display text in display of calculator
+   */
   public void addToMemory(String display) {
     calc.memoryAdd(new BigDecimal(display.replaceAll(",", "")));
   }
 
+  /**
+   * Call substract method from model and give them number from display
+   *
+   * @param display text in display of calculator
+   */
   public void subToMemory(String display) {
     calc.memorySub(new BigDecimal(display.replaceAll(",", "")));
   }
 
+  /**
+   * Format number to required form
+   *
+   * @param display number that we format
+   * @return formated number
+   */
   public String displayFormat(String display) {
     DecimalFormat df;
 
@@ -382,30 +413,23 @@ public class InputService {
     return pattern;
   }
 
+  /**
+   * Check, that user can use backspace
+   *
+   * @return true if can(calcState is not AFTER), else false
+   */
   public boolean isBackspaceAvailable() {
     return calcState != CalcState.AFTER;
   }
 
-
-  private void settingAfterResult(String result) {
-    calc.setLeftOperand(new BigDecimal(result));
-    calcState = CalcState.AFTER;
-  }
-
-  private String formatOperation(String op) {
-    String formated = binaryOperationUnicode.get(op);
-    if (formated != null) {
-      return formated;
-    }
-
-    formated = unaryOperationUnicode.get(op);
-    if (formated != null) {
-      return formated;
-    }
-
-    return op;
-  }
-
+  /**
+   * Create string to formula label. History of operation, that user do before pressing "="
+   *
+   * @param event      Event that call method, who call this method. This param is using to get text of button, that call them
+   * @param oldFormula old string, that we create before
+   * @param display    text from display of calculator
+   * @return new formula or old formula if there is nothing to change
+   */
   public String highFormula(ActionEvent event, String oldFormula, String display) {
     Button btn = (Button) event.getSource();
 
@@ -431,6 +455,11 @@ public class InputService {
     }
   }
 
+  /**
+   * Check, that memory is empty
+   *
+   * @return true if is, false else
+   */
   public boolean isMemoryEmpty() {
     return calc.getMemory() == null;
   }
@@ -632,4 +661,24 @@ public class InputService {
       return String.valueOf(lastNum + 1);
     }
   }
+
+  private void settingAfterResult(String result) {
+    calc.setLeftOperand(new BigDecimal(result));
+    calcState = CalcState.AFTER;
+  }
+
+  private String formatOperation(String op) {
+    String formated = binaryOperationUnicode.get(op);
+    if (formated != null) {
+      return formated;
+    }
+
+    formated = unaryOperationUnicode.get(op);
+    if (formated != null) {
+      return formated;
+    }
+
+    return op;
+  }
+
 }

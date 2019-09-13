@@ -1,6 +1,7 @@
 package com.implemica.calculator.controller;
 
 import com.implemica.calculator.controller.service.InputService;
+import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -14,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -22,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-@Getter
 public class RootController {
   @FXML
   private Label display;
@@ -106,6 +107,10 @@ public class RootController {
   private Label standardLabel;
 
   private InputService inputService;
+
+  private boolean isSideBarVisible = false;
+
+  @Getter
   private String formulaStr;
   private int formulaBegIndex;
   private int formulaEndIndex;
@@ -132,6 +137,11 @@ public class RootController {
     formulaStr = "";
   }
 
+  /**
+   * Processing of keys typed
+   *
+   * @param event key, that user type
+   */
   public void keyPressProcess(KeyEvent event) {
     Button btn = new Button();
     if (event.getCode() == KeyCode.ESCAPE) {
@@ -211,7 +221,7 @@ public class RootController {
   }
 
   /**
-   * Setting text in textArea to 0
+   * Setting text in display to 0
    */
   @FXML
   public void clearEntryAction() {
@@ -222,6 +232,8 @@ public class RootController {
   }
 
   /**
+   * Entering binary operation
+   *
    * @param event event of button that we pressed
    */
   @FXML
@@ -235,7 +247,7 @@ public class RootController {
   }
 
   /**
-   * removing last symbol in textArea
+   * Removing last symbol from display
    */
   @FXML
   public void backspaceButtonAction() {
@@ -256,6 +268,9 @@ public class RootController {
     }
   }
 
+  /**
+   * Calling a calculation and displaying results
+   */
   @FXML
   public void equalAction() {
     if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
@@ -273,6 +288,11 @@ public class RootController {
     }
   }
 
+  /**
+   * Enter and calculate unary operation
+   *
+   * @param ae event, that call this method, is using for get a button, that pressed
+   */
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
     formulaCalc(ae);
@@ -284,6 +304,11 @@ public class RootController {
     }
   }
 
+  /**
+   * Find the percent from number
+   *
+   * @param ae event, that call this method, is using for get a button, that pressed
+   */
   @FXML
   public void percentAction(ActionEvent ae) {
     String value = inputService.percentOp(display.getText());
@@ -291,12 +316,18 @@ public class RootController {
     formulaCalc(ae);
   }
 
+  /**
+   * Send display to model to save in memory. Turn on memory buttons, if they is disabled
+   */
   @FXML
   public void memorySaveAction() {
     inputService.saveToMemory(display.getText());
     memoryDisableIfEmpty();
   }
 
+  /**
+   * Set on display the last number from memory, if memory is not empty
+   */
   @FXML
   public void memoryRecallAction() {
     if (!inputService.isMemoryEmpty()) {
@@ -304,24 +335,36 @@ public class RootController {
     }
   }
 
+  /**
+   * Delete memory number, if there is exists
+   */
   @FXML
   public void memoryClearAction() {
     inputService.clearMemory();
     memoryDisableIfEmpty();
   }
 
+  /**
+   * Send number from display to memory and add to existing
+   */
   @FXML
   public void memoryPlusAction() {
     inputService.addToMemory(display.getText());
     memoryDisableIfEmpty();
   }
 
+  /**
+   * Send number from display to memory and subtract from existing
+   */
   @FXML
   public void memoryMinusAction() {
     inputService.subToMemory(display.getText());
     memoryDisableIfEmpty();
   }
 
+  /**
+   * Open history pane stub, disable buttons that have to
+   */
   @FXML
   public void historyAction() {
     if (historyPane.isDisable()) {
@@ -349,14 +392,27 @@ public class RootController {
     }
   }
 
+  /**
+   * Open side bar stub
+   */
   @FXML
   public void openSideBar() {
-    sideMenuBorderPane.setDisable(!sideMenuBorderPane.isDisabled());
-    sideMenuBorderPane.setVisible(!sideMenuBorderPane.isVisible());
+    Duration duration = Duration.millis(200);
+    TranslateTransition transition = new TranslateTransition(duration, sideMenuBorderPane);
+    if (isSideBarVisible) {
+      transition.setByX(-270);
+    } else {
+      transition.setByX(270);
+    }
+    transition.play();
     standardLabel.setVisible(!standardLabel.isVisible());
     sideBarOffPane.setVisible(!sideBarOffPane.isVisible());
+    isSideBarVisible = !isSideBarVisible;
   }
 
+  /**
+   * Open memory pane stub
+   */
   @FXML
   public void memoryShowAction() {
     historyAction();
@@ -364,6 +420,9 @@ public class RootController {
     memoryShow.setDisable(inputService.isMemoryEmpty());
   }
 
+  /**
+   * Move text in formula label to right
+   */
   @FXML
   public void rightFormulaButtonAction() {
     leftFormulaButton.setVisible(true);
@@ -381,6 +440,9 @@ public class RootController {
     }
   }
 
+  /**
+   * Move text in formula label to left
+   */
   @FXML
   public void leftFormulaButtonAction() {
     rightFormulaButton.setVisible(true);
@@ -414,7 +476,6 @@ public class RootController {
     }
     formula.setText(text.getText());
   }
-
 
   private void handleArithmetic(String msg) {
     display.setText(msg);

@@ -1,75 +1,37 @@
 package com.implemica.calculator.controller;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.implemica.calculator.controller.util.CalculatorTestUtils;
 import com.implemica.calculator.view.Root;
 import javafx.geometry.Bounds;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
-import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.ApplicationTest;
 
 import java.awt.*;
-import java.awt.event.InputEvent;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 @ExtendWith(ApplicationExtension.class)
-public class RootControllerTest extends ApplicationTest {
-  private FxRobot robot = new FxRobot();
+public class RootControllerTest extends CalculatorTestUtils {
   private RootController controller;
-  protected Root root;
-  protected Parent parent;
-  protected Scene scene;
-
-  static Robot awtRobot;
-
-  static final BiMap<String, String> operations = HashBiMap.create();
-  static final BiMap<String, String> memoryOp = HashBiMap.create();
-
-  static {
-    operations.put("C", "C");
-    operations.put("CE", "CE");
-    operations.put("<-", "\uE94F");//Backspace
-    operations.put("+", "\uE948");
-    operations.put("-", "\uE949");
-    operations.put("*", "\uE947");
-    operations.put("/", "\uE94A");
-    operations.put("1/x", "⅟\uD835\uDC65");
-    operations.put("POW", "\uD835\uDC65²");
-    operations.put("SQR", "\uE94B");
-    operations.put("N", "\uE94D");
-    operations.put("=", "\uE94E");
-    operations.put("%", "\uE94C");
-
-    memoryOp.put("M+", "\uF757");
-    memoryOp.put("M-", "\uF758");
-    memoryOp.put("MS", "\uF756");
-    memoryOp.put("MC", "\uF754");
-    memoryOp.put("MR", "\uF755");
-  }
 
 
   @Override
   public void start(Stage stage) throws IOException, AWTException {
     awtRobot = new Robot();
-    root = Root.getRoot();
-    scene = root.getScene();
+    Root root = Root.getRoot();
+    Scene scene = root.getScene();
     stage.setScene(scene);
     controller = root.getLoader().getController();
     stage.show();
   }
-
 
   @Test
   void simpleOp() {
@@ -972,6 +934,11 @@ public class RootControllerTest extends ApplicationTest {
     memoryCheck("1 + 21 M- M- M- M- M- = + MR =", "", "-83");
     memoryCheck("2 + 22 M- M- M- M- M- = * MR =", "", "-2,640");
     memoryCheck("3 + 23 M- M- M- M- M- = / MR =", "", "-0.22608695652174");
+
+    //Memory save
+    memoryCheck("1234567890 MS + 20 = M+ MR", "", "2,469,135,800");
+    memoryCheck("9999999999999999 MS M+ MR", "", "2.E+16");
+    memoryCheck("9999999999999999 MS M+ MR MS M+ MR MS M+ MR", "", "8.E+16");
   }
 
   @Test
@@ -1050,6 +1017,57 @@ public class RootControllerTest extends ApplicationTest {
     checkSetNormal("9999999999999998 / 0 = <-", "0");
   }
 
+  @Test
+  void historyTest() {
+    clickOn(robot.lookup("\uF738").query());
+
+    assertTrue(robot.lookup("#historyLabel").queryLabeled().isVisible());
+    assertFalse(robot.lookup("#historyPane").query().isDisabled());
+    FxAssert.verifyThat(robot.lookup("#historyLabel").queryLabeled(), hasText("There's no history yet"));
+
+    clickOn(robot.lookup("\uF738").query());
+
+    assertFalse(robot.lookup("#historyLabel").queryLabeled().isVisible());
+    assertTrue(robot.lookup("#historyPane").query().isDisabled());
+  }
+
+  @Test
+  synchronized void openSideBarTest() throws InterruptedException {
+    BorderPane sideMenu = robot.lookup("#sideMenuBorderPane").queryAs(BorderPane.class);
+    Bounds b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
+    int oldX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
+    clickOn(robot.lookup("\uE700").query());
+    wait(300);
+    b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
+    int newX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
+    assertEquals(oldX + 270, newX);
+    assertTrue(robot.lookup("#sideBarOffPane").query().isVisible());
+    assertFalse(robot.lookup(hasText("Standard")).queryLabeled().isVisible());
+
+    clickOn(robot.lookup("\uF738").query());
+    wait(300);
+    b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
+    newX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
+    assertEquals(oldX, newX);
+    assertFalse(robot.lookup("#sideBarOffPane").query().isVisible());
+    assertTrue(robot.lookup(hasText("Standard")).queryLabeled().isVisible());
+  }
+
+  @Test
+  void memoryShowTest() {
+    clickOnMemory("\uF756");
+    clickOn(robot.lookup("#memoryShow").queryButton());
+
+    assertFalse(robot.lookup("#historyPane").query().isDisabled());
+    assertFalse(robot.lookup("#historyLabel").queryLabeled().isVisible());
+
+
+    clickOn(robot.lookup("#memoryShow").queryButton());
+
+    assertTrue(robot.lookup("#historyPane").query().isDisabled());
+  }
+
+
   @BeforeEach
   void before() {
     clear();
@@ -1067,33 +1085,15 @@ public class RootControllerTest extends ApplicationTest {
     clicker(pattern);
     FxAssert.verifyThat("#display", hasText(res));
     assertEquals("", controller.getFormulaStr());
-    assertFalse(controller.getAddButton().isDisabled());
-    assertFalse(controller.getSubtractButton().isDisabled());
-    assertFalse(controller.getMultiplyButton().isDisabled());
-    assertFalse(controller.getDivideButton().isDisabled());
-    assertFalse(controller.getSqrtButton().isDisabled());
-    assertFalse(controller.getPowButton().isDisabled());
-    assertFalse(controller.getPointButton().isDisabled());
-    assertFalse(controller.getReverseButton().isDisabled());
-    /*assertFalse(controller.getMemoryClearButton().isDisabled());
-    assertFalse(controller.getMemoryMinusButton().isDisabled());
-    assertFalse(controller.getMemoryPlusButton().isDisabled());
-    assertFalse(controller.getMemoryRecallButton().isDisabled());
-    assertFalse(controller.getMemorySaveButton().isDisabled());
-    assertFalse(controller.getMemoryShow().isDisabled());*/
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("+")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("-")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("*")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("/")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("SQR")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("POW")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(".")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("1/x")).queryButton().isDisabled());
     clear();
-  }
-
-  void clicker(String pattern) {
-    for (String s : pattern.split(" ")) {
-      if (operations.containsKey(s)) {
-        clickOn(operations.get(s));
-      } else if (memoryOp.containsKey(s)) {
-        clickOnMemory(memoryOp.get(s));
-      } else {
-        handleDigit(s);
-      }
-    }
   }
 
   void checkForBigFormula(String pattern, String formula, String res) {
@@ -1106,70 +1106,28 @@ public class RootControllerTest extends ApplicationTest {
 
   void checkErrorOp(String pattern, String formula, String res) {
     clicker(pattern);
-
     FxAssert.verifyThat("#display", hasText(res));
     assertEquals(formula, controller.getFormulaStr());
-    assertTrue(controller.getAddButton().isDisabled());
-    assertTrue(controller.getSubtractButton().isDisabled());
-    assertTrue(controller.getMultiplyButton().isDisabled());
-    assertTrue(controller.getDivideButton().isDisabled());
-    assertTrue(controller.getSqrtButton().isDisabled());
-    assertTrue(controller.getPowButton().isDisabled());
-    assertTrue(controller.getPointButton().isDisabled());
-    assertTrue(controller.getReverseButton().isDisabled());
-    assertTrue(controller.getMemoryClearButton().isDisabled());
-    assertTrue(controller.getMemoryMinusButton().isDisabled());
-    assertTrue(controller.getMemoryPlusButton().isDisabled());
-    assertTrue(controller.getMemoryRecallButton().isDisabled());
-    assertTrue(controller.getMemorySaveButton().isDisabled());
-    assertTrue(controller.getMemoryShow().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("+")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("-")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("*")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("/")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("SQR")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("POW")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(".")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("1/x")).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText("\uF753")).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("M-"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("M+"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("MR"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("MS"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("MC"))).queryButton().isDisabled());
     clear();
   }
 
-  void clickOn(String query) {
-    Node node = robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(query)).queryButton();
-    Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
-    int x = (int) (boundsInScreen.getMinX() + (boundsInScreen.getMaxX() - boundsInScreen.getMinX()) / 2.0d);
-    int y = (int) (boundsInScreen.getMinY() + (boundsInScreen.getMaxY() - boundsInScreen.getMinY()) / 2.0d);
-
-
-    awtRobot.mouseMove(x, y);
-    awtRobot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-    awtRobot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-
-
-    FXTestUtils.awaitEvents();
-  }
-
-  void clickOnMemory(String query) {
-    Node node = robot.lookup(query).queryButton();
-
-    Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
-    int x = (int) (boundsInScreen.getMinX() + (boundsInScreen.getMaxX() - boundsInScreen.getMinX()) / 2.0d);
-    int y = (int) (boundsInScreen.getMinY() + (boundsInScreen.getMaxY() - boundsInScreen.getMinY()) / 2.0d);
-
-
-    awtRobot.mouseMove(x, y);
-    awtRobot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-    awtRobot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-
-    FXTestUtils.awaitEvents();
-  }
-
-  void memoryCheck(String pattern, String formula, String res){
-    checkOperations(pattern,formula,res);
+  void memoryCheck(String pattern, String formula, String res) {
+    checkOperations(pattern, formula, res);
     clickOnMemory(memoryOp.get("MC"));
   }
 
-  void handleDigit(String digit) {
-    for (Character c : digit.toCharArray()) {
-      clickOn(c.toString());
-    }
-  }
-
-  void clear() {
-    clickOn("C");
-    FxAssert.verifyThat("#display", hasText("0"));
-    FxAssert.verifyThat("#formula", hasText(""));
-  }
 }

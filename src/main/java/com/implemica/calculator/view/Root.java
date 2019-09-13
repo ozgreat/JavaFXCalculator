@@ -1,8 +1,10 @@
 package com.implemica.calculator.view;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Dimension2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -54,6 +56,10 @@ public class Root extends Application {
   private boolean resizeH = false;
   private boolean resizeV = false;
   private boolean isFullscreen = false;
+
+  private Screen screen;
+  private Rectangle2D backupWindowBounds;
+
 
   private Dimension2D minSize = new Dimension2D(325, 530);
 
@@ -149,13 +155,6 @@ public class Root extends Application {
     });
   }
 
-  public Parent getFXML() throws IOException {
-    if (parent == null) {
-      initAll();
-    }
-    return parent;
-  }
-
   public FXMLLoader getLoader() {
     return loader;
   }
@@ -175,30 +174,46 @@ public class Root extends Application {
   }
 
   private void closeWindow(MouseEvent event) {
-    if (scene.getCursor().equals(Cursor.DEFAULT)) {
-      stage.hide();
-    }
+    stage.hide();
   }
 
   private void minimizeWindow(MouseEvent event) {
-    stage.setIconified(true);
+    ((Stage) scene.getWindow()).setIconified(true);
   }
 
   private void maximizeWindow(MouseEvent event) {
-    if (stage.isMaximized()) {
-      stage.setMaximized(false);
+    Stage stage = (Stage) scene.getWindow();
+    ObservableList<Screen> screens = Screen.getScreensForRectangle(stage.getX(), stage.getY(), 1, 1);
+
+    if (screens.isEmpty()) {
+      screen = Screen.getScreensForRectangle(0, 0, 1, 1).get(0);
+    } else {
+      screen = screens.get(0);
+    }
+
+    if (isFullscreen) {
       isFullscreen = false;
       Button btn = (Button) event.getSource();
       btn.setText("\uE922");
+
+      if (backupWindowBounds != null) {
+        stage.setX(backupWindowBounds.getMinX());
+        stage.setY(backupWindowBounds.getMinY());
+        stage.setWidth(backupWindowBounds.getWidth());
+        stage.setHeight(backupWindowBounds.getHeight());
+      }
     } else {
-      stage.setMaximized(true);
       isFullscreen = true;
       Button btn = (Button) event.getSource();
       btn.setText("\uE923");
+
+      backupWindowBounds = new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
+
+      stage.setX(screen.getVisualBounds().getMinX());
+      stage.setY(screen.getVisualBounds().getMinY());
+      stage.setWidth(screen.getVisualBounds().getWidth());
+      stage.setHeight(screen.getVisualBounds().getHeight());
     }
-    String str = display.getText();
-    display.setText("");
-    display.setText(str);
   }
 
   private void pressWindow(MouseEvent event) {
@@ -212,7 +227,6 @@ public class Root extends Application {
   private void dragWindow(MouseEvent event) {
     if (((AnchorPane) event.getSource()).getScene().getCursor().equals(Cursor.DEFAULT) && !isFullscreen) {
       Window stage = scene.getWindow();
-
       stage.setX(event.getScreenX() + xOffset);
       stage.setY(event.getScreenY() + yOffset);
     }

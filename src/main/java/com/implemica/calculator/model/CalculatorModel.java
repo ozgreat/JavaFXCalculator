@@ -186,6 +186,12 @@ public class CalculatorModel {
     }
   }
 
+  /**
+   * Get rounded to mc16 number from given
+   *
+   * @param res given number
+   * @return rounded number
+   */
   public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
     MathContext mc = mc16;
     if (res.compareTo(BigDecimal.ONE) < 0 && res.compareTo(BigDecimal.valueOf(-3)) > 0) {
@@ -206,7 +212,7 @@ public class CalculatorModel {
   private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
     if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
       DecimalFormat df = new DecimalFormat("0.################E0####");
-      String[] strArr = df.format(res).split("Е");
+      String[] strArr = df.format(res).split("E");
       if (MAX < Math.abs(parseInt(strArr[1]))) {
         throw new ArithmeticException("Overflow");
       }

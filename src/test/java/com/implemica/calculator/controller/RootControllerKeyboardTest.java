@@ -3,6 +3,7 @@ package com.implemica.calculator.controller;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import javafx.scene.input.KeyCode;
+import org.junit.jupiter.api.Disabled;
 import org.loadui.testfx.utils.FXTestUtils;
 
 import java.util.Arrays;
@@ -35,6 +36,24 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     operationsKeyCode.put("M-", new KeyCode[]{KeyCode.CONTROL, KeyCode.Q});
   }
 
+  @Override
+  @Disabled("Don't have keyboard shortcut")
+  void historyTest() {
+    super.historyTest();
+  }
+
+  @Override
+  @Disabled("Don't have keyboard shortcut")
+  void openSideBarTest() throws InterruptedException {
+    super.openSideBarTest();
+  }
+
+  @Override
+  @Disabled("Don't have keyboard shortcut")
+  void memoryShowTest() {
+    super.memoryShowTest();
+  }
+
   private void pressOn(String query) {
     KeyCode[] comb = operationsKeyCode.get(query);
     for (KeyCode k : comb) {
@@ -48,7 +67,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
   }
 
   @Override
-  void handleDigit(String digit) {
+  protected void handleDigit(String digit) {
     for (char ch : digit.toCharArray()) {
       if (ch == '.') {
         awtRobot.keyPress(KeyCode.PERIOD.getCode());
@@ -62,13 +81,13 @@ public class RootControllerKeyboardTest extends RootControllerTest {
   }
 
   @Override
-  void clear() {
+  protected void clear() {
     pressOn("C");
     pressOn("MC");
   }
 
   @Override
-  void clicker(String pattern) {
+  protected void clicker(String pattern) {
     for (String s : pattern.split(" ")) {
       if (operationsKeyCode.containsKey(s)) {
         pressOn(s);
