@@ -92,9 +92,6 @@ public class RootController {
   private Button leftFormulaButton;
 
   @FXML
-  private BorderPane bp;
-
-  @FXML
   private Label formula;
 
   @FXML

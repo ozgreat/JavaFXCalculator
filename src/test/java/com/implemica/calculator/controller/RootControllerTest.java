@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
 import org.testfx.framework.junit5.ApplicationExtension;
 
@@ -984,16 +985,16 @@ public class RootControllerTest extends CalculatorTestUtils {
   @Test
   void resultIsUndefinedTest() {
     checkErrorOp("0 / 0 =", "", "Result is undefined");
-    checkErrorOp("1 N SQR", "√( -1 )", "Result is undefined");
-    checkErrorOp("2 N SQR", "√( -2 )", "Result is undefined");
+    checkErrorOp("1 N SQR", "√( -1 )", "Invalid input");
+    checkErrorOp("2 N SQR", "√( -2 )", "Invalid input");
 
-    checkErrorOp("111110 N SQR", "√( -111110 )", "Result is undefined");
-    checkErrorOp("111111 N SQR", "√( -111111 )", "Result is undefined");
-    checkErrorOp("111112 N SQR", "√( -111112 )", "Result is undefined");
+    checkErrorOp("111110 N SQR", "√( -111110 )", "Invalid input");
+    checkErrorOp("111111 N SQR", "√( -111111 )", "Invalid input");
+    checkErrorOp("111112 N SQR", "√( -111112 )", "Invalid input");
 
-    checkErrorOp("9999999999999998 = N SQR", "√( -9999999999999998 )", "Result is undefined");
-    checkErrorOp("9999999999999999 = N SQR", "√( -9999999999999999 )", "Result is undefined");
-    checkErrorOp("9999999999999999 + 1 = N SQR", "√( -1.E+16 )", "Result is undefined");
+    checkErrorOp("9999999999999998 = N SQR", "√( -9999999999999998 )", "Invalid input");
+    checkErrorOp("9999999999999999 = N SQR", "√( -9999999999999999 )", "Invalid input");
+    checkErrorOp("9999999999999999 + 1 = N SQR", "√( -1.E+16 )", "Invalid input");
   }
 
   @Test
@@ -1106,6 +1107,7 @@ public class RootControllerTest extends CalculatorTestUtils {
 
   void checkErrorOp(String pattern, String formula, String res) {
     clicker(pattern);
+    FXTestUtils.awaitEvents();
     FxAssert.verifyThat("#display", hasText(res));
     assertEquals(formula, controller.getFormulaStr());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("+")).queryButton().isDisabled());

@@ -36,48 +36,13 @@
                       <font>
                         <Font name="Segoe MDL2 Assets" size="15.0" />
                       </font>
-                                 <cursor>
-                                    <Cursor fx:constant="DEFAULT" />
-                                 </cursor>
                     </Button>
                     <Label id="standard" fx:id="standardLabel" layoutX="40.0" layoutY="-1.0" prefHeight="30.0" prefWidth="80.0" text="Standard" AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="7.0">
                       <font>
                         <Font name="Segoe MDL2 Assets" size="16.0" />
                       </font>
                     </Label>
-                    <Button id="history" fx:id="openHistory" layoutX="275.0" layoutY="-3.0" mnemonicParsing="false" onAction="#historyAction" prefHeight="40.0" prefWidth="43.0" text="" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
-                      <font>
-                        <Font name="Segoe MDL2 Assets" size="12.0" />
-                      </font>
-                    </Button>
-                    <Button fx:id="leftFormulaButton" alignment="CENTER" contentDisplay="CENTER" ellipsisString="" graphicTextGap="0.0" layoutX="8.0" layoutY="48.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" mnemonicParsing="false" onAction="#leftFormulaButtonAction" pickOnBounds="false" prefHeight="15.0" prefWidth="15.0" styleClass="moveFormulaButton" textAlignment="JUSTIFY" textOverrun="CLIP" visible="false" wrapText="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="52.0">
-                      <font>
-                        <Font size="11.0" />
-                      </font>
-                      <cursor>
-                        <Cursor fx:constant="DEFAULT" />
-                      </cursor>
-                      <graphic>
-                        <Label prefWidth="49.0" text="" textOverrun="CLIP" wrapText="true">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="12.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                    </Button>
-                    <Button fx:id="rightFormulaButton" ellipsisString="" graphicTextGap="0.0" layoutX="294.0" layoutY="76.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" mnemonicParsing="false" onAction="#rightFormulaButtonAction" prefHeight="15.0" prefWidth="15.0" styleClass="moveFormulaButton" textAlignment="CENTER" textOverrun="CLIP" visible="false" wrapText="true" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="52.0">
-                      <font>
-                        <Font size="11.0" />
-                      </font>
-                      <graphic>
-                        <Label ellipsisString="" prefHeight="26.0" prefWidth="27.0" text="" textOverrun="CLIP" wrapText="true">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="12.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                    </Button>
-                    <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" layoutX="14.0" layoutY="51.0" prefHeight="18.0" prefWidth="3000.0" textAlignment="RIGHT" textOverrun="CLIP" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="51.0" />
+                    <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="10.0" layoutY="51.0" prefHeight="5.0" prefWidth="303.0" textAlignment="RIGHT" textOverrun="CLIP" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" />
                     <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="5.0" layoutY="56.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="308.0" prefHeight="57.0" prefWidth="313.0" text="0" textAlignment="RIGHT" wrapText="true" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="56.0">
                       <font>
                         <Font name="Segoe MDL2 Assets" size="15.0" />
@@ -89,6 +54,24 @@
                         <Insets right="3.0" />
                       </padding>
                     </Label>
+                    <Button id="history" fx:id="openHistory" layoutX="275.0" layoutY="-3.0" mnemonicParsing="false" onAction="#historyAction" prefHeight="40.0" prefWidth="43.0" text="" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
+                      <font>
+                        <Font name="Segoe MDL2 Assets" size="12.0" />
+                      </font>
+                    </Button>
+                    <Button fx:id="leftFormulaButton" alignment="CENTER" contentDisplay="CENTER" graphicTextGap="0.0" layoutX="8.0" layoutY="48.0" mnemonicParsing="false" onAction="#leftFormulaButtonAction" pickOnBounds="false" prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" text="&lt;" textAlignment="JUSTIFY" textOverrun="CLIP" visible="false" wrapText="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="48.0">
+                      <font>
+                        <Font size="11.0" />
+                      </font>
+                      <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                      </cursor>
+                    </Button>
+                    <Button fx:id="rightFormulaButton" ellipsisString="&gt;" graphicTextGap="0.0" layoutX="294.0" layoutY="76.0" mnemonicParsing="false" onAction="#rightFormulaButtonAction" prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" text="&gt;" textAlignment="CENTER" textOverrun="CLIP" visible="false" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="46.0">
+                      <font>
+                        <Font size="11.0" />
+                      </font>
+                    </Button>
                   </children>
                 </AnchorPane>
                 <AnchorPane fx:id="historyUpperPane" layoutY="-2.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onMouseClicked="#historyAction" prefHeight="153.0" prefWidth="325.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
@@ -98,7 +81,7 @@
               <children>
                 <AnchorPane layoutX="6.0" layoutY="1.0" prefHeight="336.0" prefWidth="323.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="0.0">
                   <children>
-                    <GridPane layoutY="31.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="317.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+                    <GridPane id="numpad" layoutY="31.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="317.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
                       <columnConstraints>
                         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
                         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
@@ -333,36 +316,36 @@
                         <Cursor fx:constant="DEFAULT" />
                       </cursor>
                     </GridPane>
-                    <ButtonBar buttonMinWidth="20.0" layoutX="-14.0" layoutY="-1.0" maxWidth="450.0" prefHeight="30.0" prefWidth="325.0" AnchorPane.leftAnchor="-14.0" AnchorPane.topAnchor="-1.0">
+                    <ButtonBar buttonMinWidth="20.0" layoutX="-6.0" layoutY="-1.0" maxWidth="450.0" prefHeight="30.0" prefWidth="316.0" AnchorPane.leftAnchor="-14.0" AnchorPane.topAnchor="0.0">
                       <buttons>
-                        <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#memoryClearAction" prefHeight="33.0" prefWidth="141415.0" styleClass="memoryButton" text="">
+                        <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#memoryClearAction" prefHeight="30.0" prefWidth="141415.0" styleClass="memoryButton" text="">
                           <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
+                            <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
                         </Button>
                         <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false" onAction="#memoryRecallAction" styleClass="memoryButton" text="">
                           <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
+                            <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
                         </Button>
                         <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction" styleClass="memoryButton" text="">
                           <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
+                            <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
                         </Button>
                         <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction" styleClass="memoryButton" text="">
                           <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
+                            <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
                         </Button>
-                        <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" prefHeight="29.0" styleClass="memoryButton" text="">
+                        <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" styleClass="memoryButton" text="">
                           <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
+                            <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
                         </Button>
                         <Button fx:id="memoryShow" disable="true" mnemonicParsing="false" onAction="#memoryShowAction" prefHeight="12.0" prefWidth="12.0" styleClass="memoryButton" text="">
                           <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
+                            <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
                         </Button>
                       </buttons>
@@ -382,24 +365,14 @@
             </AnchorPane>
           </children>
         </GridPane>
-        <BorderPane fx:id="sideMenuBorderPane" layoutY="43.0" prefHeight="450.0" prefWidth="270.0" styleClass="sideMenuBorderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-270.0" AnchorPane.topAnchor="43.0">
+        <BorderPane fx:id="sideMenuBorderPane" disable="true" layoutY="43.0" prefHeight="450.0" prefWidth="270.0" styleClass="sideMenuBorderPane" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="43.0">
           <bottom>
             <AnchorPane prefHeight="56.0" prefWidth="270.0" BorderPane.alignment="CENTER">
               <children>
-                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="46.0" prefWidth="270.0" text="About" AnchorPane.bottomAnchor="10.0" AnchorPane.topAnchor="10.0">
-                  <graphic>
-                    <Label styleClass="sideMenuButton" text="">
-                      <font>
-                        <Font name="Calculator MDL2 Assets" size="16.0" />
-                      </font>
-                    </Label>
-                  </graphic>
-                  <font>
-                    <Font name="Calculator MDL2 Assets" size="12.0" />
-                  </font>
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="46.0" prefWidth="270.0" text=" About" AnchorPane.bottomAnchor="10.0" AnchorPane.topAnchor="10.0">
                   <styleClass>
+                    <String fx:value="numpad" />
                     <String fx:value="sideMenuButton" />
-                    <String fx:value="sideMenuButtonText" />
                   </styleClass>
                 </Button>
               </children>
@@ -435,249 +408,113 @@
                   </rowConstraints>
                   <children>
                     <Label prefHeight="77.0" prefWidth="251.0" styleClass="sideMenuLabel" text="  Calculator" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-                    <Button id="standardButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Standard" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                    <Button id="standardButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Standard" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad" />
+                        <String fx:value="sideMenuButton" />
+                      </styleClass>
                       <opaqueInsets>
                         <Insets bottom="5.0" top="5.0" />
                       </opaqueInsets>
                       <GridPane.margin>
                         <Insets />
                       </GridPane.margin>
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                      <font>
-                        <Font size="16.0" />
-                      </font>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Scientific" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Scientific" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Programmer" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Programmer" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                      <font>
-                        <Font size="16.0" />
-                      </font>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Date Calculation" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Date Calculation" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Label prefHeight="77.0" prefWidth="251.0" styleClass="sideMenuLabel" text="  Converter" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS" />
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Currency" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Label prefHeight="77.0" prefWidth="251.0" text="  Converter" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Volume" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
                       <styleClass>
-                        <String fx:value="sideMenuLabel" />
-                        <String fx:value="sideMenuButtonText" />
-                      </styleClass>
-                    </Label>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Currency" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                      <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Volume" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Length" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Length" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                      <font>
-                        <Font name="Calculator MDL2 Assets" size="12.0" />
-                      </font>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Weight and Mass" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Weight and Mass" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Temperature" GridPane.hgrow="ALWAYS" GridPane.rowIndex="10" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Temperature" GridPane.hgrow="ALWAYS" GridPane.rowIndex="10" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                      <font>
-                        <Font name="Segoe UI" size="12.0" />
-                      </font>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Energy" GridPane.hgrow="ALWAYS" GridPane.rowIndex="11" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Energy" GridPane.hgrow="ALWAYS" GridPane.rowIndex="11" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Area" GridPane.hgrow="ALWAYS" GridPane.rowIndex="12" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Area" GridPane.hgrow="ALWAYS" GridPane.rowIndex="12" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Speed" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Speed" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Time" GridPane.hgrow="ALWAYS" GridPane.rowIndex="14" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Time" GridPane.hgrow="ALWAYS" GridPane.rowIndex="14" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Power" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Power" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Data" GridPane.hgrow="ALWAYS" GridPane.rowIndex="16" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Data" GridPane.hgrow="ALWAYS" GridPane.rowIndex="16" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Pressure" GridPane.hgrow="ALWAYS" GridPane.rowIndex="17" GridPane.vgrow="ALWAYS">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Pressure" GridPane.hgrow="ALWAYS" GridPane.rowIndex="17" GridPane.vgrow="ALWAYS">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text=" Angle" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="18" GridPane.vgrow="SOMETIMES">
                       <styleClass>
+                        <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
-                      </styleClass>
-                    </Button>
-                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Angle" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="18" GridPane.vgrow="SOMETIMES">
-                      <graphic>
-                        <Label styleClass="sideMenuButton" text="">
-                          <font>
-                            <Font name="Calculator MDL2 Assets" size="16.0" />
-                          </font>
-                        </Label>
-                      </graphic>
-                      <styleClass>
-                        <String fx:value="sideMenuButton" />
-                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                     </Button>
                   </children>

@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
@@ -202,6 +204,7 @@ public class Root extends Application {
         stage.setWidth(backupWindowBounds.getWidth());
         stage.setHeight(backupWindowBounds.getHeight());
       }
+      resizeButtonTextMinus();
     } else {
       isFullscreen = true;
       Button btn = (Button) event.getSource();
@@ -213,6 +216,8 @@ public class Root extends Application {
       stage.setY(screen.getVisualBounds().getMinY());
       stage.setWidth(screen.getVisualBounds().getWidth());
       stage.setHeight(screen.getVisualBounds().getHeight());
+
+      resizeButtonTextPlus();
     }
   }
 
@@ -237,7 +242,22 @@ public class Root extends Application {
     dx = stage.getWidth() - event.getX();
     dy = stage.getHeight() - event.getY();
     display.setText(display.getText());
+
+    ObservableList<Screen> screens = Screen.getScreensForRectangle(stage.getX(), stage.getY(), 1, 1);
+
+    if (screens.isEmpty()) {
+      screen = Screen.getScreensForRectangle(0, 0, 1, 1).get(0);
+    } else {
+      screen = screens.get(0);
+    }
+
+    if (stage.getHeight() >= screen.getVisualBounds().getHeight() && stage.getWidth() >= (screen.getVisualBounds().getWidth() / 2d)) {
+      resizeButtonTextPlus();
+    }else{
+      resizeButtonTextMinus();
+    }
   }
+
 
   private void dragResize(MouseEvent event) {
     Stage stage = (Stage) mainPane.getScene().getWindow();
@@ -343,4 +363,22 @@ public class Root extends Application {
     }
   }
 
+  private void resizeButtonTextPlus() {
+    GridPane numpad = (GridPane) parent.lookup("#numpad");
+    for (Node node : numpad.getChildren()) {
+      Button btn = (Button) node;
+      btn.setStyle(" -fx-font-size:" + (btn.getFont().getSize() + 8d) + ";\n");
+    }
+  }
+
+  private void resizeButtonTextMinus() {
+    GridPane numpad = (GridPane) parent.lookup("#numpad");
+    for (Node node : numpad.getChildren()) {
+      Button btn = (Button) node;
+      if (btn.getFont().getSize() < 24 || btn.getFont().getSize() == 24.5) {
+        break;
+      }
+      btn.setStyle(" -fx-font-size:" + (btn.getFont().getSize() - 8d) + ";\n");
+    }
+  }
 }

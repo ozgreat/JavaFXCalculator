@@ -52,7 +52,6 @@ public class CalculatorModel {
    */
   private static final int MAX = 10000;
 
-
   /**
    * Map of binary operations
    */
@@ -90,12 +89,6 @@ public class CalculatorModel {
       throw new ArithmeticException("Cannot divide by zero");
     }
 
-
-   /* if (operation == null) {
-      return "0";
-    }*/
-
-
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
     return getRounded32IfItsPossible(res).toString();
@@ -113,7 +106,7 @@ public class CalculatorModel {
     if (num.equals(BigDecimal.ZERO) && op.equals("1/")) {
       throw new ArithmeticException("Cannot divide by zero");
     } else if (num.compareTo(BigDecimal.ZERO) < 0 && op.equals("√")) {
-      throw new ArithmeticException("Result is undefined");
+      throw new ArithmeticException("Invalid input");
     }
 
 
@@ -177,6 +170,7 @@ public class CalculatorModel {
   }
 
   private static BigDecimal getRounded32IfItsPossible(BigDecimal res) throws ArithmeticException {
+    checkOverflow(res);
     res = res.round(mc32);
     BigDecimal resStrip = getRounded(res, mc32, mc32.getPrecision());
     if (resStrip != null) {
@@ -209,16 +203,10 @@ public class CalculatorModel {
     }
   }
 
-  private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) {
-    if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
-      DecimalFormat df = new DecimalFormat("0.################E0####");
-      String[] strArr = df.format(res).split("E");
-      if (MAX < Math.abs(parseInt(strArr[1]))) {
-        throw new ArithmeticException("Overflow");
-      }
-    }
+  private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) throws ArithmeticException {
     if (res.toString().contains(".")) {
       res = res.round(mc);
+      checkOverflow(res);
       BigDecimal resStrip = res.stripTrailingZeros();
       if (resStrip.toPlainString().length() <= precision && resStrip.toString().contains("E")) {
         resStrip = new BigDecimal(resStrip.toPlainString());
@@ -227,6 +215,18 @@ public class CalculatorModel {
       }
       return resStrip;
     }
+    checkOverflow(res);
     return null;
+  }
+
+
+  private static void checkOverflow(BigDecimal res) throws ArithmeticException {
+    if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
+      DecimalFormat df = new DecimalFormat("0.################E0####");
+      String[] strArr = df.format(res).split("E");
+      if (MAX <= Math.abs(parseInt(strArr[1]))) {
+        throw new ArithmeticException("Overflow");
+      }
+    }
   }
 }

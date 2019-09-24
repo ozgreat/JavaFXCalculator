@@ -5,14 +5,18 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CalculatorModelTest {
   private static final String REVERSE = "1/";
   private static final String POW = "sqr";
   private static final String NEGATE = "negate";
   private static final String SQRT = "√";
+
+  private final static BigDecimal MAX = new BigDecimal("1E10000");
+  private final static BigDecimal MIN = new BigDecimal("1E-10000");
+  private final static BigDecimal MAX_POS = MAX.add(MIN);
+  private final static BigDecimal MIN_POS = MIN.add(MIN);
 
   private CalculatorModel calc;
 
@@ -720,7 +724,7 @@ class CalculatorModelTest {
   }
 
   @Test
-  void checkPow() {
+  void powTest() {
     //Integer
     checkUnary("99999999999999980000000000000001", "9999999999999999", POW);
     checkUnary("99999999999999960000000000000004", "9999999999999998", POW);
@@ -965,8 +969,6 @@ class CalculatorModelTest {
 
   }
 
-  // todo: test memory
-
   @Test
   void memoryClearTest() {
     checkMemoryClear("9999999999999999");
@@ -1018,6 +1020,66 @@ class CalculatorModelTest {
     checkMemorySub(new BigDecimal("4999999999999999"), null, new BigDecimal("-4999999999999999"));
   }
 
+  @Test
+  void overflowTest() {
+    checkThrowBinary(MAX_POS, MIN_POS, "+");
+    checkThrowBinary(MAX_POS, MAX_POS, "+");
+    checkThrowBinary(MAX_POS, MAX, "+");
+    checkThrowBinary(MAX_POS, MIN, "+");
+    checkThrowBinary(MAX_POS, BigDecimal.ONE, "+");
+    checkThrowBinary(MAX, BigDecimal.ZERO, "+");
+    checkThrowBinary(MIN, BigDecimal.ZERO, "-");
+    checkThrowBinary(MIN_POS, MIN, "-");
+    checkThrowBinary(MIN, BigDecimal.ZERO, "-");
+    checkThrowBinary(MIN, BigDecimal.ZERO, "+");
+
+    checkThrowBinary(MAX_POS, BigDecimal.TEN, "×");
+    checkThrowBinary(MAX_POS, MAX_POS, "×");
+    checkThrowBinary(MAX_POS, MAX, "×");
+    checkThrowBinary(MAX, BigDecimal.ONE, "×");
+    checkThrowBinary(MIN_POS, BigDecimal.TEN, "÷");
+    checkThrowBinary(MIN_POS, MAX_POS, "÷");
+    checkThrowBinary(MIN_POS, MAX, "÷");
+    checkThrowBinary(MIN, BigDecimal.ONE, "÷");
+
+
+    checkThrowUnary(MAX_POS, POW);
+    checkThrowUnary(MIN_POS, POW);
+
+    checkThrowUnary(MIN, REVERSE);
+    checkThrowUnary(MAX, REVERSE);
+
+
+    checkThrowPercent(MIN, BigDecimal.valueOf(99), "+");
+    checkThrowPercent(MIN, BigDecimal.ONE, "+");
+  }
+
+  @Test
+  void cannotDivideByZero() {
+    checkThrowBinary(BigDecimal.ZERO, BigDecimal.ZERO, "÷"); // Result is
+
+    checkThrowBinary(MAX_POS, BigDecimal.ZERO, "÷");
+    checkThrowBinary(MAX_POS.divide(BigDecimal.valueOf(2)), BigDecimal.ZERO, "÷");
+    checkThrowBinary(BigDecimal.ONE, BigDecimal.ZERO, "÷");
+
+    checkThrowBinary(MIN_POS, BigDecimal.ZERO, "÷");
+    checkThrowBinary(MIN_POS.multiply(BigDecimal.valueOf(2)), BigDecimal.ZERO, "÷");
+
+    checkThrowUnary(BigDecimal.ZERO, REVERSE);
+  }
+
+  @Test
+  void invalidInput() {
+    checkThrowUnary(MAX_POS.negate(), SQRT);
+    checkThrowUnary(MAX_POS.divide(BigDecimal.valueOf(2)).negate(), SQRT);
+    checkThrowUnary(MAX_POS.subtract(BigDecimal.valueOf(1)).negate(), SQRT);
+
+    checkThrowUnary(MIN_POS.negate(), SQRT);
+    checkThrowUnary(MAX_POS.multiply(BigDecimal.valueOf(2)).negate(), SQRT);
+    checkThrowUnary(MAX_POS.add(BigDecimal.valueOf(1)).negate(), SQRT);
+
+    checkThrowUnary(BigDecimal.valueOf(-1), SQRT);
+  }
 
   @BeforeEach
   void before() {
@@ -1091,5 +1153,36 @@ class CalculatorModelTest {
     assertEquals(expected, calc.getMemory());
   }
 
-  //todo: check throw
+  private void checkThrowBinary(BigDecimal left, BigDecimal right, String op) {
+    try {
+      calc.setLeftOperand(left);
+      calc.setRightOperand(right);
+      calc.setOperation(op);
+      calc.getBinaryOperationResult();
+      fail();
+    } catch (ArithmeticException e) {
+      // Nothing
+    }
+  }
+
+  private void checkThrowUnary(BigDecimal big, String op) {
+    try {
+      calc.getUnaryOperationResult(op, big.toString());
+      fail();
+    } catch (ArithmeticException e) {
+      // Haha, classic
+    }
+  }
+
+  private void checkThrowPercent(BigDecimal left, BigDecimal right, String op) {
+    try {
+      calc.setLeftOperand(left);
+      calc.setRightOperand(right);
+      calc.setOperation(op);
+      calc.getPercentOperation();
+      fail();
+    } catch (ArithmeticException e) {
+      // Well shit, bro
+    }
+  }
 }

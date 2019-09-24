@@ -16,7 +16,8 @@ public class InputService {
   /**
    * List of possible exception messages to calculator display
    */
-  public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero", "Overflow", "Result is undefined");
+  public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero", "Overflow",
+      "Result is undefined", "Invalid input");
 
   /**
    * Current state of calculator
