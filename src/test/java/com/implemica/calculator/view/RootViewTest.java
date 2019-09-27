@@ -11,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
@@ -26,7 +25,6 @@ import java.util.function.Function;
 
 import static com.implemica.calculator.view.DragPoint.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 enum DragPoint {
@@ -217,11 +215,6 @@ public class RootViewTest extends CalculatorTestUtils {
 
     checkColor(robot.lookup(".digitButton").queryAllAs(Labeled.class), Color.valueOf("#fafafa"), Color.valueOf("#e6e6e6"));
     checkColor(robot.lookup(".arithmeticButton").queryAllAs(Labeled.class), Color.valueOf("#f0f0f0"), Color.valueOf("#4c4a48"));
-
-    robot.clickOn(robot.lookup("#sideMenuButton").queryButton());
-    robot.clickOn(robot.lookup("#maximizeButton").queryButton());
-    robot.clickOn(robot.lookup("#sideMenuButton").queryButton());
-    robot.clickOn(robot.lookup("#maximizeButton").queryButton());
   }
 
   @Test

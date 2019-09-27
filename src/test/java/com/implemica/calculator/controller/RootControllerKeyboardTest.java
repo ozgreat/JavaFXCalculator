@@ -54,6 +54,12 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     super.memoryShowTest();
   }
 
+  @Override
+  @Disabled("Don't have keyboard shortcut")
+  void arrowFormulaTest() {
+    super.arrowFormulaTest();
+  }
+
   private void pressOn(String query) {
     KeyCode[] comb = operationsKeyCode.get(query);
     for (KeyCode k : comb) {
@@ -62,7 +68,6 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     for (KeyCode k : comb) {
       awtRobot.keyRelease(k.getCode());
     }
-
     FXTestUtils.awaitEvents();
   }
 
@@ -97,7 +102,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
         handleDigit(s);
       }
     }
-    FXTestUtils.awaitEvents();
+//    FXTestUtils.awaitEvents();
   }
 
 }

@@ -31,11 +31,10 @@
 
 
 .memoryButton {
-  -fx-font-size: 16;
+  -fx-font-size: 12;
   -fx-background-color: transparent;
   -fx-background-radius: 0;
-  -fx-font-family: "Calculator MDL2 Assets";
-  -fx-font-weight: bold;
+  -fx-font-family: "Segoe UI Semibold";
 }
 
 .memoryButton:hover {
@@ -148,7 +147,7 @@
 
 .moveFormulaButton {
   -fx-font-family: "Calculator MDL2 Assets";
-  -fx-font-size: 12;
+  -fx-font-size: 10;
   -fx-background-color: transparent;
   -fx-pref-width: 20;
   -fx-pref-height: 20;

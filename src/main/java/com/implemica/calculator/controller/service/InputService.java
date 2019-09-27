@@ -3,7 +3,6 @@ package com.implemica.calculator.controller.service;
 import com.implemica.calculator.model.CalculatorModel;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -101,6 +100,8 @@ public class InputService {
       } else {
         if (CalcState.AFTER == calcState) {
           calcState = CalcState.LEFT;
+        } else if (CalcState.TRANSIENT == calcState) {
+          calcState = CalcState.RIGHT;
         }
         return displayFormat(display + value);
       }
@@ -200,11 +201,6 @@ public class InputService {
       }
 
       String result = calc.getBinaryOperationResult();
-
-/*
-      if (EXCEPTION_MESSAGES.contains(result)) {
-        return result;
-      }*/
 
       settingAfterResult(result);
 
@@ -438,14 +434,6 @@ public class InputService {
       calcState = CalcState.LEFT;
     }
 
-    /*if (!oldFormula.equals("") && Character.isDigit(oldFormula.charAt(oldFormula.length() - 1))) {
-      if (binaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + binaryOperationUnicode.get(btn.getText());
-      } else if (unaryOperationUnicode.containsKey(btn.getText())) {
-        return oldFormula + binaryOperationUnicode.get(btn.getText());
-      }
-    }*/
-
 
     if (calcState == CalcState.TRANSIENT) {
       return transientHighFormula(btn, oldFormula, display);
@@ -598,7 +586,7 @@ public class InputService {
   }
 
   private String formatLongN(BigDecimal big) {
-    big = big.round(CalculatorModel.mc32);
+    big = big.round(CalculatorModel.mc10K);
     DecimalFormat df = new DecimalFormat("0.###############E0###", new DecimalFormatSymbols(Locale.ENGLISH));
     String res = df.format(big);
     if (!res.contains("E-")) {
@@ -613,16 +601,14 @@ public class InputService {
   }
 
   private String formatLong(BigDecimal big) {
-    String display = big.round(CalculatorModel.mc32).toEngineeringString();
+    String display = big.round(CalculatorModel.mc10K).toEngineeringString();
     if (!display.contains("E")) {
       display = formatLongN(big);
     }
     String[] displayArr = display.split("E");
     displayArr[0] = CalculatorModel.getRounded16IfItsPossible(new BigDecimal(displayArr[0])).toString();
 
-    if (displayArr[0].contains(".")) {
-      formatEngineer(displayArr);
-    } else {
+    if (!displayArr[0].contains(".")) {
       while (displayArr[0].endsWith("0")) {
         displayArr[1] = incrementEPart(displayArr, displayArr[1]);
       }
@@ -632,24 +618,6 @@ public class InputService {
     display = displayArr[0] + "E" + displayArr[1];
 
     return display;
-  }
-
-  private void formatEngineer(String[] displayArr) {
-    String[] displayNumParts = displayArr[0].split("\\.");
-    if (displayNumParts[0].endsWith("0")) {
-      displayArr[1] = incrementEPart(displayNumParts, displayArr[1]);
-
-      displayArr[0] = displayNumParts[0] + "." + displayNumParts[1];
-      displayArr[0] = deleteLastZeroInFrac(displayArr[0]);
-    }
-  }
-
-  private String deleteLastZeroInFrac(String num) {
-    if (num.endsWith("0")) {
-      return deleteLastZeroInFrac(num.substring(0, num.length() - 1));
-    } else {
-      return num;
-    }
   }
 
   private String incrementEPart(String[] displayArr, String ePart) {
@@ -669,14 +637,14 @@ public class InputService {
   }
 
   private String formatOperation(String op) {
-    String formated = binaryOperationUnicode.get(op);
-    if (formated != null) {
-      return formated;
+    String formatted = binaryOperationUnicode.get(op);
+    if (formatted != null) {
+      return formatted;
     }
 
-    formated = unaryOperationUnicode.get(op);
-    if (formated != null) {
-      return formated;
+    formatted = unaryOperationUnicode.get(op);
+    if (formatted != null) {
+      return formatted;
     }
 
     return op;

@@ -4,6 +4,7 @@ import com.implemica.calculator.controller.util.CalculatorTestUtils;
 import com.implemica.calculator.view.Root;
 import javafx.geometry.Bounds;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +53,9 @@ public class RootControllerTest extends CalculatorTestUtils {
 
   @Test
   void plusTest() {
+    checkOperations("2 + =", "", "4");
+    checkOperations("2 + = =", "", "6");
+
     checkOperations("2 + 2  =", "", "4");
     checkOperations("7 + 3  =", "", "10");
     checkOperations("1 + 8  =", "", "9");
@@ -165,6 +169,9 @@ public class RootControllerTest extends CalculatorTestUtils {
 
   @Test
   void subTest() {
+    checkOperations("2 - =", "", "0");
+    checkOperations("2 - = =", "", "-2");
+
     checkOperations("2 - 2  =", "", "0");
     checkOperations("7 - 3  =", "", "4");
     checkOperations("1 - 8  =", "", "-7");
@@ -278,6 +285,9 @@ public class RootControllerTest extends CalculatorTestUtils {
 
   @Test
   void multiplyTest() {
+    checkOperations("2 * =", "", "4");
+    checkOperations("2 * = =", "", "8");
+
     checkOperations("2 * 2 =", "", "4");
     checkOperations("7 * 3 =", "", "21");
     checkOperations("1 * 8 =", "", "8");
@@ -391,6 +401,9 @@ public class RootControllerTest extends CalculatorTestUtils {
 
   @Test
   void divideTest() {
+    checkOperations("2 / =", "", "1");
+    checkOperations("2 / = =", "", "0.5");
+
     checkOperations("2 / 2 =", "", "1");
     checkOperations("7 / 3 =", "", "2.333333333333333");
     checkOperations("1 / 8 =", "", "0.125");
@@ -628,7 +641,7 @@ public class RootControllerTest extends CalculatorTestUtils {
     checkOperations("0.0000000000000001 SQR", "√( 0.0000000000000001 )", "0.00000001");
     checkOperations("0.0000000000000001 SQR SQR", "√( √( 0.0000000000000001 ) )", "0.0001");
 
-    checkOperations("9999999999999999 SQR", "√( 9999999999999999 )", "100,000,000");
+    checkOperations("9999999999999999 SQR", "√( 9999999999999999 )", "99,999,999.99999999");
   }
 
   @Test
@@ -822,12 +835,8 @@ public class RootControllerTest extends CalculatorTestUtils {
     checkOperations("1 / 3 * 3 =", "", "1");
     checkOperations("1 / 3 * 3 - 1", "1 ÷ 3 × 3 -", "1");
     checkOperations("0.0111111111111111 * 0.1 =", "", "0.0011111111111111");
-    /*checkOperations("0.0111111111111111 * 0.1 = =", "", "1.11111111111111E-4");
-    checkOperations("0.0111111111111111 * 0.1 = = =", "", "1.11111111111111E-5");
-    checkOperations("1 / 3 * 3 - 1 =", "", "0");*/
     checkOperations("2.0000000000000001 + 1 = = = = = = = =", "", "10");
     checkOperations("0.1 * = = = = = = = = = = = = = = = =", "", "1.E-17");
-//    checkOperations("0.9 * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =", "", "9,550049507968252e-4");
     checkOperations("9999999999999999 + 2 =", "", "1.E+16");
     checkOperations("9999999999999999 * 2 =", "", "2.E+16");
     checkOperations("9999999999999999 * 8 =", "", "7.999999999999999E+16");
@@ -854,11 +863,7 @@ public class RootControllerTest extends CalculatorTestUtils {
 
     checkOperations("0.0000000000000001 + =", "", "0.0000000000000002");
     checkOperations("0.0000000000000001 - =", "", "0");
-//    checkOperations("1 / 7 * 7 - 1 =", "", "0");
-//    checkOperations("1 / 7 * 1000000000000000 * 7 - 1000000000000000 =", "", "0");
-//    checkOperations("1 / 3 / 7 / 11 / 13 / 17 * 1000000000000000 * 3 * 7 * 11 * 13 * 17 - 1000000000000000 =", "", "0");
     checkOperations("5 SQR SQR SQR SQR SQR  SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR SQR =", "", "1.000000000000001");
-//    checkOperations("1 / 3 * 0.0000000000000001 * 0.00000000001 * 1000000000000000 * 10000000000000 * 3 =", "", "10");
     checkOperations("0.9999999999999999 * 999999999999999.1 =", "", "999,999,999,999,999");
     checkOperations("0.9999999999999999 * 999999999999999.3 =", "", "999,999,999,999,999.2");
     checkOperations("0.9999999999999999 * 999999999999999.5 =", "", "999,999,999,999,999.4");
@@ -1041,7 +1046,7 @@ public class RootControllerTest extends CalculatorTestUtils {
     wait(300);
     b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
     int newX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
-    assertEquals(oldX + 270, newX);
+    assertEquals(oldX + 272, newX);
     assertTrue(robot.lookup("#sideBarOffPane").query().isVisible());
     assertFalse(robot.lookup(hasText("Standard")).queryLabeled().isVisible());
 
@@ -1056,7 +1061,7 @@ public class RootControllerTest extends CalculatorTestUtils {
 
   @Test
   void memoryShowTest() {
-    clickOnMemory("\uF756");
+    clickOnMemory("MS");
     clickOn(robot.lookup("#memoryShow").queryButton());
 
     assertFalse(robot.lookup("#historyPane").query().isDisabled());
@@ -1066,6 +1071,19 @@ public class RootControllerTest extends CalculatorTestUtils {
     clickOn(robot.lookup("#memoryShow").queryButton());
 
     assertTrue(robot.lookup("#historyPane").query().isDisabled());
+  }
+
+  @Test
+  void arrowFormulaTest() {
+    formulaButtonVisibleCheck("9999999999999999 + 9999999999999999 + 9999999999999999 +", "9999999999999999 + 9999999999999999 + 9999999999999999 +");
+    formulaButtonVisibleCheck("123456789012345 + 123456789012345 + 123456789012345 +", "123456789012345 + 123456789012345 + 123456789012345 +");
+
+    formulaMoveCheck("9999999999999999 + 9999999999999999 + 9999999999999999 + <", "9999999999999999 + 9999999999999999 + 9999999999999999 +", "9999999999999999 + 9999999999999999 + 9");
+    formulaMoveCheck("9999999999999999 + 9999999999999999 + 9999999999999999 + < >", "9999999999999999 + 9999999999999999 + 9999999999999999 +", "+ 9999999999999999 + 9999999999999999 +");
+    formulaMoveCheck("9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 + <","9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 +","9 + 9999999999999999 + 9999999999999999" );
+    formulaMoveCheck("9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 + < < >","9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 + 9999999999999999 +","99999999999999 + 9999999999999999 + 999" );
+
+
   }
 
 
@@ -1118,7 +1136,7 @@ public class RootControllerTest extends CalculatorTestUtils {
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("POW")).queryButton().isDisabled());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(".")).queryButton().isDisabled());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("1/x")).queryButton().isDisabled());
-    assertTrue(robot.lookup(hasText("\uF753")).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText("M")).queryButton().isDisabled());
     assertTrue(robot.lookup(hasText(memoryOp.get("M-"))).queryButton().isDisabled());
     assertTrue(robot.lookup(hasText(memoryOp.get("M+"))).queryButton().isDisabled());
     assertTrue(robot.lookup(hasText(memoryOp.get("MR"))).queryButton().isDisabled());
@@ -1132,4 +1150,22 @@ public class RootControllerTest extends CalculatorTestUtils {
     clickOnMemory(memoryOp.get("MC"));
   }
 
+  void formulaButtonVisibleCheck(String pattern, String formula) {
+    clicker(pattern);
+    assertEquals(formula, controller.getFormulaStr());
+    Button leftArrow = lookup("#leftFormulaButton").queryButton();
+    assertTrue(leftArrow.isVisible());
+    clickOn(leftArrow);
+    assertTrue(lookup("#rightFormulaButton").queryButton().isVisible());
+
+    clear();
+  }
+
+  void formulaMoveCheck(String pattern, String formulaStr, String formulaOnDisplay) {
+    clicker(pattern);
+    assertEquals(formulaStr, controller.getFormulaStr());
+    assertEquals(formulaOnDisplay, lookup("#formula").queryLabeled().getText());
+
+    clear();
+  }
 }

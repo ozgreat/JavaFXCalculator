@@ -19,120 +19,326 @@ import javafx.util.Duration;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class RootController {
+  /**
+   * Label with number, display of calculator
+   */
   @FXML
   private Label display;
 
+  /**
+   * Button, that clear memory
+   */
   @FXML
   private Button memoryClearButton;
 
+  /**
+   * Button, that call number from memory
+   */
   @FXML
   private Button memoryRecallButton;
 
+  /**
+   * Button, that add current number to memory or save current number in memory, if memory isn't exist
+   */
   @FXML
   private Button memoryPlusButton;
 
+  /**
+   * Button, that subtract current number to memory or save negate of current number in memory, if memory isn't exist
+   */
   @FXML
   private Button memoryMinusButton;
 
+  /**
+   * Button, that save current number in memory
+   */
   @FXML
   private Button memorySaveButton;
 
+  /**
+   * Button, that open memory pane
+   */
   @FXML
   private Button memoryShow;
 
+  /**
+   * Pane, that close historyPane, if historyPane is opened.
+   */
   @FXML
   private AnchorPane historyUpperPane;
 
+  /**
+   * Pane with stub, where original calculator has history of operations
+   */
   @FXML
   private AnchorPane historyPane;
 
+  /**
+   * Label with stub text
+   */
   @FXML
   private Label historyLabel;
 
+  /**
+   * Button, that call percent action
+   */
   @FXML
   private Button percentButton;
 
+  /**
+   * Button, that call sqrt action
+   */
   @FXML
   private Button sqrtButton;
 
+  /**
+   * Button, that call pow action
+   */
   @FXML
   private Button powButton;
 
+  /**
+   * Button, that call divide action
+   */
   @FXML
   private Button divideButton;
 
+  /**
+   * Button, that call reverse action
+   */
   @FXML
   private Button reverseButton;
 
+  /**
+   * Button that call multiply action
+   */
   @FXML
   private Button multiplyButton;
 
+  /**
+   * Button, that call add action
+   */
   @FXML
   private Button addButton;
 
+  /**
+   * Button, that call subtract action
+   */
   @FXML
   private Button subtractButton;
 
+  /**
+   * Button, that type point at display
+   */
   @FXML
   private Button pointButton;
 
+  /**
+   * Button, that call negate action
+   */
   @FXML
   private Button negateButton;
 
+  /**
+   * Button, that move formula label to right
+   */
   @FXML
   private Button rightFormulaButton;
 
+  /**
+   * Button, that move formula label to left
+   */
   @FXML
   private Button leftFormulaButton;
 
+  /**
+   * Label with history of operation until equals action
+   */
   @FXML
   private Label formula;
 
+  /**
+   * Pane of side menu navigate bar
+   */
   @FXML
   private BorderPane sideMenuBorderPane;
 
+  /**
+   * Pane , that turn off side bar, when you click on
+   */
   @FXML
   private AnchorPane sideBarOffPane;
 
+  /**
+   * Label with text = "Standard", stub for mode of calculator
+   */
   @FXML
   private Label standardLabel;
 
+  /**
+   * Service that connect controller with model
+   */
   private InputService inputService;
 
-  private boolean isSideBarVisible = false;
+  /**
+   * Status of sidebar
+   */
+  private boolean isSideBarOpened = false;
 
+  /**
+   * String, that contains full history of operations before equals
+   */
   @Getter
   private String formulaStr;
+
+  /**
+   * Index of first visible symbol in formulaStr on formula Label
+   */
   private int formulaBegIndex;
+
+  /**
+   * Index of last visible symbol in formulaStr on formula Label
+   */
   private int formulaEndIndex;
 
+  /**
+   * Background of history pane
+   */
   private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
-  private final static KeyCombination SQRT = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN);
-  private final static KeyCombination PERCENT = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN);
-  private final static KeyCombination RECALL = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
-  private final static KeyCombination MEMORY_ADD = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
-  private final static KeyCombination MEMORY_SUB = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
-  private final static KeyCombination MEMORY_SAVE = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
-  private final static KeyCombination MEMORY_CLEAR = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN);
-  private final static KeyCombination PLUS = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHIFT_DOWN);
-  private final static KeyCombination MULTIPLY = new KeyCodeCombination(KeyCode.DIGIT8, KeyCombination.SHIFT_DOWN);
-  private final static List<KeyCode> NUMPAD_AND_DIGITS = Arrays.asList(KeyCode.DIGIT0, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,
-      KeyCode.DIGIT4, KeyCode.DIGIT5, KeyCode.DIGIT6, KeyCode.DIGIT7, KeyCode.DIGIT8, KeyCode.DIGIT9, KeyCode.NUMPAD0,
-      KeyCode.NUMPAD1, KeyCode.NUMPAD2, KeyCode.NUMPAD3, KeyCode.NUMPAD4, KeyCode.NUMPAD5, KeyCode.NUMPAD6, KeyCode.NUMPAD7,
-      KeyCode.NUMPAD8, KeyCode.NUMPAD9, KeyCode.PERIOD);
-  private final static List<KeyCode> BINARY_OP = Arrays.asList(KeyCode.MINUS, KeyCode.SUBTRACT, KeyCode.ADD,
-      KeyCode.MULTIPLY, KeyCode.DIVIDE, KeyCode.SLASH);
 
+  /**
+   * Keyboard shortcut for sqrt button
+   */
+  private final static KeyCombination SQRT = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * Keyboard shortcut for percent button
+   */
+  private static final KeyCombination PERCENT = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * Keyboard shortcut fot MR button
+   */
+  private static final KeyCombination MEMORY_RECALL = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for M+ button
+   */
+  private static final KeyCombination MEMORY_ADD = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for M- button
+   */
+  private static final KeyCombination MEMORY_SUB = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for MS button
+   */
+  private static final KeyCombination MEMORY_SAVE = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for MC button
+   */
+  private static final KeyCombination MEMORY_CLEAR = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * One of keyboard shortcuts for plus button
+   */
+  private static final KeyCombination PLUS = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * One of keyboard shortcuts for multiply button
+   */
+  private static final KeyCombination MULTIPLY = new KeyCodeCombination(KeyCode.DIGIT8, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * Keyboard shortcut  button
+   */
+  private static final KeyCombination NEGATE_SHORTCUT = new KeyCodeCombination(KeyCode.F9);
+
+  /**
+   * Keyboard shortcut for C button
+   */
+  private static final KeyCombination CLEAR_SHORTCUT = new KeyCodeCombination(KeyCode.ESCAPE);
+
+  /**
+   * Keyboard shortcut for CE button
+   */
+  private static final KeyCombination CLEAR_ENTRY_SHORTCUT = new KeyCodeCombination(KeyCode.DELETE);
+
+  /**
+   * Keyboard shortcut for backspace button
+   */
+  private static final KeyCombination BACKSPACE_SHORTCUT = new KeyCodeCombination(KeyCode.BACK_SPACE);
+
+  /**
+   * Keyboard shortcut for equals button
+   */
+  private static final KeyCombination EQUALS_SHORTCUT = new KeyCodeCombination(KeyCode.EQUALS);
+
+  /**
+   * Keyboard shortcut for ⅟𝑥 button
+   */
+  private static final KeyCombination REVERSE_SHORTCUT = new KeyCodeCombination(KeyCode.R);
+
+  /**
+   * List of shortcut for binary operations
+   */
+  private final static List<KeyCodeCombination> BINARY_OP = Arrays.asList(new KeyCodeCombination(KeyCode.MINUS),
+      new KeyCodeCombination(KeyCode.SUBTRACT), new KeyCodeCombination(KeyCode.ADD), new KeyCodeCombination(KeyCode.MULTIPLY),
+      new KeyCodeCombination(KeyCode.DIVIDE), new KeyCodeCombination(KeyCode.SLASH));
+
+  /**
+   * List of shortcut for numpad buttons
+   */
+  private final static List<KeyCodeCombination> NUMPAD_AND_DIGITS = Arrays.asList(new KeyCodeCombination(KeyCode.DIGIT0),
+      new KeyCodeCombination(KeyCode.DIGIT1), new KeyCodeCombination(KeyCode.DIGIT2), new KeyCodeCombination(KeyCode.DIGIT3),
+      new KeyCodeCombination(KeyCode.DIGIT4), new KeyCodeCombination(KeyCode.DIGIT5), new KeyCodeCombination(KeyCode.DIGIT6),
+      new KeyCodeCombination(KeyCode.DIGIT7), new KeyCodeCombination(KeyCode.DIGIT8), new KeyCodeCombination(KeyCode.DIGIT9),
+      new KeyCodeCombination(KeyCode.NUMPAD0), new KeyCodeCombination(KeyCode.NUMPAD1), new KeyCodeCombination(KeyCode.NUMPAD2),
+      new KeyCodeCombination(KeyCode.NUMPAD3), new KeyCodeCombination(KeyCode.NUMPAD4), new KeyCodeCombination(KeyCode.NUMPAD5),
+      new KeyCodeCombination(KeyCode.NUMPAD6), new KeyCodeCombination(KeyCode.NUMPAD7), new KeyCodeCombination(KeyCode.NUMPAD8),
+      new KeyCodeCombination(KeyCode.NUMPAD9), new KeyCodeCombination(KeyCode.PERIOD));
+
+
+  /**
+   * Map, that run action by shortcut
+   */
+  private final Map<KeyCombination, Runnable> combinations = new HashMap<>();
+
+
+  /**
+   * Init inputService, assigns empty string to formulaStr, put combinations into map
+   */
   public RootController() {
     inputService = new InputService();
     formulaStr = "";
+
+    combinations.put(CLEAR_SHORTCUT, this::clearAction);
+    combinations.put(CLEAR_ENTRY_SHORTCUT, this::clearEntryAction);
+    combinations.put(BACKSPACE_SHORTCUT, this::backspaceButtonAction);
+    combinations.put(EQUALS_SHORTCUT, this::equalAction);
+    combinations.put(MEMORY_ADD, this::memoryPlusAction);
+    combinations.put(MEMORY_SUB, this::memoryMinusAction);
+    combinations.put(MEMORY_CLEAR, this::memoryClearAction);
+    combinations.put(MEMORY_SAVE, this::memorySaveAction);
+    combinations.put(MEMORY_RECALL, this::memoryRecallAction);
+    combinations.put(MULTIPLY, () -> operationButtonAction(new ActionEvent(new Button("×"), null)));
+    combinations.put(PLUS, () -> operationButtonAction(new ActionEvent(new Button("+"), null)));
+    combinations.put(SQRT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94B"), null)));
+    combinations.put(NEGATE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94D"), null)));
+    combinations.put(PERCENT, () -> percentAction(new ActionEvent(new Button("\uE94C"), null)));
+    combinations.put(REVERSE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("⅟\uD835\uDC65"), null)));
   }
+
 
   /**
    * Processing of keys typed
@@ -140,51 +346,30 @@ public class RootController {
    * @param event key, that user type
    */
   public void keyPressProcess(KeyEvent event) {
-    Button btn = new Button();
-    if (event.getCode() == KeyCode.ESCAPE) {
-      clearAction();
-    } else if (event.getCode() == KeyCode.DELETE) {
-      clearEntryAction();
-    } else if (event.getCode() == KeyCode.F9) {
-      btn.setText("\uE94D"); // negate
-      unaryOperationAction(new ActionEvent(btn, null));
-    } else if (event.getCode() == KeyCode.BACK_SPACE) {
-      backspaceButtonAction();
-    } else if (SQRT.match(event)) {
-      btn.setText("\uE94B");//sqrt
-      unaryOperationAction(new ActionEvent(btn, null));
-    } else if (PERCENT.match(event)) {
-      btn.setText("\uE94C");//%
-      percentAction(new ActionEvent(btn, null));
-    } else if (RECALL.match(event)) {
-      memoryRecallAction();
-    } else if (MEMORY_ADD.match(event)) {
-      memoryPlusAction();
-    } else if (MEMORY_SUB.match(event)) {
-      memoryMinusAction();
-    } else if (MEMORY_SAVE.match(event)) {
-      memorySaveAction();
-    } else if (MEMORY_CLEAR.match(event)) {
-      memoryClearAction();
-    } else if (PLUS.match(event)) {
-      btn.setText("+");
-      operationButtonAction(new ActionEvent(btn, null));
-    } else if (MULTIPLY.match(event)) {
-      btn.setText("×");
-      operationButtonAction(new ActionEvent(btn, null));
-    } else if (NUMPAD_AND_DIGITS.contains(event.getCode())) {
-      btn.setText(event.getText());
-      addNumberOrComma(new ActionEvent(btn, null));
-    } else if (BINARY_OP.contains(event.getCode())) {
-      btn.setText(event.getText());
-      operationButtonAction(new ActionEvent(btn, null));
-    } else if (event.getCode() == KeyCode.R) {
-      btn.setText("⅟\uD835\uDC65");
-      unaryOperationAction(new ActionEvent(btn, null));
-    } else if (event.getCode() == KeyCode.EQUALS) {
-      equalAction();
+    for (KeyCombination code : NUMPAD_AND_DIGITS) {
+      if (code.match(event)) {
+        Button btn = new Button();
+        btn.setText(event.getText());
+        addNumberOrComma(new ActionEvent(btn, null));
+        return;
+      }
     }
 
+    for (KeyCombination code : combinations.keySet()) {
+      if (code.match(event)) {
+        combinations.get(code).run();
+        return;
+      }
+    }
+
+    for (KeyCombination code : BINARY_OP) {
+      if (code.match(event)) {
+        Button btn = new Button();
+        btn.setText(event.getText());
+        operationButtonAction(new ActionEvent(btn, null));
+        return;
+      }
+    }
   }
 
   /**
@@ -396,15 +581,15 @@ public class RootController {
   public void openSideBar() {
     Duration duration = Duration.millis(200);
     TranslateTransition transition = new TranslateTransition(duration, sideMenuBorderPane);
-    if (isSideBarVisible) {
-      transition.setByX(-270);
+    if (isSideBarOpened) {
+      transition.setByX(-272);
     } else {
-      transition.setByX(270);
+      transition.setByX(272);
     }
     transition.play();
     standardLabel.setVisible(!standardLabel.isVisible());
     sideBarOffPane.setVisible(!sideBarOffPane.isVisible());
-    isSideBarVisible = !isSideBarVisible;
+    isSideBarOpened = !isSideBarOpened;
   }
 
   /**

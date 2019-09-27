@@ -40,7 +40,7 @@ public class CalculatorModel {
   /**
    * Setting of precision for inner methods
    */
-  public static final MathContext mc32 = new MathContext(32);
+  public static final MathContext mc10K = new MathContext(10000);
 
   /**
    * Setting of precision for outer methods
@@ -67,12 +67,12 @@ public class CalculatorModel {
     binaryOperations.put("+", BigDecimal::add);
     binaryOperations.put("-", BigDecimal::subtract);
     binaryOperations.put("×", BigDecimal::multiply);
-    binaryOperations.put("÷", (left, right) -> left.divide(right, mc32));
+    binaryOperations.put("÷", (left, right) -> left.divide(right, mc10K));
 
-    unaryOperations.put("1/", x -> BigDecimal.ONE.divide(x, mc32));//⅟𝑥
+    unaryOperations.put("1/", x -> BigDecimal.ONE.divide(x, mc10K));//⅟𝑥
     unaryOperations.put("sqr", x -> x.pow(2));//𝑥²
     unaryOperations.put("negate", BigDecimal::negate);//±
-    unaryOperations.put("√", x -> x.sqrt(mc32));
+    unaryOperations.put("√", x -> x.sqrt(mc10K));
   }
 
 
@@ -91,7 +91,7 @@ public class CalculatorModel {
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
-    return getRounded32IfItsPossible(res).toString();
+    return getRounded10KIfItsPossible(res).toString();
   }
 
   /**
@@ -112,7 +112,7 @@ public class CalculatorModel {
 
     BigDecimal res = unaryOperations.get(op).apply(num);
 
-    return getRounded32IfItsPossible(res).toString();
+    return getRounded10KIfItsPossible(res).toString();
   }
 
   /**
@@ -125,15 +125,15 @@ public class CalculatorModel {
 
     if (operation != null) {
       if (operation.equals("+") || operation.equals("-")) {
-        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc32));
+        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc10K));
       } else if (operation.equals("×") || operation.equals("÷")) {
-        res = rightOperand.divide(BigDecimal.valueOf(100), mc32);
+        res = rightOperand.divide(BigDecimal.valueOf(100), mc10K);
       }
     }
 
 
     rightOperand = res;
-    return getRounded32IfItsPossible(res).toString();
+    return getRounded10KIfItsPossible(res).toString();
   }
 
   /**
@@ -150,7 +150,7 @@ public class CalculatorModel {
    */
   public void memoryAdd(BigDecimal num) {
     if (memory != null) {
-      memory = getRounded32IfItsPossible(memory.add(num));
+      memory = getRounded10KIfItsPossible(memory.add(num));
     } else {
       memory = num;
     }
@@ -163,16 +163,16 @@ public class CalculatorModel {
    */
   public void memorySub(BigDecimal num) {
     if (memory != null) {
-      memory = getRounded32IfItsPossible(memory.subtract(num));
+      memory = getRounded10KIfItsPossible(memory.subtract(num));
     } else {
       memory = num.negate();
     }
   }
 
-  private static BigDecimal getRounded32IfItsPossible(BigDecimal res) throws ArithmeticException {
+  private static BigDecimal getRounded10KIfItsPossible(BigDecimal res) throws ArithmeticException {
     checkOverflow(res);
-    res = res.round(mc32);
-    BigDecimal resStrip = getRounded(res, mc32, mc32.getPrecision());
+    res = res.round(mc10K);
+    BigDecimal resStrip = getRounded(res, mc10K, mc10K.getPrecision());
     if (resStrip != null) {
       return resStrip;
     } else {
@@ -189,7 +189,7 @@ public class CalculatorModel {
   public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
     MathContext mc = mc16;
     if (res.compareTo(BigDecimal.ONE) < 0 && res.compareTo(BigDecimal.valueOf(-3)) > 0) {
-      mc = new MathContext(17);
+      mc = new MathContext(mc16.getPrecision()+1);
     }
     res = res.round(mc);
 

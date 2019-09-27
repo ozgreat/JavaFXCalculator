@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
@@ -11,14 +12,18 @@ import org.testfx.framework.junit5.ApplicationTest;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 public class CalculatorTestUtils extends ApplicationTest {
-  protected FxRobot robot = new FxRobot();
+  protected static FxRobot robot = new FxRobot();
   protected static Robot awtRobot;
   protected static final BiMap<String, String> operations = HashBiMap.create();
   protected static final BiMap<String, String> memoryOp = HashBiMap.create();
+  private static final Map<String, Supplier<Button>> arrows = new HashMap<>();
 
   static {
     operations.put("C", "C");
@@ -35,11 +40,14 @@ public class CalculatorTestUtils extends ApplicationTest {
     operations.put("=", "\uE94E");
     operations.put("%", "\uE94C");
 
-    memoryOp.put("M+", "\uF757");
-    memoryOp.put("M-", "\uF758");
-    memoryOp.put("MS", "\uF756");
-    memoryOp.put("MC", "\uF754");
-    memoryOp.put("MR", "\uF755");
+    memoryOp.put("M+", "M+");
+    memoryOp.put("M-", "M-");
+    memoryOp.put("MS", "MS");
+    memoryOp.put("MC", "MC");
+    memoryOp.put("MR", "MR");
+
+    arrows.put("<", () -> robot.lookup("#leftFormulaButton").queryButton());
+    arrows.put(">", () -> robot.lookup("#rightFormulaButton").query());
   }
 
 
@@ -49,6 +57,8 @@ public class CalculatorTestUtils extends ApplicationTest {
         clickOn(operations.get(s));
       } else if (memoryOp.containsKey(s)) {
         clickOnMemory(memoryOp.get(s));
+      } else if (arrows.containsKey(s)) {
+        clickOn(arrows.get(s).get());
       } else {
         handleDigit(s);
       }
@@ -60,7 +70,7 @@ public class CalculatorTestUtils extends ApplicationTest {
     clickOn(node);
   }
 
-  protected void clickOn(Node node){
+  protected void clickOn(Node node) {
     Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
     int x = (int) (boundsInScreen.getMinX() + (boundsInScreen.getMaxX() - boundsInScreen.getMinX()) / 2.0d);
     int y = (int) (boundsInScreen.getMinY() + (boundsInScreen.getMaxY() - boundsInScreen.getMinY()) / 2.0d);
