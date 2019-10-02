@@ -155,8 +155,8 @@ public class RootViewTest extends CalculatorTestUtils {
 
   @Test
   void moveTest() {
-    final double MAX_X = Screen.getPrimary().getBounds().getMaxX() - 50.0d;
-    final double MAX_Y = Screen.getPrimary().getBounds().getMaxY() - 50.0d;
+    final double MAX_X = Screen.getPrimary().getBounds().getMaxX() - 100.0d;
+    final double MAX_Y = Screen.getPrimary().getBounds().getMaxY() - 100.0d;
     final double CUR_X = Window.getWindows().get(0).getX();
     final double CUR_Y = Window.getWindows().get(0).getY();
 

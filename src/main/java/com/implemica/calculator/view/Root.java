@@ -258,7 +258,6 @@ public class Root extends Application {
     }
   }
 
-
   private void dragResize(MouseEvent event) {
     Stage stage = (Stage) mainPane.getScene().getWindow();
     if (resizeH) {

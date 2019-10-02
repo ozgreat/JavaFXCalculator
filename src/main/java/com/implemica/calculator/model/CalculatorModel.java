@@ -31,7 +31,6 @@ public class CalculatorModel {
    */
   private BigDecimal memory;
 
-
   /**
    * Operation, that user will be use
    */
@@ -62,6 +61,7 @@ public class CalculatorModel {
    */
   private final static Map<String, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
+  private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
 
   static {
     binaryOperations.put("+", BigDecimal::add);
@@ -82,16 +82,20 @@ public class CalculatorModel {
    * @return string with result of calculation
    */
   public String getBinaryOperationResult() throws ArithmeticException {
-    if (rightOperand.equals(BigDecimal.ZERO) && operation.equals("÷")) {
-      if (leftOperand.equals(BigDecimal.ZERO)) {
+    if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation.equals("÷")) {
+      if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
         throw new ArithmeticException("Result is undefined");
       }
       throw new ArithmeticException("Cannot divide by zero");
     }
 
+    if (leftOperand.compareTo(BigDecimal.ZERO) == 0 && operation.equals("÷")) {
+      return "0";
+    }
+
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
-    return getRounded10KIfItsPossible(res).toString();
+    return getRounded10KIfItsPossible(res).toString();//todo return BigDecimal in all op
   }
 
   /**
@@ -124,7 +128,7 @@ public class CalculatorModel {
     BigDecimal res = BigDecimal.ZERO;
 
     if (operation != null) {
-      if (operation.equals("+") || operation.equals("-")) {
+      if ((operation.equals("+") || operation.equals("-")) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
         res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc10K));
       } else if (operation.equals("×") || operation.equals("÷")) {
         res = rightOperand.divide(BigDecimal.valueOf(100), mc10K);
@@ -189,7 +193,7 @@ public class CalculatorModel {
   public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
     MathContext mc = mc16;
     if (res.compareTo(BigDecimal.ONE) < 0 && res.compareTo(BigDecimal.valueOf(-3)) > 0) {
-      mc = new MathContext(mc16.getPrecision()+1);
+      mc = new MathContext(mc16.getPrecision() + 1);
     }
     res = res.round(mc);
 
@@ -208,9 +212,10 @@ public class CalculatorModel {
       res = res.round(mc);
       checkOverflow(res);
       BigDecimal resStrip = res.stripTrailingZeros();
-      if (resStrip.toPlainString().length() <= precision && resStrip.toString().contains("E")) {
+      if (resStrip.toPlainString().replace(".", "").length() <= precision && resStrip.toString().contains("E")) {
         resStrip = new BigDecimal(resStrip.toPlainString());
-      } else if (resStrip.toPlainString().length() > precision + 1) {
+      } else if (resStrip.toString().replace(".", "").replace("-", "").length() > precision + 1) {
+        String debug = resStrip.toPlainString().replace(".", "").replace("-", ""); //todo remove
         resStrip = getRounded(resStrip, new MathContext(mc.getPrecision() - 1), precision);
       }
       return resStrip;
@@ -221,10 +226,16 @@ public class CalculatorModel {
 
 
   private static void checkOverflow(BigDecimal res) throws ArithmeticException {
+    if (res.compareTo(MAX_DECIMAL) >= 0) {
+      throw new ArithmeticException("Overflow");
+    }
     if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
       DecimalFormat df = new DecimalFormat("0.################E0####");
       String[] strArr = df.format(res).split("E");
-      if (MAX <= Math.abs(parseInt(strArr[1]))) {
+      if (MAX == Math.abs(parseInt(strArr[1])) && new BigDecimal(strArr[0]).abs().compareTo(BigDecimal.ONE) <= 0) {
+        throw new ArithmeticException("Overflow");
+      }
+      if (MAX < Math.abs(parseInt(strArr[1]))) {
         throw new ArithmeticException("Overflow");
       }
     }

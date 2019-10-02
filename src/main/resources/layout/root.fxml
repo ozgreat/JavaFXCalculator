@@ -36,6 +36,9 @@
                       <font>
                         <Font name="Segoe MDL2 Assets" size="15.0" />
                       </font>
+                                 <cursor>
+                                    <Cursor fx:constant="DEFAULT" />
+                                 </cursor>
                     </Button>
                     <Label id="standard" fx:id="standardLabel" layoutX="40.0" layoutY="-1.0" prefHeight="30.0" prefWidth="80.0" text="Standard" AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="7.0">
                       <font>
@@ -58,6 +61,9 @@
                       <font>
                         <Font name="Segoe MDL2 Assets" size="12.0" />
                       </font>
+                                 <cursor>
+                                    <Cursor fx:constant="DEFAULT" />
+                                 </cursor>
                     </Button>
                     <Button fx:id="leftFormulaButton" alignment="CENTER" contentDisplay="CENTER" ellipsisString="" graphicTextGap="0.0" layoutX="8.0" layoutY="48.0" mnemonicParsing="false" onAction="#leftFormulaButtonAction" pickOnBounds="false" prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" textAlignment="JUSTIFY" textOverrun="CLIP" visible="false" wrapText="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="48.0">
                       <font>
@@ -119,11 +125,17 @@
                             <String fx:value="secondaryButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button id="sqrt" fx:id="sqrtButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" styleClass="numpad" text="" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                           <font>
                             <Font name="Segoe MDL2 Assets" size="15.0" />
                           </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="powButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="76.0" text="𝑥²" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                           <font>
@@ -134,6 +146,9 @@
                             <String fx:value="ex" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="reverseButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="⅟𝑥" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                           <font>
@@ -144,6 +159,9 @@
                             <String fx:value="ex" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#clearEntryAction" prefHeight="60.0" prefWidth="80.0" text="CE" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                           <font>
@@ -153,6 +171,9 @@
                             <String fx:value="secondaryButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="clearButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#clearAction" prefHeight="60.0" prefWidth="80.0" text="C" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                           <font>
@@ -162,6 +183,9 @@
                             <String fx:value="secondaryButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#backspaceButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                           <font>
@@ -171,6 +195,9 @@
                             <String fx:value="secondaryButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="divideButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                           <font>
@@ -180,6 +207,9 @@
                             <String fx:value="arithmeticButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="7" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                           <font>
@@ -189,6 +219,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="8" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                           <font>
@@ -198,6 +231,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="9" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                           <font>
@@ -207,6 +243,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="multiplyButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                           <font>
@@ -216,6 +255,9 @@
                             <String fx:value="arithmeticButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                           <font>
@@ -225,6 +267,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="fiveButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="5" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                           <font>
@@ -234,6 +279,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="6" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                           <font>
@@ -243,6 +291,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="subtractButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                           <font>
@@ -252,6 +303,9 @@
                             <String fx:value="arithmeticButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                           <font>
@@ -261,6 +315,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="2" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                           <font>
@@ -270,6 +327,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="3" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                           <font>
@@ -279,6 +339,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="addButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                           <font>
@@ -288,6 +351,9 @@
                             <String fx:value="arithmeticButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="negateButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
                           <font>
@@ -297,6 +363,9 @@
                             <String fx:value="secondaryButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
                           <font>
@@ -306,6 +375,9 @@
                             <String fx:value="digitButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button id="point" fx:id="pointButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrComma" prefHeight="60.0" prefWidth="80.0" text="." GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
                           <font>
@@ -315,6 +387,9 @@
                             <String fx:value="numpad" />
                             <String fx:value="secondaryButton" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#equalAction" prefHeight="60.0" prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
                           <font>
@@ -324,6 +399,9 @@
                             <String fx:value="arithmeticButton" />
                             <String fx:value="numpad" />
                           </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                       </children>
                       <cursor>
@@ -336,26 +414,41 @@
                           <font>
                             <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false" onAction="#memoryRecallAction" styleClass="memoryButton" text="MR">
                           <font>
                             <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction" styleClass="memoryButton" text="M+">
                           <font>
                             <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction" styleClass="memoryButton" text="M-">
                           <font>
                             <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction" styleClass="memoryButton" text="MS">
                           <font>
                             <Font name="Calculator MDL2 Assets" size="14.0" />
                           </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                          </cursor>
                         </Button>
                         <Button fx:id="memoryShow" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#memoryShowAction" prefHeight="12.0" prefWidth="12.0" styleClass="memoryButton" text="M" wrapText="true">
                           <font>
@@ -400,11 +493,11 @@
                   <styleClass>
                     <String fx:value="numpad" />
                     <String fx:value="sideMenuButton" />
-                              <String fx:value="sideMenuButtonText" />
+                    <String fx:value="sideMenuButtonText" />
                   </styleClass>
-                           <graphic>
-                              <Label text="" />
-                           </graphic>
+                  <graphic>
+                    <Label styleClass="sideMenuButton" text="" />
+                  </graphic>
                 </Button>
               </children>
             </AnchorPane>
@@ -443,7 +536,7 @@
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
                       <opaqueInsets>
                         <Insets bottom="5.0" top="5.0" />
@@ -451,170 +544,170 @@
                       <GridPane.margin>
                         <Insets />
                       </GridPane.margin>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Scientific" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Programmer" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Date Calculation" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Label prefHeight="77.0" prefWidth="251.0" styleClass="sideMenuLabel" text="  Converter" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS" />
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Currency" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Volume" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Length" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Weight and Mass" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Temperature" GridPane.hgrow="ALWAYS" GridPane.rowIndex="10" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Energy" GridPane.hgrow="ALWAYS" GridPane.rowIndex="11" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Area" GridPane.hgrow="ALWAYS" GridPane.rowIndex="12" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Speed" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Time" GridPane.hgrow="ALWAYS" GridPane.rowIndex="14" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Power" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Data" GridPane.hgrow="ALWAYS" GridPane.rowIndex="16" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Pressure" GridPane.hgrow="ALWAYS" GridPane.rowIndex="17" GridPane.vgrow="ALWAYS">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                     <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0" text="Angle" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="18" GridPane.vgrow="SOMETIMES">
                       <styleClass>
                         <String fx:value="numpad" />
                         <String fx:value="sideMenuButton" />
-                                    <String fx:value="sideMenuButtonText" />
+                        <String fx:value="sideMenuButtonText" />
                       </styleClass>
-                                 <graphic>
-                                    <Label styleClass="sideMenuButton" text="" />
-                                 </graphic>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text="" />
+                      </graphic>
                     </Button>
                   </children>
                 </GridPane>
