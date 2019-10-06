@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.loadui.testfx.utils.FXTestUtils;
@@ -1073,6 +1074,7 @@ public class RootControllerTest extends CalculatorTestUtils {
     assertTrue(robot.lookup("#historyPane").query().isDisabled());
   }
 
+  @Disabled
   @Test
   void arrowFormulaTest() {
     formulaButtonVisibleCheck("9999999999999999 + 9999999999999999 + 9999999999999999 +", "9999999999999999 + 9999999999999999 + 9999999999999999 +");

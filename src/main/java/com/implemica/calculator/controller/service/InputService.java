@@ -1,6 +1,8 @@
 package com.implemica.calculator.controller.service;
 
 import com.implemica.calculator.model.CalculatorModel;
+import com.implemica.calculator.model.util.CalcState;
+import com.implemica.calculator.model.util.Operation;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 
@@ -19,11 +21,6 @@ public class InputService {
       "Result is undefined", "Invalid input");
 
   /**
-   * Current state of calculator
-   */
-  private CalcState calcState;
-
-  /**
    * Calculator model to do calculations
    */
   private CalculatorModel calc;
@@ -36,12 +33,12 @@ public class InputService {
   /**
    * Map of unicode symbols for binary operations
    */
-  private final static Map<String, String> binaryOperationUnicode = new HashMap<>();
+  private final static Map<String, Operation> binaryOperationUnicode = new HashMap<>();
 
   /**
    * Map of unicode symbols for unary operations
    */
-  private final static Map<String, String> unaryOperationUnicode = new HashMap<>();
+  private final static Map<String, Operation> unaryOperationUnicode = new HashMap<>();
 
   /**
    * Possible patterns to DecimalFormat
@@ -49,17 +46,26 @@ public class InputService {
   private final static Map<Integer, String> displayPattern = new HashMap<>();
 
   static {
-    binaryOperationUnicode.put("\uE948", "+");
-    binaryOperationUnicode.put("\uE949", "-");
-    binaryOperationUnicode.put("\uE947", "×");
-    binaryOperationUnicode.put("\uE94A", "÷");
-    binaryOperationUnicode.put("/", "÷");
-    binaryOperationUnicode.put("*", "×");
+    binaryOperationUnicode.put("\uE948", Operation.ADD);
+    binaryOperationUnicode.put("\uE949", Operation.SUBTRACT);
+    binaryOperationUnicode.put("\uE947", Operation.MULTIPLY);
+    binaryOperationUnicode.put("\uE94A", Operation.DIVIDE);
+    binaryOperationUnicode.put("/", Operation.DIVIDE);
+    binaryOperationUnicode.put("*", Operation.MULTIPLY);
+    binaryOperationUnicode.put("+", Operation.ADD);
+    binaryOperationUnicode.put("-", Operation.SUBTRACT);
+    binaryOperationUnicode.put("×", Operation.MULTIPLY);
+    binaryOperationUnicode.put("÷", Operation.DIVIDE);
 
-    unaryOperationUnicode.put("\uE94B", "√");
-    unaryOperationUnicode.put("\uE94D", "negate");
-    unaryOperationUnicode.put("⅟\uD835\uDC65", "1/");//⅟𝑥
-    unaryOperationUnicode.put("\uD835\uDC65²", "sqr");//𝑥²
+    unaryOperationUnicode.put("\uE94B", Operation.SQRT);
+    unaryOperationUnicode.put("\uE94D", Operation.NEGATE);
+    unaryOperationUnicode.put("⅟\uD835\uDC65", Operation.REVERSE);//⅟𝑥
+    unaryOperationUnicode.put("\uD835\uDC65²", Operation.POW);//𝑥²
+    unaryOperationUnicode.put("negate", Operation.NEGATE);
+    unaryOperationUnicode.put("sqr", Operation.POW);
+    unaryOperationUnicode.put("√", Operation.SQRT);
+    unaryOperationUnicode.put("1/", Operation.REVERSE);
+
 
     displayPattern.put(0, "0.################");
     displayPattern.put(1, "0.###############");
@@ -81,7 +87,6 @@ public class InputService {
   }
 
   public InputService() {
-    calcState = CalcState.LEFT;
     calc = new CalculatorModel();
   }
 
@@ -98,20 +103,20 @@ public class InputService {
       if (display.contains(".")) {
         return display;
       } else {
-        if (CalcState.AFTER == calcState) {
-          calcState = CalcState.LEFT;
-        } else if (CalcState.TRANSIENT == calcState) {
-          calcState = CalcState.RIGHT;
+        if (CalcState.AFTER == calc.getCalcState()) {
+          calc.setCalcState(CalcState.LEFT);
+        } else if (CalcState.TRANSIENT == calc.getCalcState()) {
+          calc.setCalcState(CalcState.RIGHT);
         }
         return displayFormat(display + value);
       }
     }
 
-    if (calcState == CalcState.AFTER) {
-      calcState = CalcState.LEFT;
+    if (calc.getCalcState() == CalcState.AFTER) {
+      calc.setCalcState(CalcState.LEFT);
       return displayFormat(value);
-    } else if (calcState == CalcState.TRANSIENT) {
-      calcState = CalcState.RIGHT;
+    } else if (calc.getCalcState() == CalcState.TRANSIENT) {
+      calc.setCalcState(CalcState.RIGHT);
       return displayFormat(value);
     }
 
@@ -131,7 +136,7 @@ public class InputService {
    * Set calcState to CalcState.AFTER to type new numbers like textArea is clear
    */
   public void clearDisplay() {
-    calcState = CalcState.AFTER;
+    calc.setCalcState(CalcState.AFTER);
     calc.setOperation(null);
     calc.setLeftOperand(BigDecimal.ZERO);
     calc.setRightOperand(BigDecimal.ZERO);
@@ -147,10 +152,10 @@ public class InputService {
   public String enterOperation(ActionEvent event, String display) throws ArithmeticException {
     display = display.replaceAll(",", "");
 
-    if (calcState == CalcState.LEFT) {
+    if (calc.getCalcState() == CalcState.LEFT) {
       calc.setLeftOperand(new BigDecimal(display));
 
-      calcState = CalcState.TRANSIENT;
+      calc.setCalcState(CalcState.TRANSIENT);
 
       Button btn = (Button) event.getSource();
       calc.setOperation(formatOperation(btn.getText()));
@@ -160,19 +165,19 @@ public class InputService {
       }
 
       return displayFormat(display);
-    } else if (calcState == CalcState.RIGHT) {
+    } else if (calc.getCalcState() == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(display));
 
-      calcState = CalcState.TRANSIENT;
+      calc.setCalcState(CalcState.TRANSIENT);
 
-      String res = calc.getBinaryOperationResult();
+      String res = calc.getBinaryOperationResult().toString();
 
       Button btn = (Button) event.getSource();
       calc.setOperation(formatOperation(btn.getText()));
       calc.setLeftOperand(new BigDecimal(res));
       return displayFormat(res);
-    } else if (calcState == CalcState.AFTER) {
-      calcState = CalcState.TRANSIENT;
+    } else if (calc.getCalcState() == CalcState.AFTER) {
+      calc.setCalcState(CalcState.TRANSIENT);
 
       Button btn = (Button) event.getSource();
       calc.setOperation(formatOperation(btn.getText()));
@@ -193,20 +198,20 @@ public class InputService {
    */
   public String enterEqual(String right) throws ArithmeticException {
     if (calc.getLeftOperand() != null && calc.getOperation() != null) {
-      if (calcState == CalcState.TRANSIENT && calc.getOperation().equals("÷")) {
+      if (calc.getCalcState() == CalcState.TRANSIENT && calc.getOperation() == Operation.DIVIDE) {
         calc.setRightOperand(calc.getLeftOperand());
-      } else if (calcState != CalcState.AFTER) {
+      } else if (calc.getCalcState() != CalcState.AFTER) {
         right = right.replaceAll(",", "");
         calc.setRightOperand(new BigDecimal(right));
       }
 
-      String result = calc.getBinaryOperationResult();
+      String result = calc.getBinaryOperationResult().toString();
 
       settingAfterResult(result);
 
       return displayFormat(result);
     } else {
-      calcState = CalcState.AFTER;
+      calc.setCalcState(CalcState.AFTER);
 
       return displayFormat(right);
     }
@@ -224,15 +229,15 @@ public class InputService {
     Button btn = (Button) event.getSource();
     display = display.replaceAll(",", "");
 
-    String res = calc.getUnaryOperationResult(formatOperation(btn.getText()), display);
+    String res = calc.getUnaryOperationResult(formatOperation(btn.getText()), display).toString();
 
-    if (calcState == CalcState.RIGHT) {
+    if (calc.getCalcState() == CalcState.RIGHT) {
       calc.setRightOperand(new BigDecimal(res));
 //      calcState = CalcState.TRANSIENT;
-    } else if (calcState == CalcState.LEFT) {
+    } else if (calc.getCalcState() == CalcState.LEFT) {
       calc.setLeftOperand(new BigDecimal(res));
-      if (!formatOperation(btn.getText()).equals("negate")) {
-        calcState = CalcState.TRANSIENT;
+      if (!(formatOperation(btn.getText()) == Operation.NEGATE)) {
+        calc.setCalcState(CalcState.TRANSIENT);
       }
     }
 
@@ -250,15 +255,15 @@ public class InputService {
       right = right.replaceAll(",", "");
       calc.setRightOperand(new BigDecimal(right));
 
-      String result = calc.getPercentOperation();
+      String result = calc.getPercentOperation().toString();
 
-      if (calcState == CalcState.TRANSIENT) {
-        calcState = CalcState.RIGHT;
-      } else if (calcState == CalcState.LEFT) {
-        calcState = CalcState.TRANSIENT;
+      if (calc.getCalcState() == CalcState.TRANSIENT) {
+        calc.setCalcState(CalcState.RIGHT);
+      } else if (calc.getCalcState() == CalcState.LEFT) {
+        calc.setCalcState(CalcState.TRANSIENT);
         calc.setLeftOperand(calc.getRightOperand());
-      } else if (calcState == CalcState.RIGHT) {
-        calcState = CalcState.AFTER;
+      } else if (calc.getCalcState() == CalcState.RIGHT) {
+        calc.setCalcState(CalcState.AFTER);
       }
 
       return displayFormat(result);
@@ -282,12 +287,12 @@ public class InputService {
    * @return string with last element of memory
    */
   public String recallFromMemory() {
-    if (calcState == CalcState.LEFT) {
-      calcState = CalcState.TRANSIENT;
-    } else if (calcState == CalcState.TRANSIENT) {
-      calcState = CalcState.RIGHT;
-    } else if (calcState == CalcState.AFTER) {
-      calcState = CalcState.LEFT;
+    if (calc.getCalcState() == CalcState.LEFT) {
+      calc.setCalcState(CalcState.TRANSIENT);
+    } else if (calc.getCalcState() == CalcState.TRANSIENT) {
+      calc.setCalcState(CalcState.RIGHT);
+    } else if (calc.getCalcState() == CalcState.AFTER) {
+      calc.setCalcState(CalcState.LEFT);
     }
 
     return displayFormat(calc.getMemory().toString());
@@ -337,7 +342,7 @@ public class InputService {
     int length = displayBuf.replace(".", "").replace("-", "").length();
 
     if (length <= 16 && !display.contains(".")) {
-      if ((calcState == CalcState.TRANSIENT || calcState == CalcState.AFTER) && displayBuf.contains(".")) {
+      if ((calc.getCalcState() == CalcState.TRANSIENT || calc.getCalcState() == CalcState.AFTER) && displayBuf.contains(".")) {
         String[] displayArr = displayBuf.split("\\.");
         String pattern = displayPattern.get(displayArr[0].length());
         df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
@@ -354,7 +359,7 @@ public class InputService {
       }
 
       String pattern = displayPattern.get(0);
-      if (calcState == CalcState.LEFT && pattern.contains(".")) {
+      if (calc.getCalcState() == CalcState.LEFT && pattern.contains(".")) {
         pattern = getFracPattern(display, pattern);
       }
 
@@ -370,7 +375,7 @@ public class InputService {
       String[] displayArr = displayBuf.split("\\.");
       String pattern = displayPattern.get(displayArr[0].length());
       if (pattern != null) {
-        if (calcState == CalcState.LEFT && pattern.contains(".") && !pattern.endsWith(".")) {
+        if (calc.getCalcState() == CalcState.LEFT && pattern.contains(".") && !pattern.endsWith(".")) {
           pattern = getFracPattern(display, pattern);
         }
         df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
@@ -416,7 +421,7 @@ public class InputService {
    * @return true if can(calcState is not AFTER), else false
    */
   public boolean isBackspaceAvailable() {
-    return calcState != CalcState.AFTER;
+    return calc.getCalcState() != CalcState.AFTER;
   }
 
   /**
@@ -430,14 +435,14 @@ public class InputService {
   public String highFormula(ActionEvent event, String oldFormula, String display) {
     Button btn = (Button) event.getSource();
 
-    if (calcState == CalcState.TRANSIENT && oldFormula.isBlank()) {
-      calcState = CalcState.LEFT;
+    if (calc.getCalcState() == CalcState.TRANSIENT && oldFormula.isBlank()) {
+      calc.setCalcState(CalcState.LEFT);
     }
 
 
-    if (calcState == CalcState.TRANSIENT) {
+    if (calc.getCalcState() == CalcState.TRANSIENT) {
       return transientHighFormula(btn, oldFormula, display);
-    } else if (calcState == CalcState.RIGHT) {
+    } else if (calc.getCalcState() == CalcState.RIGHT) {
       return rightHighFormula(btn, oldFormula, display);
     } else {
       return leftOrAfterHighFormula(btn, oldFormula, display);
@@ -456,44 +461,27 @@ public class InputService {
   private String transientHighFormula(Button btn, String oldFormula, String display) {
     if (binaryOperationUnicode.containsKey(btn.getText())) {
       if (oldFormula.endsWith(")")) {
-        return oldFormula + " " + binaryOperationUnicode.get(btn.getText());
+        return oldFormula + " " + binaryOperationUnicode.get(btn.getText()).getSymbol();
       }
-      return oldFormula.substring(0, oldFormula.length() - 1) + binaryOperationUnicode.get(btn.getText());
+      return oldFormula.substring(0, oldFormula.length() - 1) + binaryOperationUnicode.get(btn.getText()).getSymbol();
     } else if (unaryOperationUnicode.containsKey(btn.getText())) {
       if (oldFormula.endsWith(")")) {
         String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + unaryOperationUnicode.get(btn.getText()) + "( "
+        return oldFormula.substring(0, oldFormula.indexOf(str)) + unaryOperationUnicode.get(btn.getText()).getSymbol() + "( "
             + str + " )";
       }
-      if (unaryOperationUnicode.get(btn.getText()).equals("negate") && calc.getOperation() == null) {
+      if (unaryOperationUnicode.get(btn.getText()) == Operation.NEGATE && calc.getOperation() == null) {
         return oldFormula;
       }
       if (!oldFormula.isBlank()) {
         oldFormula += " ";
       }
-      return oldFormula + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
+      return oldFormula + unaryOperationUnicode.get(btn.getText()).getSymbol() + "( " + display.replaceAll(",", "") + " )";
     } else if (btn.getText().equals("\uE94C")) { //%
       if (oldFormula.isBlank()) {
         return "";
       }
       return oldFormula + " " + display.replaceAll(",", "");
-    } else if (binaryOperationUnicode.containsValue(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        return oldFormula + " " + btn.getText();
-      }
-      return oldFormula.substring(0, oldFormula.length() - 1) + btn.getText();
-    } else if (unaryOperationUnicode.containsValue(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + btn.getText() + "( " + str + " )";
-      }
-      if (btn.getText().equals("negate")) {
-        return oldFormula;
-      }
-      if (!oldFormula.isBlank()) {
-        oldFormula += " ";
-      }
-      return oldFormula + btn.getText() + "( " + display.replaceAll(",", "") + " )";
     }
     return "";
   }
@@ -501,26 +489,15 @@ public class InputService {
   private String leftOrAfterHighFormula(Button btn, String oldFormula, String display) {
     if (binaryOperationUnicode.containsKey(btn.getText())) {
       if (oldFormula.endsWith(")")) {
-        return oldFormula + " " + binaryOperationUnicode.get(btn.getText());
+        return oldFormula + " " + binaryOperationUnicode.get(btn.getText()).getSymbol();
       }
-      return display.replaceAll(",", "") + " " + binaryOperationUnicode.get(btn.getText());
+      return display.replaceAll(",", "") + " " + binaryOperationUnicode.get(btn.getText()).getSymbol();
     } else if (unaryOperationUnicode.containsKey(btn.getText()) && !btn.getText().equals("\uE94D")) {
       if (oldFormula.endsWith(")")) {
-        return unaryOperationUnicode.get(btn.getText()) + "( " + oldFormula + " )";
+        return unaryOperationUnicode.get(btn.getText()).getSymbol() + "( " + oldFormula + " )";
       }
 
-      return unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
-    } else if (binaryOperationUnicode.containsValue(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        return oldFormula + " " + btn.getText();
-      }
-      return display.replaceAll(",", "") + " " + btn.getText();
-    } else if (unaryOperationUnicode.containsValue(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        return btn.getText() + "( " + oldFormula + " )";
-      }
-
-      return btn.getText() + "( " + display.replaceAll(",", "") + " )";
+      return unaryOperationUnicode.get(btn.getText()).getSymbol() + "( " + display.replaceAll(",", "") + " )";
     } else if (btn.getText().equals("\uE94C")) { //%
       if (oldFormula.isBlank()) {
         return "";
@@ -534,28 +511,21 @@ public class InputService {
 
   private String rightHighFormula(Button btn, String oldFormula, String display) {
     if (binaryOperationUnicode.containsKey(btn.getText())) {
-      return oldFormula + " " + display.replaceAll(",", "") + " " + binaryOperationUnicode.get(btn.getText());
+      return oldFormula + " " + display.replaceAll(",", "") + " "
+          + binaryOperationUnicode.get(btn.getText()).getSymbol();
     } else if (unaryOperationUnicode.containsKey(btn.getText())) {
       if (oldFormula.endsWith(")")) {
         String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + unaryOperationUnicode.get(btn.getText()) + "(" + str +
-            " )";
+        return oldFormula.substring(0, oldFormula.indexOf(str)) + unaryOperationUnicode.get(btn.getText()).getSymbol()
+            + "(" + str + " )";
       }
-      return oldFormula + " " + unaryOperationUnicode.get(btn.getText()) + "( " + display.replaceAll(",", "") + " )";
+      return oldFormula + " " + unaryOperationUnicode.get(btn.getText()).getSymbol() + "( "
+          + display.replaceAll(",", "") + " )";
     } else if (btn.getText().equals("\uE94C")) { //%
       if (oldFormula.isBlank()) {
         return "";
       }
       return oldFormula + " " + display.replaceAll(",", "");
-    } else if (binaryOperationUnicode.containsValue(btn.getText())) {
-      return oldFormula + " " + display.replaceAll(",", "") + " " + btn.getText();
-    } else if (unaryOperationUnicode.containsValue(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + btn.getText() + "(" + str + " )";
-      }
-
-      return oldFormula + " " + btn.getText() + "( " + display.replaceAll(",", "") + " )";
     }
 
     return "";
@@ -564,7 +534,7 @@ public class InputService {
   private String unaryOpSubStringFinder(String formula) {
     Pattern p;
     List<Integer> index = new ArrayList<>();
-    List<String> list = new ArrayList<>(unaryOperationUnicode.values());
+    List<String> list = new ArrayList<>(unaryOperationUnicode.keySet());
     for (String op : list) {
       p = Pattern.compile("\\b" + op + "\\b");
       Matcher matcher = p.matcher(formula);
@@ -633,11 +603,11 @@ public class InputService {
 
   private void settingAfterResult(String result) {
     calc.setLeftOperand(new BigDecimal(result));
-    calcState = CalcState.AFTER;
+    calc.setCalcState(CalcState.AFTER);
   }
 
-  private String formatOperation(String op) {
-    String formatted = binaryOperationUnicode.get(op);
+  private Operation formatOperation(String op) {
+    Operation formatted = binaryOperationUnicode.get(op);
     if (formatted != null) {
       return formatted;
     }
@@ -647,7 +617,7 @@ public class InputService {
       return formatted;
     }
 
-    return op;
+    return null;
   }
 
 }

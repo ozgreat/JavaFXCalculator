@@ -1,5 +1,9 @@
 package com.implemica.calculator.model;
 
+import com.implemica.calculator.model.util.CalcState;
+import com.implemica.calculator.model.util.Errors;
+import com.implemica.calculator.model.util.Operation;
+import com.implemica.calculator.model.util.OperationType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +15,7 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
+import static com.implemica.calculator.model.util.Operation.*;
 import static java.lang.Integer.parseInt;
 
 @Getter
@@ -34,7 +39,12 @@ public class CalculatorModel {
   /**
    * Operation, that user will be use
    */
-  private String operation;
+  private Operation operation;
+
+  /**
+   * Current state of calculator
+   */
+  private CalcState calcState = CalcState.LEFT;
 
   /**
    * Setting of precision for inner methods
@@ -54,25 +64,25 @@ public class CalculatorModel {
   /**
    * Map of binary operations
    */
-  private final static Map<String, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
+  private final static Map<Operation, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
 
   /**
    * Map of unary operations
    */
-  private final static Map<String, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
+  private final static Map<Operation, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
   private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
 
   static {
-    binaryOperations.put("+", BigDecimal::add);
-    binaryOperations.put("-", BigDecimal::subtract);
-    binaryOperations.put("×", BigDecimal::multiply);
-    binaryOperations.put("÷", (left, right) -> left.divide(right, mc10K));
+    binaryOperations.put(ADD, BigDecimal::add);
+    binaryOperations.put(SUBTRACT, BigDecimal::subtract);
+    binaryOperations.put(MULTIPLY, BigDecimal::multiply);
+    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, mc10K));
 
-    unaryOperations.put("1/", x -> BigDecimal.ONE.divide(x, mc10K));//⅟𝑥
-    unaryOperations.put("sqr", x -> x.pow(2));//𝑥²
-    unaryOperations.put("negate", BigDecimal::negate);//±
-    unaryOperations.put("√", x -> x.sqrt(mc10K));
+    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, mc10K));//⅟𝑥
+    unaryOperations.put(POW, x -> x.pow(2));//𝑥²
+    unaryOperations.put(NEGATE, BigDecimal::negate);//±
+    unaryOperations.put(SQRT, x -> x.sqrt(mc10K));
   }
 
 
@@ -81,21 +91,21 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  public String getBinaryOperationResult() throws ArithmeticException {
-    if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation.equals("÷")) {
+  public BigDecimal getBinaryOperationResult() throws ArithmeticException {
+    if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
       if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
-        throw new ArithmeticException("Result is undefined");
+        throw new ArithmeticException(Errors.RESULT_IS_UNDEFINED.getMsg());
       }
-      throw new ArithmeticException("Cannot divide by zero");
+      throw new ArithmeticException(Errors.CANNOT_DIVIDE_BY_ZERO.getMsg());
     }
 
-    if (leftOperand.compareTo(BigDecimal.ZERO) == 0 && operation.equals("÷")) {
-      return "0";
+    if (leftOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
+      return BigDecimal.ZERO;
     }
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
-    return getRounded10KIfItsPossible(res).toString();//todo return BigDecimal in all op
+    return getRounded10KIfItsPossible(res);
   }
 
   /**
@@ -105,18 +115,18 @@ public class CalculatorModel {
    * @param number number, that we calc
    * @return string with result of calculation
    */
-  public String getUnaryOperationResult(String op, String number) throws ArithmeticException {
+  public BigDecimal getUnaryOperationResult(Operation op, String number) throws ArithmeticException {
     BigDecimal num = new BigDecimal(number);
-    if (num.equals(BigDecimal.ZERO) && op.equals("1/")) {
-      throw new ArithmeticException("Cannot divide by zero");
-    } else if (num.compareTo(BigDecimal.ZERO) < 0 && op.equals("√")) {
-      throw new ArithmeticException("Invalid input");
+    if (num.equals(BigDecimal.ZERO) && op == REVERSE) {
+      throw new ArithmeticException(Errors.CANNOT_DIVIDE_BY_ZERO.getMsg());
+    } else if (num.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
+      throw new ArithmeticException(Errors.INVALID_INPUT.getMsg());
     }
 
 
     BigDecimal res = unaryOperations.get(op).apply(num);
 
-    return getRounded10KIfItsPossible(res).toString();
+    return getRounded10KIfItsPossible(res);
   }
 
   /**
@@ -124,20 +134,20 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  public String getPercentOperation() {
+  public BigDecimal getPercentOperation() {
     BigDecimal res = BigDecimal.ZERO;
 
     if (operation != null) {
-      if ((operation.equals("+") || operation.equals("-")) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
+      if ((operation == ADD || operation == SUBTRACT) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
         res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc10K));
-      } else if (operation.equals("×") || operation.equals("÷")) {
+      } else if (operation == MULTIPLY || operation == DIVIDE) {
         res = rightOperand.divide(BigDecimal.valueOf(100), mc10K);
       }
     }
 
 
     rightOperand = res;
-    return getRounded10KIfItsPossible(res).toString();
+    return getRounded10KIfItsPossible(res);
   }
 
   /**
@@ -215,7 +225,6 @@ public class CalculatorModel {
       if (resStrip.toPlainString().replace(".", "").length() <= precision && resStrip.toString().contains("E")) {
         resStrip = new BigDecimal(resStrip.toPlainString());
       } else if (resStrip.toString().replace(".", "").replace("-", "").length() > precision + 1) {
-        String debug = resStrip.toPlainString().replace(".", "").replace("-", ""); //todo remove
         resStrip = getRounded(resStrip, new MathContext(mc.getPrecision() - 1), precision);
       }
       return resStrip;
@@ -227,17 +236,27 @@ public class CalculatorModel {
 
   private static void checkOverflow(BigDecimal res) throws ArithmeticException {
     if (res.compareTo(MAX_DECIMAL) >= 0) {
-      throw new ArithmeticException("Overflow");
+      throw new ArithmeticException(Errors.OVERFLOW.getMsg());
     }
     if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
       DecimalFormat df = new DecimalFormat("0.################E0####");
       String[] strArr = df.format(res).split("E");
       if (MAX == Math.abs(parseInt(strArr[1])) && new BigDecimal(strArr[0]).abs().compareTo(BigDecimal.ONE) <= 0) {
-        throw new ArithmeticException("Overflow");
+        throw new ArithmeticException(Errors.OVERFLOW.getMsg());
       }
       if (MAX < Math.abs(parseInt(strArr[1]))) {
-        throw new ArithmeticException("Overflow");
+        throw new ArithmeticException(Errors.OVERFLOW.getMsg());
       }
     }
+  }
+
+  public BigDecimal op(Operation op, BigDecimal left, BigDecimal right) {
+    if (op.getType() == OperationType.BINARY) {
+      leftOperand = left;
+      rightOperand = right;
+      operation = op;
+      BigDecimal res = getBinaryOperationResult();
+    }
+    return null;
   }
 }

@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -346,30 +348,15 @@ public class RootController {
    * @param event key, that user type
    */
   public void keyPressProcess(KeyEvent event) {
-    for (KeyCombination code : NUMPAD_AND_DIGITS) {
-      if (code.match(event)) {
-        Button btn = new Button();
-        btn.setText(event.getText());
-        addNumberOrComma(new ActionEvent(btn, null));
-        return;
-      }
-    }
+    Predicate<KeyCombination> matcher = code -> code.match(event);
 
-    for (KeyCombination code : combinations.keySet()) {
-      if (code.match(event)) {
-        combinations.get(code).run();
-        return;
-      }
-    }
+    NUMPAD_AND_DIGITS.stream().filter(matcher).findFirst().
+        ifPresent(comb -> addNumberOrComma(new ActionEvent(new Button(event.getText()), null)));
 
-    for (KeyCombination code : BINARY_OP) {
-      if (code.match(event)) {
-        Button btn = new Button();
-        btn.setText(event.getText());
-        operationButtonAction(new ActionEvent(btn, null));
-        return;
-      }
-    }
+    combinations.keySet().stream().filter(matcher).findFirst().ifPresent(code -> combinations.get(code).run());
+
+    BINARY_OP.stream().filter(matcher).findFirst()
+        .ifPresent(comb -> operationButtonAction(new ActionEvent(new Button(event.getText()), null)));
   }
 
   /**
