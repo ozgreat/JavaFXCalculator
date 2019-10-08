@@ -11,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
@@ -80,7 +79,6 @@ public class RootViewTest extends CalculatorTestUtils {
     stage.show();
   }
 
-  @Disabled
   @Test
   void dragTest() {
     checkDrag(LEFT_CENTER, 0, 0);
@@ -155,7 +153,6 @@ public class RootViewTest extends CalculatorTestUtils {
     checkDrag(CENTER_BOTTOM, -50, 0);
   }
 
-  @Disabled
   @Test
   void moveTest() {
     final double MAX_X = Screen.getPrimary().getBounds().getMaxX() - 100.0d;

@@ -1074,7 +1074,6 @@ public class RootControllerTest extends CalculatorTestUtils {
     assertTrue(robot.lookup("#historyPane").query().isDisabled());
   }
 
-  @Disabled
   @Test
   void arrowFormulaTest() {
     formulaButtonVisibleCheck("9999999999999999 + 9999999999999999 + 9999999999999999 +", "9999999999999999 + 9999999999999999 + 9999999999999999 +");

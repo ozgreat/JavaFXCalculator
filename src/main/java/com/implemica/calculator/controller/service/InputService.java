@@ -151,43 +151,8 @@ public class InputService {
    */
   public String enterOperation(ActionEvent event, String display) throws ArithmeticException {
     display = display.replaceAll(",", "");
-
-    if (calc.getCalcState() == CalcState.LEFT) {
-      calc.setLeftOperand(new BigDecimal(display));
-
-      calc.setCalcState(CalcState.TRANSIENT);
-
-      Button btn = (Button) event.getSource();
-      calc.setOperation(formatOperation(btn.getText()));
-
-      if (calc.getRightOperand() == null) {
-        calc.setRightOperand(calc.getLeftOperand());
-      }
-
-      return displayFormat(display);
-    } else if (calc.getCalcState() == CalcState.RIGHT) {
-      calc.setRightOperand(new BigDecimal(display));
-
-      calc.setCalcState(CalcState.TRANSIENT);
-
-      String res = calc.getBinaryOperationResult().toString();
-
-      Button btn = (Button) event.getSource();
-      calc.setOperation(formatOperation(btn.getText()));
-      calc.setLeftOperand(new BigDecimal(res));
-      return displayFormat(res);
-    } else if (calc.getCalcState() == CalcState.AFTER) {
-      calc.setCalcState(CalcState.TRANSIENT);
-
-      Button btn = (Button) event.getSource();
-      calc.setOperation(formatOperation(btn.getText()));
-
-      return displayFormat(display);
-    }
-
     Button btn = (Button) event.getSource();
-    calc.setOperation(formatOperation(btn.getText()));
-    return displayFormat(display);
+    return displayFormat(calc.doCalculate(formatOperation(btn.getText()), new BigDecimal(display)).toString());
   }
 
   /**
@@ -197,24 +162,7 @@ public class InputService {
    * @return result of binary operation
    */
   public String enterEqual(String right) throws ArithmeticException {
-    if (calc.getLeftOperand() != null && calc.getOperation() != null) {
-      if (calc.getCalcState() == CalcState.TRANSIENT && calc.getOperation() == Operation.DIVIDE) {
-        calc.setRightOperand(calc.getLeftOperand());
-      } else if (calc.getCalcState() != CalcState.AFTER) {
-        right = right.replaceAll(",", "");
-        calc.setRightOperand(new BigDecimal(right));
-      }
-
-      String result = calc.getBinaryOperationResult().toString();
-
-      settingAfterResult(result);
-
-      return displayFormat(result);
-    } else {
-      calc.setCalcState(CalcState.AFTER);
-
-      return displayFormat(right);
-    }
+    return displayFormat(calc.doCalculate(new BigDecimal(right.replaceAll(",", ""))).toString());
   }
 
 
@@ -229,17 +177,7 @@ public class InputService {
     Button btn = (Button) event.getSource();
     display = display.replaceAll(",", "");
 
-    String res = calc.getUnaryOperationResult(formatOperation(btn.getText()), display).toString();
-
-    if (calc.getCalcState() == CalcState.RIGHT) {
-      calc.setRightOperand(new BigDecimal(res));
-//      calcState = CalcState.TRANSIENT;
-    } else if (calc.getCalcState() == CalcState.LEFT) {
-      calc.setLeftOperand(new BigDecimal(res));
-      if (!(formatOperation(btn.getText()) == Operation.NEGATE)) {
-        calc.setCalcState(CalcState.TRANSIENT);
-      }
-    }
+    String res = calc.doCalculate(formatOperation(btn.getText()), new BigDecimal(display)).toString();
 
     return displayFormat(res);
   }
@@ -251,26 +189,15 @@ public class InputService {
    * @return result of percent operation
    */
   public String percentOp(String right) {
-    if (calc.getLeftOperand() != null) {
-      right = right.replaceAll(",", "");
-      calc.setRightOperand(new BigDecimal(right));
-
-      String result = calc.getPercentOperation().toString();
-
-      if (calc.getCalcState() == CalcState.TRANSIENT) {
-        calc.setCalcState(CalcState.RIGHT);
-      } else if (calc.getCalcState() == CalcState.LEFT) {
-        calc.setCalcState(CalcState.TRANSIENT);
-        calc.setLeftOperand(calc.getRightOperand());
-      } else if (calc.getCalcState() == CalcState.RIGHT) {
-        calc.setCalcState(CalcState.AFTER);
-      }
-
-      return displayFormat(result);
-    } else {
-      return displayFormat("0");
+    right = right.replaceAll(",", "");
+    if (calc.getOperation() == Operation.ADD || calc.getOperation() == Operation.SUBTRACT) {
+      return displayFormat(calc.doCalculate(Operation.PERCENT_ADD_SUBTRACT, new BigDecimal(right)).toString());
+    } else if (calc.getOperation() == Operation.DIVIDE || calc.getOperation() == Operation.MULTIPLY) {
+      return displayFormat(calc.doCalculate(Operation.PERCENT_MUL_DIVIDE, new BigDecimal(right)).toString());
     }
+    return "0";
   }
+
 
   /**
    * Save number from display to memory
@@ -601,11 +528,6 @@ public class InputService {
     }
   }
 
-  private void settingAfterResult(String result) {
-    calc.setLeftOperand(new BigDecimal(result));
-    calc.setCalcState(CalcState.AFTER);
-  }
-
   private Operation formatOperation(String op) {
     Operation formatted = binaryOperationUnicode.get(op);
     if (formatted != null) {
@@ -613,11 +535,7 @@ public class InputService {
     }
 
     formatted = unaryOperationUnicode.get(op);
-    if (formatted != null) {
-      return formatted;
-    }
-
-    return null;
+    return formatted;
   }
 
 }

@@ -91,7 +91,7 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  public BigDecimal getBinaryOperationResult() throws ArithmeticException {
+  private BigDecimal getBinaryOperationResult() throws ArithmeticException {
     if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
       if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
         throw new ArithmeticException(Errors.RESULT_IS_UNDEFINED.getMsg());
@@ -115,16 +115,15 @@ public class CalculatorModel {
    * @param number number, that we calc
    * @return string with result of calculation
    */
-  public BigDecimal getUnaryOperationResult(Operation op, String number) throws ArithmeticException {
-    BigDecimal num = new BigDecimal(number);
-    if (num.equals(BigDecimal.ZERO) && op == REVERSE) {
+  private BigDecimal getUnaryOperationResult(Operation op, BigDecimal number) throws ArithmeticException {
+    if (number.equals(BigDecimal.ZERO) && op == REVERSE) {
       throw new ArithmeticException(Errors.CANNOT_DIVIDE_BY_ZERO.getMsg());
-    } else if (num.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
+    } else if (number.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
       throw new ArithmeticException(Errors.INVALID_INPUT.getMsg());
     }
 
 
-    BigDecimal res = unaryOperations.get(op).apply(num);
+    BigDecimal res = unaryOperations.get(op).apply(number);
 
     return getRounded10KIfItsPossible(res);
   }
@@ -134,7 +133,7 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  public BigDecimal getPercentOperation() {
+  private BigDecimal getPercentOperation() throws ArithmeticException {
     BigDecimal res = BigDecimal.ZERO;
 
     if (operation != null) {
@@ -233,7 +232,6 @@ public class CalculatorModel {
     return null;
   }
 
-
   private static void checkOverflow(BigDecimal res) throws ArithmeticException {
     if (res.compareTo(MAX_DECIMAL) >= 0) {
       throw new ArithmeticException(Errors.OVERFLOW.getMsg());
@@ -250,13 +248,123 @@ public class CalculatorModel {
     }
   }
 
-  public BigDecimal op(Operation op, BigDecimal left, BigDecimal right) {
-    if (op.getType() == OperationType.BINARY) {
-      leftOperand = left;
-      rightOperand = right;
-      operation = op;
-      BigDecimal res = getBinaryOperationResult();
+  /**
+   * Calculate operations
+   * @param operation Operation, that we do
+   * @param firstOperand first operand of calculation
+   * @param secondOperand second operand of calculation
+   * @return result of calculation, that written at left or right operand field
+   * @throws ArithmeticException If Overflow, Invalid input or Dividing by Zero
+   */
+  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand, BigDecimal secondOperand) throws ArithmeticException {
+    if (operation.getType() == OperationType.BINARY) {
+      leftOperand = firstOperand;
+      rightOperand = secondOperand;
+      this.operation = operation;
+      calcState = CalcState.AFTER;
+      leftOperand = getBinaryOperationResult();
+      return leftOperand;
+    } else if (operation.getType() == OperationType.UNARY) {
+      if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
+        leftOperand = getUnaryOperationResult(operation, firstOperand);
+        if (operation != NEGATE) {
+          calcState = CalcState.TRANSIENT;
+        }
+        return leftOperand;
+      } else if (calcState == CalcState.RIGHT) {
+        rightOperand = getUnaryOperationResult(operation, firstOperand);
+        return rightOperand;
+      } else if (calcState == CalcState.TRANSIENT) {
+        rightOperand = getUnaryOperationResult(operation, firstOperand);
+        return rightOperand;
+      }
+    } else if (operation.getType() == OperationType.PERCENT) {
+      leftOperand = firstOperand;
+      rightOperand = secondOperand;
+      rightOperand = getPercentOperation();
+      return rightOperand;
     }
     return null;
+  }
+
+  /**
+   *  Calculate operations, if one of operand is null(already written at field,
+   *  will be written at future or operation is unary)
+   * @param operation Operation, that we do
+   * @param firstOperand first operand of calculation
+   * @return result of calculation, that written at left or right operand field or firstOperand
+   */
+  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand) {
+    if (operation == null) {
+      if (leftOperand != null && this.operation != null) {
+        if (calcState == CalcState.TRANSIENT && this.operation == DIVIDE) {
+          rightOperand = leftOperand;
+        } else if (calcState != CalcState.AFTER) {
+          rightOperand = firstOperand;
+        }
+
+        leftOperand = getBinaryOperationResult();
+        calcState = CalcState.AFTER;
+        return leftOperand;
+      } else {
+        calcState = CalcState.AFTER;
+        return firstOperand;
+      }
+    } else if (operation.getType() == OperationType.BINARY) {
+      if (calcState == CalcState.LEFT) {
+        leftOperand = firstOperand;
+        calcState = CalcState.TRANSIENT;
+        this.operation = operation;
+        if (rightOperand == null) {
+          rightOperand = leftOperand;
+        }
+
+        return leftOperand;
+      } else if (calcState == CalcState.RIGHT) {
+        rightOperand = firstOperand;
+        leftOperand = doCalculate(this.operation, leftOperand, firstOperand);
+        this.operation = operation;
+        calcState = CalcState.TRANSIENT;
+        return leftOperand;
+      } else if (calcState == CalcState.AFTER) {
+        calcState = CalcState.TRANSIENT;
+
+        this.operation = operation;
+
+        return firstOperand;
+      } else if (calcState == CalcState.TRANSIENT) {
+        this.operation = operation;
+
+        return firstOperand;
+      }
+    } else if (operation.getType() == OperationType.UNARY) {
+      return doCalculate(operation, firstOperand, null);
+    } else if (operation.getType() == OperationType.PERCENT) {
+      if (leftOperand != null) {
+        rightOperand = firstOperand;
+        if (calcState == CalcState.TRANSIENT) {
+          calcState = CalcState.RIGHT;
+        } else if (calcState == CalcState.LEFT) {
+          calcState = CalcState.TRANSIENT;
+          leftOperand = rightOperand;
+        } else if (calcState == CalcState.RIGHT) {
+          calcState = CalcState.AFTER;
+        }
+
+        return doCalculate(operation, leftOperand, rightOperand);
+      } else {
+        return BigDecimal.ZERO;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Calculate if we already make operation and we want to add new operand and get result
+   * @param firstOperand operand that we add to calculation
+   * @return result of calculation
+   */
+  public BigDecimal doCalculate(BigDecimal firstOperand) {
+    return doCalculate(null, firstOperand);
   }
 }
