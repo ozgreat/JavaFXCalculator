@@ -133,13 +133,13 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private BigDecimal getPercentOperation() throws ArithmeticException {
+  private BigDecimal getPercentOperation(Operation operation) throws ArithmeticException {
     BigDecimal res = BigDecimal.ZERO;
 
     if (operation != null) {
-      if ((operation == ADD || operation == SUBTRACT) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
+      if ((operation == PERCENT_ADD_SUBTRACT) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
         res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc10K));
-      } else if (operation == MULTIPLY || operation == DIVIDE) {
+      } else if (operation == PERCENT_MUL_DIVIDE) {
         res = rightOperand.divide(BigDecimal.valueOf(100), mc10K);
       }
     }
@@ -281,7 +281,7 @@ public class CalculatorModel {
     } else if (operation.getType() == OperationType.PERCENT) {
       leftOperand = firstOperand;
       rightOperand = secondOperand;
-      rightOperand = getPercentOperation();
+      rightOperand = getPercentOperation(operation);
       return rightOperand;
     }
     return null;

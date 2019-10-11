@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -314,31 +313,31 @@ public class RootController {
   /**
    * Map, that run action by shortcut
    */
-  private final Map<KeyCombination, Runnable> combinations = new HashMap<>();
+  private final Map<KeyCombination, Runnable> COMBINATIONS = new HashMap<>();
 
 
   /**
-   * Init inputService, assigns empty string to formulaStr, put combinations into map
+   * Init inputService, assigns empty string to formulaStr, put COMBINATIONS into map
    */
   public RootController() {
     inputService = new InputService();
     formulaStr = "";
 
-    combinations.put(CLEAR_SHORTCUT, this::clearAction);
-    combinations.put(CLEAR_ENTRY_SHORTCUT, this::clearEntryAction);
-    combinations.put(BACKSPACE_SHORTCUT, this::backspaceButtonAction);
-    combinations.put(EQUALS_SHORTCUT, this::equalAction);
-    combinations.put(MEMORY_ADD, this::memoryPlusAction);
-    combinations.put(MEMORY_SUB, this::memoryMinusAction);
-    combinations.put(MEMORY_CLEAR, this::memoryClearAction);
-    combinations.put(MEMORY_SAVE, this::memorySaveAction);
-    combinations.put(MEMORY_RECALL, this::memoryRecallAction);
-    combinations.put(MULTIPLY, () -> operationButtonAction(new ActionEvent(new Button("×"), null)));
-    combinations.put(PLUS, () -> operationButtonAction(new ActionEvent(new Button("+"), null)));
-    combinations.put(SQRT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94B"), null)));
-    combinations.put(NEGATE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94D"), null)));
-    combinations.put(PERCENT, () -> percentAction(new ActionEvent(new Button("\uE94C"), null)));
-    combinations.put(REVERSE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("⅟\uD835\uDC65"), null)));
+    COMBINATIONS.put(CLEAR_SHORTCUT, this::clearAction);
+    COMBINATIONS.put(CLEAR_ENTRY_SHORTCUT, this::clearEntryAction);
+    COMBINATIONS.put(BACKSPACE_SHORTCUT, this::backspaceButtonAction);
+    COMBINATIONS.put(EQUALS_SHORTCUT, this::equalAction);
+    COMBINATIONS.put(MEMORY_ADD, this::memoryPlusAction);
+    COMBINATIONS.put(MEMORY_SUB, this::memoryMinusAction);
+    COMBINATIONS.put(MEMORY_CLEAR, this::memoryClearAction);
+    COMBINATIONS.put(MEMORY_SAVE, this::memorySaveAction);
+    COMBINATIONS.put(MEMORY_RECALL, this::memoryRecallAction);
+    COMBINATIONS.put(MULTIPLY, () -> operationButtonAction(new ActionEvent(new Button("×"), null)));
+    COMBINATIONS.put(PLUS, () -> operationButtonAction(new ActionEvent(new Button("+"), null)));
+    COMBINATIONS.put(SQRT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94B"), null)));
+    COMBINATIONS.put(NEGATE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94D"), null)));
+    COMBINATIONS.put(PERCENT, () -> percentAction(new ActionEvent(new Button("\uE94C"), null)));
+    COMBINATIONS.put(REVERSE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("⅟\uD835\uDC65"), null)));
   }
 
 
@@ -348,24 +347,24 @@ public class RootController {
    * @param event key, that user type
    */
   public void keyPressProcess(KeyEvent event) {
-    Predicate<KeyCombination> matcher = code -> code.match(event);
+    Predicate<KeyCombination> keyCombinationMatcher = code -> code.match(event);
 
-    NUMPAD_AND_DIGITS.stream().filter(matcher).findFirst().
-        ifPresent(comb -> addNumberOrComma(new ActionEvent(new Button(event.getText()), null)));
+    NUMPAD_AND_DIGITS.stream().filter(keyCombinationMatcher).findFirst().
+        ifPresent(comb -> addNumberOrDot(new ActionEvent(new Button(event.getText()), null)));
 
-    combinations.keySet().stream().filter(matcher).findFirst().ifPresent(code -> combinations.get(code).run());
+    COMBINATIONS.keySet().stream().filter(keyCombinationMatcher).findFirst().ifPresent(code -> COMBINATIONS.get(code).run());
 
-    BINARY_OP.stream().filter(matcher).findFirst()
+    BINARY_OP.stream().filter(keyCombinationMatcher).findFirst()
         .ifPresent(comb -> operationButtonAction(new ActionEvent(new Button(event.getText()), null)));
   }
 
   /**
-   * Typing of number or comma
+   * Typing of number or dot
    *
    * @param event event of button that we pressed
    */
   @FXML
-  public void addNumberOrComma(ActionEvent event) { // buttons 0-9 and ','
+  public void addNumberOrDot(ActionEvent event) { // buttons 0-9 and '.'
     if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
       setNormal();
     }

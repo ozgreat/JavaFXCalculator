@@ -1,6 +1,6 @@
 package com.implemica.calculator.view;
 
-import com.implemica.calculator.controller.util.CalculatorTestUtils;
+import com.implemica.calculator.controller.util.ControllerTestUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
@@ -54,7 +54,7 @@ enum DragPoint {
   }
 }
 
-public class RootViewTest extends CalculatorTestUtils {
+public class RootViewTest extends ControllerTestUtils {
   private Scene scene;
 
   private static Map<DragPoint, Function<Window, Point2D>> dragFunc = new HashMap<>();
