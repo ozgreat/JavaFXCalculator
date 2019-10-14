@@ -250,8 +250,9 @@ public class CalculatorModel {
 
   /**
    * Calculate operations
-   * @param operation Operation, that we do
-   * @param firstOperand first operand of calculation
+   *
+   * @param operation     Operation, that we do
+   * @param firstOperand  first operand of calculation
    * @param secondOperand second operand of calculation
    * @return result of calculation, that written at left or right operand field
    * @throws ArithmeticException If Overflow, Invalid input or Dividing by Zero
@@ -265,6 +266,13 @@ public class CalculatorModel {
       leftOperand = getBinaryOperationResult();
       return leftOperand;
     } else if (operation.getType() == OperationType.UNARY) {
+      if (firstOperand == null) {
+        if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
+          firstOperand = leftOperand;
+        } else {
+          firstOperand = rightOperand;
+        }
+      }
       if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
         leftOperand = getUnaryOperationResult(operation, firstOperand);
         if (operation != NEGATE) {
@@ -275,6 +283,9 @@ public class CalculatorModel {
         rightOperand = getUnaryOperationResult(operation, firstOperand);
         return rightOperand;
       } else if (calcState == CalcState.TRANSIENT) {
+        if(firstOperand == null){
+          firstOperand = leftOperand;
+        }
         rightOperand = getUnaryOperationResult(operation, firstOperand);
         return rightOperand;
       }
@@ -288,9 +299,10 @@ public class CalculatorModel {
   }
 
   /**
-   *  Calculate operations, if one of operand is null(already written at field,
-   *  will be written at future or operation is unary)
-   * @param operation Operation, that we do
+   * Calculate operations, if one of operand is null(already written at field,
+   * will be written at future or operation is unary)
+   *
+   * @param operation    Operation, that we do
    * @param firstOperand first operand of calculation
    * @return result of calculation, that written at left or right operand field or firstOperand
    */
@@ -306,13 +318,17 @@ public class CalculatorModel {
         leftOperand = getBinaryOperationResult();
         calcState = CalcState.AFTER;
         return leftOperand;
+      } else if (leftOperand == null) {
+        leftOperand = firstOperand;
       } else {
         calcState = CalcState.AFTER;
         return firstOperand;
       }
     } else if (operation.getType() == OperationType.BINARY) {
       if (calcState == CalcState.LEFT) {
-        leftOperand = firstOperand;
+        if (leftOperand == null) {
+          leftOperand = firstOperand;
+        }
         calcState = CalcState.TRANSIENT;
         this.operation = operation;
         if (rightOperand == null) {
@@ -338,6 +354,9 @@ public class CalculatorModel {
         return firstOperand;
       }
     } else if (operation.getType() == OperationType.UNARY) {
+      if (firstOperand == null) {
+        return doCalculate(operation, null, null);
+      }
       return doCalculate(operation, firstOperand, null);
     } else if (operation.getType() == OperationType.PERCENT) {
       if (leftOperand != null) {
@@ -361,10 +380,15 @@ public class CalculatorModel {
 
   /**
    * Calculate if we already make operation and we want to add new operand and get result
+   *
    * @param firstOperand operand that we add to calculation
    * @return result of calculation
    */
   public BigDecimal doCalculate(BigDecimal firstOperand) {
     return doCalculate(null, firstOperand);
+  }
+
+  public BigDecimal doCalculate(Operation operation) {
+    return doCalculate(operation, null);
   }
 }

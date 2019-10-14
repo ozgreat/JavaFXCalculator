@@ -1,11 +1,13 @@
 package com.implemica.calculator.model.util;
 
 import com.implemica.calculator.model.CalculatorModel;
+import org.assertj.core.internal.bytebuddy.dynamic.scaffold.subclass.SubclassDynamicTypeBuilder;
 
 import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.implemica.calculator.model.util.Operation.*;
 
 public class ModelTestUtil {
   protected final static BigDecimal MAX = new BigDecimal("1E10000");
@@ -16,27 +18,46 @@ public class ModelTestUtil {
   protected final static BigDecimal MIN_POS_NEGATE = MIN_POS.negate();
   protected final static BigDecimal MAX_POS_HALF = MAX_POS.divide(BigDecimal.valueOf(2), CalculatorModel.mc10K);
   protected final static BigDecimal MAX_POS_HALF_NEGATE = MAX_POS_HALF.negate();
-  private static final List<String> opList = Arrays.asList("+", "-", "/", "*", "1/x", "POW", "√", "±", "=", "%+", "%-");
+  private static final List<String> opList = Arrays.asList("+", "-", "/", "*", "1/x", "POW", "√", "±", "=", "%+", "%*");
   private static final Map<String, Operation> operations = new HashMap<>();
 
   static {
-
+    operations.put("+", ADD);
+    operations.put("-", SUBTRACT);
+    operations.put("*", MULTIPLY);
+    operations.put("/", DIVIDE);
+    operations.put("POW", POW);
+    operations.put("±", NEGATE);
+    operations.put("√", SQRT);
+    operations.put("%+", PERCENT_ADD_SUBTRACT);
+    operations.put("%*", PERCENT_MUL_DIVIDE);
+    operations.put("1/x", REVERSE);
+    operations.put("=", null);
   }
 
   protected CalculatorModel calc;
 
-  private void clicker(String pattern) {
-    List<Operation> list = new ArrayList<>();
-    List<BigDecimal> list2 = new ArrayList<>();
+  protected BigDecimal clicker(String pattern) {
+    List<Operation> operationList = new ArrayList<>();
+    List<BigDecimal> operands = new ArrayList<>();
     pattern = patternBuilder(pattern);
+    BigDecimal x = BigDecimal.ZERO;
+    String[] debug = pattern.split(" ");
     for (String s : pattern.split(" ")) {
+      if(s.isBlank()){
+        continue;
+      }
       if (operations.containsKey(s)) {
-        list.add(operations.get(s));
+        operationList.add(operations.get(s));
+        x = calc.doCalculate(operations.get(s));
       } else {
-        list2.add(new BigDecimal(s));
+        operands.add(new BigDecimal(s));
+        x = calc.doCalculate(new BigDecimal(s));
       }
     }
-    //mayby later baby
+    System.out.println(x);
+    calc = new CalculatorModel();
+    return x;
   }
 
   private String patternBuilder(String pattern) {
@@ -52,6 +73,11 @@ public class ModelTestUtil {
     }
 
     return patternBuilder.toString();
+  }
+
+  protected void checkOperations(String pattern, String res){
+    BigDecimal x = clicker(pattern);
+    assertEquals(0, x.compareTo(new BigDecimal(res)));
   }
 
 

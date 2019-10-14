@@ -27,11 +27,11 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Override
   public void start(Stage stage) throws IOException, AWTException {
-    awtRobot= new Robot();
-    Root root= Root.getRoot();
-    Scene scene= root.getScene();
+    awtRobot = new Robot();
+    Root root = Root.getRoot();
+    Scene scene = root.getScene();
     stage.setScene(scene);
-    controller= root.getLoader().getController();
+    controller = root.getLoader().getController();
     stage.show();
   }
 
@@ -879,7 +879,7 @@ public class RootControllerTest extends ControllerTestUtils {
     memoryCheck("M+ MR", "0");
     memoryCheck("M- MR", "0");
 
-   // takes from operand
+    // takes from operand
     memoryCheck("4 M+ MR ", "4");
     memoryCheck("4 M+ M+ MR ", "8");
     memoryCheck("4± M+ MR ", "-4");
@@ -925,7 +925,7 @@ public class RootControllerTest extends ControllerTestUtils {
     memoryCheck("3 M+ M+ M- M- MR=", "0");
     memoryCheck("4 M+ M- M- M- MR=", "-8");
 
-   // takes from result
+    // takes from result
     memoryCheck("1+ 2- 3* 4/5+ M+ MR=", "0");
     memoryCheck("1- 2* 3/4+ 5+ M+ MR=", "8.5");
     memoryCheck("1* 2/3+ 4+ 5- M+ MR=", "0");
@@ -941,7 +941,7 @@ public class RootControllerTest extends ControllerTestUtils {
     memoryCheck("2+ 22 M- M- M- M- M-=* MR=", "-2,640");
     memoryCheck("3+ 23 M- M- M- M- M-=/MR=", "-0.22608695652174");
 
-   //Memory save
+    //Memory save
     memoryCheck("1234567890 MS+ 20= M+ MR", "2,469,135,800");
     memoryCheck("9999999999999999 MS M+ MR", "2.E+16");
     memoryCheck("9999999999999999 MS M+ MR MS M+ MR MS M+ MR", "8.E+16");
@@ -949,15 +949,15 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void overflowTest() {
-    checkForBigFormula("1000000000000000POWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) )", "1.E+7680");
-    checkErrorOp("1000000000000000POWPOWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("1000000000000000POWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("1000000000000000POWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkForBigFormula("1000000000000000 POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) )", "1.E+7680");
+    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
 
-    checkForBigFormula("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) )", "1.E-8192");
-    checkErrorOp("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkForBigFormula("0.0000000000000001 POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) )", "1.E-8192");
+    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
 
     checkOperations("9999999999999999+ 1=*=*=*=*=*=*=*=*=*=", "1.E+8192");
     checkOperations("9999999999999999+ 1=*=*=*=*=*=*=*=*=*=*=", "Overflow");
@@ -1039,21 +1039,21 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   synchronized void openSideBarTest() throws InterruptedException {
-    BorderPane sideMenu= robot.lookup("#sideMenuBorderPane").queryAs(BorderPane.class);
-    Bounds b= sideMenu.localToScreen(sideMenu.getBoundsInLocal());
-    int oldX= (int) (b.getMinX()+ (b.getMaxX()- b.getMinX())/2.0d);
+    BorderPane sideMenu = robot.lookup("#sideMenuBorderPane").queryAs(BorderPane.class);
+    Bounds b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
+    int oldX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
     clickOn(robot.lookup("\uE700").query());
     wait(300);
-    b= sideMenu.localToScreen(sideMenu.getBoundsInLocal());
-    int newX= (int) (b.getMinX()+ (b.getMaxX()- b.getMinX())/2.0d);
-    assertEquals(oldX+ 272, newX);
+    b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
+    int newX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
+    assertEquals(oldX + 272, newX);
     assertTrue(robot.lookup("#sideBarOffPane").query().isVisible());
     assertFalse(robot.lookup(hasText("Standard")).queryLabeled().isVisible());
 
     clickOn(robot.lookup("\uF738").query());
     wait(300);
-    b= sideMenu.localToScreen(sideMenu.getBoundsInLocal());
-    newX= (int) (b.getMinX()+ (b.getMaxX()- b.getMinX())/2.0d);
+    b = sideMenu.localToScreen(sideMenu.getBoundsInLocal());
+    newX = (int) (b.getMinX() + (b.getMaxX() - b.getMinX()) / 2.0d);
     assertEquals(oldX, newX);
     assertFalse(robot.lookup("#sideBarOffPane").query().isVisible());
     assertTrue(robot.lookup(hasText("Standard")).queryLabeled().isVisible());
@@ -1163,7 +1163,7 @@ public class RootControllerTest extends ControllerTestUtils {
   void formulaButtonVisibleCheck(String pattern, String formula) {
     clicker(pattern);
     assertEquals(formula, controller.getFormulaStr());
-    Button leftArrow= lookup("#leftFormulaButton").queryButton();
+    Button leftArrow = lookup("#leftFormulaButton").queryButton();
     assertTrue(leftArrow.isVisible());
     clickOn(leftArrow);
     assertTrue(lookup("#rightFormulaButton").queryButton().isVisible());

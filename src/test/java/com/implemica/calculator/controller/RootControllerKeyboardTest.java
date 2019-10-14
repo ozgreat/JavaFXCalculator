@@ -24,9 +24,9 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     operationsKeyCode.put("-", new KeyCode[]{KeyCode.SUBTRACT});
     operationsKeyCode.put("*", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT8});//multiply
     operationsKeyCode.put("/", new KeyCode[]{KeyCode.DIVIDE});
-    operationsKeyCode.put("1/x", new KeyCode[]{KeyCode.R});
-    operationsKeyCode.put("SQR", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT2});
-    operationsKeyCode.put("N", new KeyCode[]{KeyCode.F9});
+    operationsKeyCode.put("R", new KeyCode[]{KeyCode.R});
+    operationsKeyCode.put("√", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT2});
+    operationsKeyCode.put("±", new KeyCode[]{KeyCode.F9});
     operationsKeyCode.put("=", new KeyCode[]{KeyCode.EQUALS});
     operationsKeyCode.put("%", new KeyCode[]{KeyCode.SHIFT, KeyCode.DIGIT5});
     operationsKeyCode.put("MC", new KeyCode[]{KeyCode.CONTROL, KeyCode.L});
@@ -102,7 +102,6 @@ public class RootControllerKeyboardTest extends RootControllerTest {
         handleDigit(s);
       }
     }
-//    FXTestUtils.awaitEvents();
   }
 
 }

@@ -32,7 +32,7 @@ public class ControllerTestUtils extends ApplicationTest {
     operations.put("-", "\uE949");
     operations.put("*", "\uE947");
     operations.put("/", "\uE94A");
-    operations.put("R", "⅟\uD835\uDC65");
+    operations.put("1/x", "⅟\uD835\uDC65");
     operations.put("POW", "\uD835\uDC65²");
     operations.put("√", "\uE94B");
     operations.put("±", "\uE94D");
@@ -57,6 +57,9 @@ public class ControllerTestUtils extends ApplicationTest {
   protected void clicker(String pattern) {
     pattern = translatePattern(pattern);
     for (String s : pattern.split(" ")) {
+      if(s.isBlank()){
+        continue;
+      }
       if (operations.containsKey(s)) {
         clickOn(operations.get(s));
       } else if (memoryOp.containsKey(s)) {
