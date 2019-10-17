@@ -106,6 +106,14 @@ public class ModelTestUtil {
     assertNull(patternRun(pattern));
   }
 
+  protected void checkThrow(String pattern, String expectedMessage){
+    try{
+      patternRun(pattern);
+    }catch (ArithmeticException e){
+      assertEquals(expectedMessage, e.getMessage());
+    }
+  }
+
 
   protected void universalCheck(String left, String right, Operation op, String expected) {
     if (op.getType() == OperationType.BINARY) {
