@@ -93,6 +93,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
 
   @Override
   protected void clicker(String pattern) {
+    pattern = translatePattern(pattern);
     for (String s : pattern.split(" ")) {
       if (operationsKeyCode.containsKey(s)) {
         pressOn(s);

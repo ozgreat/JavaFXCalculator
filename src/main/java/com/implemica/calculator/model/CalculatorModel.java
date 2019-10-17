@@ -41,6 +41,8 @@ public class CalculatorModel {
    */
   private Operation operation;
 
+  private Operation prevOperation;
+
   /**
    * Current state of calculator
    */
@@ -149,6 +151,19 @@ public class CalculatorModel {
     return getRounded10KIfItsPossible(res);
   }
 
+  public BigDecimal getMemory() {
+    return memory;
+  }
+
+  public BigDecimal recallMemory() {
+    if (calcState == CalcState.LEFT) {
+      leftOperand = memory;
+    } else if (calcState == CalcState.RIGHT) {
+      rightOperand = memory;
+    }
+    return getMemory();
+  }
+
   /**
    * Setting memory null value
    */
@@ -184,7 +199,6 @@ public class CalculatorModel {
 
   private static BigDecimal getRounded10KIfItsPossible(BigDecimal res) throws ArithmeticException {
     checkOverflow(res);
-    res = res.round(mc10K);
     BigDecimal resStrip = getRounded(res, mc10K, mc10K.getPrecision());
     if (resStrip != null) {
       return resStrip;
@@ -200,6 +214,7 @@ public class CalculatorModel {
    * @return rounded number
    */
   public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
+    checkOverflow(res);
     MathContext mc = mc16;
     if (res.compareTo(BigDecimal.ONE) < 0 && res.compareTo(BigDecimal.valueOf(-3)) > 0) {
       mc = new MathContext(mc16.getPrecision() + 1);
@@ -219,7 +234,7 @@ public class CalculatorModel {
   private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) throws ArithmeticException {
     if (res.toString().contains(".")) {
       res = res.round(mc);
-      checkOverflow(res);
+//      checkOverflow(res);
       BigDecimal resStrip = res.stripTrailingZeros();
       if (resStrip.toPlainString().replace(".", "").length() <= precision && resStrip.toString().contains("E")) {
         resStrip = new BigDecimal(resStrip.toPlainString());
@@ -233,7 +248,7 @@ public class CalculatorModel {
   }
 
   private static void checkOverflow(BigDecimal res) throws ArithmeticException {
-    if (res.compareTo(MAX_DECIMAL) >= 0) {
+    if (res.compareTo(MAX_DECIMAL) >= 0 || res.compareTo(MAX_DECIMAL.negate()) <= 0) {
       throw new ArithmeticException(Errors.OVERFLOW.getMsg());
     }
     if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
@@ -283,7 +298,7 @@ public class CalculatorModel {
         rightOperand = getUnaryOperationResult(operation, firstOperand);
         return rightOperand;
       } else if (calcState == CalcState.TRANSIENT) {
-        if(firstOperand == null){
+        if (firstOperand == null) {
           firstOperand = leftOperand;
         }
         rightOperand = getUnaryOperationResult(operation, firstOperand);
@@ -309,28 +324,42 @@ public class CalculatorModel {
   public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand) {
     if (operation == null) {
       if (leftOperand != null && this.operation != null) {
-        if (calcState == CalcState.TRANSIENT && this.operation == DIVIDE) {
+        if (calcState == CalcState.TRANSIENT && this.operation == DIVIDE && rightOperand != null && !firstOperand.equals(rightOperand)) {
           rightOperand = leftOperand;
         } else if (calcState != CalcState.AFTER) {
           rightOperand = firstOperand;
         }
 
-        leftOperand = getBinaryOperationResult();
-        calcState = CalcState.AFTER;
+        if (this.operation.getType() == OperationType.BINARY) {
+          leftOperand = getBinaryOperationResult();
+          calcState = CalcState.AFTER;
+          return leftOperand;
+        } else if (this.operation.getType() == OperationType.PERCENT) {
+          rightOperand = firstOperand;
+          rightOperand = getPercentOperation(this.operation);
+          this.operation = prevOperation;
+          return rightOperand;
+        }
+
         return leftOperand;
       } else if (leftOperand == null) {
         leftOperand = firstOperand;
+        calcState = CalcState.AFTER;
+        return leftOperand;
+      }else if(rightOperand == null){
+        rightOperand = firstOperand;
+        calcState = CalcState.RIGHT;
+        return rightOperand;
       } else {
         calcState = CalcState.AFTER;
         return firstOperand;
       }
     } else if (operation.getType() == OperationType.BINARY) {
       if (calcState == CalcState.LEFT) {
-        if (leftOperand == null) {
-          leftOperand = firstOperand;
-        }
+        leftOperand = firstOperand;
         calcState = CalcState.TRANSIENT;
         this.operation = operation;
+
         if (rightOperand == null) {
           rightOperand = leftOperand;
         }
@@ -344,6 +373,10 @@ public class CalculatorModel {
         return leftOperand;
       } else if (calcState == CalcState.AFTER) {
         calcState = CalcState.TRANSIENT;
+
+        if (leftOperand == null) {
+          leftOperand = firstOperand;
+        }
 
         this.operation = operation;
 
@@ -359,6 +392,12 @@ public class CalculatorModel {
       }
       return doCalculate(operation, firstOperand, null);
     } else if (operation.getType() == OperationType.PERCENT) {
+      if (firstOperand == null) {
+        prevOperation = this.operation;
+        this.operation = operation;
+
+        return leftOperand;
+      }
       if (leftOperand != null) {
         rightOperand = firstOperand;
         if (calcState == CalcState.TRANSIENT) {
@@ -374,6 +413,25 @@ public class CalculatorModel {
       } else {
         return BigDecimal.ZERO;
       }
+    } else if (operation.getType() == OperationType.MEMORY) {
+      if (firstOperand == null) {
+        if (calcState == CalcState.RIGHT) {
+          firstOperand = rightOperand;
+        } else {
+          firstOperand = leftOperand;
+        }
+      }
+
+      if (operation == MEMORY_ADD) {
+        memoryAdd(firstOperand);
+      } else if (operation == MEMORY_SUB) {
+        memorySub(firstOperand);
+      } else if (operation == MEMORY_CLEAR) {
+        clearMemory();
+      } else {
+        setMemory(firstOperand);
+      }
+      return memory;
     }
     return null;
   }

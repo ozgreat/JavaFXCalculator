@@ -138,8 +138,8 @@ public class InputService {
   public void clearDisplay() {
     calc.setCalcState(CalcState.AFTER);
     calc.setOperation(null);
-    calc.setLeftOperand(BigDecimal.ZERO);
-    calc.setRightOperand(BigDecimal.ZERO);
+    calc.setLeftOperand(null);
+    calc.setRightOperand(null);
   }
 
   /**
@@ -214,6 +214,7 @@ public class InputService {
    * @return string with last element of memory
    */
   public String recallFromMemory() {
+//    String res = displayFormat(calc.recallMemory().toString());
     if (calc.getCalcState() == CalcState.LEFT) {
       calc.setCalcState(CalcState.TRANSIENT);
     } else if (calc.getCalcState() == CalcState.TRANSIENT) {
@@ -222,7 +223,7 @@ public class InputService {
       calc.setCalcState(CalcState.LEFT);
     }
 
-    return displayFormat(calc.getMemory().toString());
+    return displayFormat(calc.recallMemory().toString());
   }
 
   /**
