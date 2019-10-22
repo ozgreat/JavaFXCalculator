@@ -53,39 +53,46 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void plusTest() {
+    //check operations with second operand by default(that equals first)
     checkOperations("2+=", "4");
     checkOperations("2+==", "6");
 
-    checkOperations("2+ 2=", "4");
-    checkOperations("7+ 3=", "10");
-    checkOperations("1+ 8=", "9");
-    checkOperations("5+ 6=", "11");
-    checkOperations("3+ 9=", "12");
+    //check simple operations
+    checkOperations("2+2=", "4");
+    checkOperations("7+3=", "10");
+    checkOperations("1+8=", "9");
+    checkOperations("5+6=", "11");
+    checkOperations("3+9=", "12");
 
-    checkOperations("0+ 0=", "0");
-    checkOperations("1+ 0=", "1");
-    checkOperations("8+ 0=", "8");
-    checkOperations("0+ 5=", "5");
-    checkOperations("0+ 3=", "3");
+    //check operations with zero
+    checkOperations("0+0=", "0");
+    checkOperations("1+0=", "1");
+    checkOperations("8+0=", "8");
+    checkOperations("0+5=", "5");
+    checkOperations("0+3=", "3");
 
+    //check not ended operations
     checkOperations("2+5", "2 +", "5");
     checkOperations("5+3", "5 +", "3");
     checkOperations("2+3", "2 +", "3");
     checkOperations("2+8", "2 +", "8");
     checkOperations("1+2", "1 +", "2");
 
+    //check not ended operations with zero
     checkOperations("0+0", "0 +", "0");
     checkOperations("1+0", "1 +", "0");
     checkOperations("5+0", "5 +", "0");
     checkOperations("0+2", "0 +", "2");
     checkOperations("0+6", "0 +", "6");
 
+    //check operand with operation
     checkOperations("0+", "0 +", "0");
     checkOperations("2+", "2 +", "2");
     checkOperations("3+", "3 +", "3");
     checkOperations("9+", "9 +", "9");
     checkOperations("8+", "8 +", "8");
 
+    //check not ended operation with first operand by default(zero)
     checkOperations("+1", "0 +", "1");
     checkOperations("+5", "0 +", "5");
     checkOperations("+9", "0 +", "9");
@@ -94,18 +101,14 @@ public class RootControllerTest extends ControllerTestUtils {
 
     checkOperations("+", "0 +", "0");
 
-    checkOperations("1+=", "2");
-    checkOperations("5+=", "10");
-    checkOperations("3+=", "6");
-    checkOperations("2+=", "4");
-    checkOperations("7+=", "14");
-
+    //check operation with first operand by default(zero)
     checkOperations("+7=", "7");
     checkOperations("+2=", "2");
     checkOperations("+5=", "5");
     checkOperations("+9=", "9");
     checkOperations("+1=", "1");
 
+    //check second op like equals
     checkOperations("1+5+", "1 + 5 +", "6");
     checkOperations("2+9+", "2 + 9 +", "11");
     checkOperations("3+8+", "3 + 8 +", "11");
@@ -142,8 +145,9 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("4+8=+=", "24");
     checkOperations("1+4=+=", "10");
 
+    //check with negate
     checkOperations("5±+3=", "-2");
-    checkOperations("-1+4=", "3");
+    checkOperations("1±+4=", "3");
     checkOperations("6±+2=", "-4");
     checkOperations("8±+7=", "-1");
     checkOperations("7±+6=", "-1");
@@ -154,6 +158,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("2+6±=", "-4");
     checkOperations("4+7±=", "-3");
 
+    //check with float point
     checkOperations("0.1+1=", "1.1");
     checkOperations("2.5+5=", "7.5");
     checkOperations("8.2+9=", "17.2");
@@ -169,39 +174,46 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void subTest() {
+    //check operations with second operand by default(that equals first)
     checkOperations("2-=", "0");
     checkOperations("2-==", "-2");
 
+    //check simple operations
     checkOperations("2- 2=", "0");
     checkOperations("7- 3=", "4");
     checkOperations("1- 8=", "-7");
     checkOperations("5- 6=", "-1");
     checkOperations("3- 9=", "-6");
 
+    //check operations with zero
     checkOperations("0- 0=", "0");
     checkOperations("1- 0=", "1");
     checkOperations("8- 0=", "8");
     checkOperations("0- 5=", "-5");
     checkOperations("0- 3=", "-3");
 
+    //check not ended operations
     checkOperations("2- 5", "2 -", "5");
     checkOperations("5- 3", "5 -", "3");
     checkOperations("2- 3", "2 -", "3");
     checkOperations("2- 8", "2 -", "8");
     checkOperations("1- 2", "1 -", "2");
 
+    //check not ended operations with zero
     checkOperations("0- 0", "0 -", "0");
     checkOperations("1- 0", "1 -", "0");
     checkOperations("5- 0", "5 -", "0");
     checkOperations("0- 2", "0 -", "2");
     checkOperations("0- 6", "0 -", "6");
 
+    //check operand with operation
     checkOperations("0-", "0 -", "0");
     checkOperations("2-", "2 -", "2");
     checkOperations("3-", "3 -", "3");
     checkOperations("9-", "9 -", "9");
     checkOperations("8-", "8 -", "8");
 
+    //check not ended operation with first operand by default(zero)
     checkOperations("- 1", "0 -", "1");
     checkOperations("- 5", "0 -", "5");
     checkOperations("- 9", "0 -", "9");
@@ -210,18 +222,15 @@ public class RootControllerTest extends ControllerTestUtils {
 
     checkOperations("-", "0 -", "0");
 
-    checkOperations("1-=", "0");
-    checkOperations("5-=", "0");
-    checkOperations("3-=", "0");
-    checkOperations("2-=", "0");
-    checkOperations("7-=", "0");
 
+    //check operation with first operand by default(zero)
     checkOperations("-7=", "-7");
     checkOperations("-2=", "-2");
     checkOperations("-5=", "-5");
     checkOperations("-9=", "-9");
     checkOperations("-1=", "-1");
 
+    //check second op like equals
     checkOperations("1-5-", "1 - 5 -", "-4");
     checkOperations("2-9-", "2 - 9 -", "-7");
     checkOperations("3-8-", "3 - 8 -", "-5");
@@ -258,8 +267,9 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("4-8=-=", "0");
     checkOperations("1-4=-=", "0");
 
+    //check with negate
     checkOperations("5±-3=", "-8");
-    checkOperations("-1-4=", "-5");
+    checkOperations("1±-4=", "-5");
     checkOperations("6±-2=", "-8");
     checkOperations("8±-7=", "-15");
     checkOperations("7±-6=", "-13");
@@ -270,6 +280,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("2-6±=", "8");
     checkOperations("4-7±=", "11");
 
+    //check with float point
     checkOperations("0.1-1=", "-0.9");
     checkOperations("2.5-5=", "-2.5");
     checkOperations("8.2-9=", "-0.8");
@@ -285,39 +296,46 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void multiplyTest() {
+    //check operations with second operand by default(that equals first)
     checkOperations("2*=", "4");
     checkOperations("2*==", "8");
 
+    //check simple operations
     checkOperations("2*2=", "4");
     checkOperations("7*3=", "21");
     checkOperations("1*8=", "8");
     checkOperations("5*6=", "30");
     checkOperations("3*9=", "27");
 
+    //check operations with zero
     checkOperations("0*0=", "0");
     checkOperations("1*0=", "0");
     checkOperations("8*0=", "0");
     checkOperations("0*5=", "0");
     checkOperations("0*3=", "0");
 
+    //check not ended operations
     checkOperations("2*5", "2 ×", "5");
     checkOperations("5*3", "5 ×", "3");
     checkOperations("2*3", "2 ×", "3");
     checkOperations("2*8", "2 ×", "8");
     checkOperations("1*2", "1 ×", "2");
 
+    //check not ended operations with zero
     checkOperations("0*0", "0 ×", "0");
     checkOperations("1*0", "1 ×", "0");
     checkOperations("5*0", "5 ×", "0");
     checkOperations("0*2", "0 ×", "2");
     checkOperations("0*6", "0 ×", "6");
 
+    //check operand with operation
     checkOperations("0*", "0 ×", "0");
     checkOperations("2*", "2 ×", "2");
     checkOperations("3*", "3 ×", "3");
     checkOperations("9*", "9 ×", "9");
     checkOperations("8*", "8 ×", "8");
 
+    //check not ended operation with first operand by default(zero)
     checkOperations("* 1", "0 ×", "1");
     checkOperations("* 5", "0 ×", "5");
     checkOperations("* 9", "0 ×", "9");
@@ -326,18 +344,14 @@ public class RootControllerTest extends ControllerTestUtils {
 
     checkOperations("*", "0 ×", "0");
 
-    checkOperations("1*=", "1");
-    checkOperations("5*=", "25");
-    checkOperations("3*=", "9");
-    checkOperations("2*=", "4");
-    checkOperations("7*=", "49");
-
+    //check operation with first operand by default(zero)
     checkOperations("*7=", "0");
     checkOperations("*2=", "0");
     checkOperations("*5=", "0");
     checkOperations("*9=", "0");
     checkOperations("*1=", "0");
 
+    //check second op like equals
     checkOperations("1*5*", "1 × 5 ×", "5");
     checkOperations("2*9*", "2 × 9 ×", "18");
     checkOperations("3*8*", "3 × 8 ×", "24");
@@ -374,8 +388,9 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("4*8=*=", "1,024");
     checkOperations("1*4=*=", "16");
 
+    //check with negate
     checkOperations("5±*3=", "-15");
-    checkOperations("-1*4=", "-4");
+    checkOperations("1±*4=", "-4");
     checkOperations("6±*2=", "-12");
     checkOperations("8±*7=", "-56");
     checkOperations("7±*6=", "-42");
@@ -386,6 +401,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("2*6±=", "-12");
     checkOperations("4*7±=", "-28");
 
+    //check with float point
     checkOperations("0.1*1=", "0.1");
     checkOperations("2.5*5=", "12.5");
     checkOperations("8.2*9=", "73.8");
@@ -401,36 +417,43 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void divideTest() {
+    //check operations with second operand by default(that equals first)
     checkOperations("2/=", "1");
     checkOperations("2/==", "0.5");
 
+    //check simple operations
     checkOperations("2/2=", "1");
     checkOperations("7/3=", "2.333333333333333");
     checkOperations("1/8=", "0.125");
     checkOperations("5/6=", "0.8333333333333333");
     checkOperations("3/9=", "0.3333333333333333");
 
+    //check operations with zero
     checkOperations("0/5=", "0");
     checkOperations("0/3=", "0");
 
+    //check not ended operations
     checkOperations("2/5", "2 ÷", "5");
     checkOperations("5/3", "5 ÷", "3");
     checkOperations("2/3", "2 ÷", "3");
     checkOperations("2/8", "2 ÷", "8");
     checkOperations("1/2", "1 ÷", "2");
 
+    //check not ended operations with zero
     checkOperations("0/0", "0 ÷", "0");
     checkOperations("1/0", "1 ÷", "0");
     checkOperations("5/0", "5 ÷", "0");
     checkOperations("0/2", "0 ÷", "2");
     checkOperations("0/6", "0 ÷", "6");
 
+    //check operand with operation
     checkOperations("0/", "0 ÷", "0");
     checkOperations("2/", "2 ÷", "2");
     checkOperations("3/", "3 ÷", "3");
     checkOperations("9/", "9 ÷", "9");
     checkOperations("8/", "8 ÷", "8");
 
+    //check not ended operation with first operand by default(zero)
     checkOperations("/1", "0 ÷", "1");
     checkOperations("/5", "0 ÷", "5");
     checkOperations("/9", "0 ÷", "9");
@@ -439,18 +462,14 @@ public class RootControllerTest extends ControllerTestUtils {
 
     checkOperations("/", "0 ÷", "0");
 
-    checkOperations("1/=", "1");
-    checkOperations("5/=", "1");
-    checkOperations("3/=", "1");
-    checkOperations("2/=", "1");
-    checkOperations("7/=", "1");
-
+    //check operation with first operand by default(zero)
     checkOperations("/7=", "0");
     checkOperations("/2=", "0");
     checkOperations("/5=", "0");
     checkOperations("/9=", "0");
     checkOperations("/1=", "0");
 
+    //check second op like equals
     checkOperations("1/5/", "1 ÷ 5 ÷", "0.2");
     checkOperations("2/9/", "2 ÷ 9 ÷", "0.2222222222222222");
     checkOperations("3/8/", "3 ÷ 8 ÷", "0.375");
@@ -487,8 +506,9 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("4/8=/=", "1");
     checkOperations("1/4=/=", "1");
 
+    //check with negate
     checkOperations("5±/3=", "-1.66666666666667");
-    checkOperations("-1/4=", "-0.25");
+    checkOperations("1±/4=", "-0.25");
     checkOperations("6±/2=", "-3");
     checkOperations("8±/7=", "-1.14285714285714");
     checkOperations("7±/6=", "-1.16666666666667");
@@ -499,6 +519,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("2/6±=", "-0.33333333333333");
     checkOperations("4/7±=", "-0.57142857142857");
 
+    //check with float point
     checkOperations("0.1/1=", "0.1");
     checkOperations("2.5/5=", "0.5");
     checkOperations("8.2/9=", "0.9111111111111111");
@@ -514,30 +535,35 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void negateTest() {
+    //simple negate
     checkOperations("1±", "-1");
     checkOperations("2±", "-2");
     checkOperations("7±", "-7");
     checkOperations("132±", "-132");
     checkOperations("165±", "-165");
 
+    //with float point
     checkOperations("1.04±", "-1.04");
     checkOperations("100.1±", "-100.1");
     checkOperations("13.2±", "-13.2");
     checkOperations("14.4±", "-14.4");
     checkOperations("31.2±", "-31.2");
 
+    //double negate
     checkOperations("5±±", "5");
     checkOperations("3±±", "3");
     checkOperations("4±±", "4");
     checkOperations("5±±", "5");
     checkOperations("123±±", "123");
 
+    //negate after binary op
     checkOperations("5+±", "5 + negate( 5 )", "-5");
     checkOperations("21+±", "21 + negate( 21 )", "-21");
     checkOperations("14+±", "14 + negate( 14 )", "-14");
     checkOperations("3+±", "3 + negate( 3 )", "-3");
     checkOperations("7+±", "7 + negate( 7 )", "-7");
 
+    //negate after binary op with second operand by default
     checkOperations("43+±=", "0");
     checkOperations("0.4+±=", "0");
     checkOperations("3+±=", "0");
@@ -547,48 +573,51 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void powTest() {
-    checkOperations("POW", "sqr( 0 )", "0");
+    checkOperations("^", "sqr( 0 )", "0");
 
-    checkOperations("0POW", "sqr( 0 )", "0");
-    checkOperations("1POW", "sqr( 1 )", "1");
-    checkOperations("2POW", "sqr( 2 )", "4");
-    checkOperations("5POW", "sqr( 5 )", "25");
+    //simple op
+    checkOperations("0^", "sqr( 0 )", "0");
+    checkOperations("1^", "sqr( 1 )", "1");
+    checkOperations("2^", "sqr( 2 )", "4");
+    checkOperations("5^", "sqr( 5 )", "25");
 
-    checkOperations("5±POW", "sqr( -5 )", "25");
-    checkOperations("2±POW", "sqr( -2 )", "4");
-    checkOperations("6±POW", "sqr( -6 )", "36");
-    checkOperations("4±POW", "sqr( -4 )", "16");
+    //simple with negate
+    checkOperations("5±^", "sqr( -5 )", "25");
+    checkOperations("2±^", "sqr( -2 )", "4");
+    checkOperations("6±^", "sqr( -6 )", "36");
+    checkOperations("4±^", "sqr( -4 )", "16");
 
-    checkOperations("5POW+", "sqr( 5 ) +", "25");
-    checkOperations("2POW-", "sqr( 2 ) -", "4");
-    checkOperations("6POW*", "sqr( 6 ) ×", "36");
-    checkOperations("8POW/", "sqr( 8 ) ÷", "64");
+    //pow with binary op
+    checkOperations("5^+", "sqr( 5 ) +", "25");
+    checkOperations("2^-", "sqr( 2 ) -", "4");
+    checkOperations("6^*", "sqr( 6 ) ×", "36");
+    checkOperations("8^/", "sqr( 8 ) ÷", "64");
 
-    checkOperations("5±POW+", "sqr( -5 ) +", "25");
-    checkOperations("1±POW-", "sqr( -1 ) -", "1");
-    checkOperations("7±POW*", "sqr( -7 ) ×", "49");
-    checkOperations("9±POW/", "sqr( -9 ) ÷", "81");
+    checkOperations("5±^+", "sqr( -5 ) +", "25");
+    checkOperations("1±^-", "sqr( -1 ) -", "1");
+    checkOperations("7±^*", "sqr( -7 ) ×", "49");
+    checkOperations("9±^/", "sqr( -9 ) ÷", "81");
 
-    checkOperations("3POW+ 2", "sqr( 3 ) +", "2");
-    checkOperations("4POW- 5", "sqr( 4 ) -", "5");
-    checkOperations("6POW* 6", "sqr( 6 ) ×", "6");
-    checkOperations("8POW/7", "sqr( 8 ) ÷", "7");
+    checkOperations("3^+ 2", "sqr( 3 ) +", "2");
+    checkOperations("4^- 5", "sqr( 4 ) -", "5");
+    checkOperations("6^* 6", "sqr( 6 ) ×", "6");
+    checkOperations("8^/7", "sqr( 8 ) ÷", "7");
 
-    checkOperations("2POWPOW", "sqr( sqr( 2 ) )", "16");
-    checkOperations("2POWPOWPOW", "sqr( sqr( sqr( 2 ) ) )", "256");
-    checkOperations("2√POW√POW√POW", "sqr( √( sqr( √( sqr( √( 2 ) ) ) ) ) )", "2");
-    checkOperations("3POW+ 2POW", "sqr( 3 ) + sqr( 2 )", "4");
-    checkOperations("3POW+ 2POW=", "13");
-    checkOperations("3POW+ 7=", "16");
-    checkOperations("5+POWPOW", "5 + sqr( sqr( 5 ) )", "625");
-    checkOperations("5+POWPOW=", "630");
-    checkOperations("2+ 3=POW", "sqr( 5 )", "25");
+    checkOperations("2^^", "sqr( sqr( 2 ) )", "16");
+    checkOperations("2^^^", "sqr( sqr( sqr( 2 ) ) )", "256");
+    checkOperations("2√^√^√^", "sqr( √( sqr( √( sqr( √( 2 ) ) ) ) ) )", "2");
+    checkOperations("3^+ 2^", "sqr( 3 ) + sqr( 2 )", "4");
+    checkOperations("3^+ 2^=", "13");
+    checkOperations("3^+ 7=", "16");
+    checkOperations("5+^^", "5 + sqr( sqr( 5 ) )", "625");
+    checkOperations("5+^^=", "630");
+    checkOperations("2+ 3=^", "sqr( 5 )", "25");
 
 
-    checkOperations("0.000000000000001POW", "sqr( 0.000000000000001 )", "1.E-30");
-    checkOperations("0.000000000000001POWPOW", "sqr( sqr( 0.000000000000001 ) )", "1.E-60");
-    checkOperations("9999999999999999POW", "sqr( 9999999999999999 )", "9.999999999999998E+31");
-    checkOperations("9999999999999999POWPOW", "sqr( sqr( 9999999999999999 ) )", "9.999999999999996E+63");
+    checkOperations("0.000000000000001^", "sqr( 0.000000000000001 )", "1.E-30");
+    checkOperations("0.000000000000001^^", "sqr( sqr( 0.000000000000001 ) )", "1.E-60");
+    checkOperations("9999999999999999^", "sqr( 9999999999999999 )", "9.999999999999998E+31");
+    checkOperations("9999999999999999^^", "sqr( sqr( 9999999999999999 ) )", "9.999999999999996E+63");
   }
 
   @Test
@@ -614,7 +643,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("5+ 3=", "8");
 
     checkOperations("4√=", "2");
-    checkOperations("8POW=", "64");
+    checkOperations("8^=", "64");
     checkOperations("2R=", "0.5");
     checkOperations("5+3=R", "1/( 8 )", "0.125");
     checkOperations("3=6+", "6 +", "6");
@@ -628,15 +657,15 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("4√√", "√( √( 4 ) )", "1.414213562373095");
     checkOperations("4√√√", "√( √( √( 4 ) ) )", "1.189207115002721");
     checkOperations("4√√√=", "1.189207115002721");
-    checkOperations("3+ 4√=", "5");
+    checkOperations("3+4√=", "5");
     checkOperations("4+√", "4 + √( 4 )", "2");
-    checkOperations("4+ 1+ 1+ 1+√", "4 + 1 + 1 + 1 + √( 7 )", "2.645751311064591");
+    checkOperations("4+1+1+1+√", "4 + 1 + 1 + 1 + √( 7 )", "2.645751311064591");
     checkOperations("121√", "√( 121 )", "11");
     checkOperations("456√", "√( 456 )", "21.35415650406262");
     checkOperations("2875√", "√( 2875 )", "53.61902647381804");
     checkOperations("1785√", "√( 1785 )", "42.24926034855522");
     checkOperations("2134√", "√( 2134 )", "46.19523784980439");
-    checkOperations("4+ 5=√", "√( 9 )", "3");
+    checkOperations("4+5=√", "√( 9 )", "3");
 
     checkOperations("0.0000000000000001√", "√( 0.0000000000000001 )", "0.00000001");
     checkOperations("0.0000000000000001√√", "√( √( 0.0000000000000001 ) )", "0.0001");
@@ -646,25 +675,29 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void reverseTest() {
+    //simple cases
     checkOperations("1R", "1/( 1 )", "1");
     checkOperations("2R", "1/( 2 )", "0.5");
     checkOperations("10R", "1/( 10 )", "0.1");
     checkOperations("1.1R", "1/( 1.1 )", "0.9090909090909091");
 
+    //with binary op
     checkOperations("5R+", "1/( 5 ) +", "0.2");
     checkOperations("2R-", "1/( 2 ) -", "0.5");
     checkOperations("6R*", "1/( 6 ) ×", "0.1666666666666667");
     checkOperations("9R/", "1/( 9 ) ÷", "0.1111111111111111");
 
+    //after binary op
     checkOperations("10+R ", "10 + 1/( 10 )", "0.1");
     checkOperations("21-R ", "21 - 1/( 21 )", "0.0476190476190476");
     checkOperations("32*R ", "32 × 1/( 32 )", "0.03125");
     checkOperations("42/R ", "42 ÷ 1/( 42 )", "0.0238095238095238");
 
-    checkOperations("10+ 12=R ", "1/( 22 )", "0.0454545454545455");
-    checkOperations("12+ 43=R ", "1/( 55 )", "0.0181818181818182");
-    checkOperations("21+ 36=R ", "1/( 57 )", "0.0175438596491228");
-    checkOperations("83+ 37=R ", "1/( 120 )", "0.0083333333333333");
+    //with result of binary op
+    checkOperations("10+12=R ", "1/( 22 )", "0.0454545454545455");
+    checkOperations("12+43=R ", "1/( 55 )", "0.0181818181818182");
+    checkOperations("21+36=R ", "1/( 57 )", "0.0175438596491228");
+    checkOperations("83+37=R ", "1/( 120 )", "0.0083333333333333");
 
     checkOperations("1000000000000000-R", "1000000000000000 - 1/( 1000000000000000 )", "0.000000000000001");
     checkOperations("1000000000000000*=====-R", "1.E+90 - 1/( 1.E+90 )", "1.E-90");
@@ -677,12 +710,15 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void backspaceTest() {
-    checkOperations("2POWPOWPOW=<-<-<-<-<-<-<-<-", "256");
+    checkOperations("2^^^=<-<-<-<-<-<-<-<-", "256");
     checkOperations("70/7=<-<-<-", "10");
-    checkOperations("1234567890=<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-", "1,234,567,890");
-    checkOperations("<-<-<-<-2√POW=", "2");
+    checkOperations("<-<-<-<-2√^=", "2");
     checkOperations("2+3=<-<-<-<-", "5");
 
+    //block backspace with after calc state
+    checkOperations("1234567890=<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-", "1,234,567,890");
+
+    //with point
     checkOperations("<-", "0");
     checkOperations(".", "0.");
     checkOperations(". . .", "0.");
@@ -736,6 +772,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("9276CE32CE", "0");
     checkOperations("4628CE70CE", "0");
 
+    ///check that history not deleted
     checkOperations("1+2/3CE9", "1 + 2 ÷", "9");
     checkOperations("1-2*3CE9", "1 - 2 ×", "9");
     checkOperations("1*2-3CE9", "1 × 2 -", "9");
@@ -751,6 +788,7 @@ public class RootControllerTest extends ControllerTestUtils {
   void percentTest() {
     checkOperations("%", "0");
 
+    //with 1 operand always was 0
     checkOperations("2%", "0");
     checkOperations("168%", "0");
     checkOperations("25%", "0");
@@ -766,11 +804,13 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("41%%%=", "0");
     checkOperations("12%%%=", "0");
 
+    //simple cases
     checkOperations("200+ 2%", "200 + 4", "4");
     checkOperations("152+ 3%", "152 + 4.56", "4.56");
     checkOperations("234+ 4%", "234 + 9.36", "9.36");
     checkOperations("543+ 5%", "543 + 27.15", "27.15");
 
+    //with deafault second operand
     checkOperations("5+%", "5 + 0.25", "0.25");
     checkOperations("1+%", "1 + 0.01", "0.01");
     checkOperations("3+%", "3 + 0.09", "0.09");
@@ -786,6 +826,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("234+4%=%", "592.240896");
     checkOperations("543+5%=%", "3,250.710225");
 
+    //multiply
     checkOperations("199+1=%", "400");
     checkOperations("199+1=%%", "800");
     checkOperations("199+1=%%%", "1,600");
@@ -799,6 +840,7 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void displayFormatTest() {
+    //single digit
     checkOperations("1", "1");
     checkOperations("2", "2");
     checkOperations("3", "3");
@@ -809,7 +851,10 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("8", "8");
     checkOperations("9", "9");
 
+    //multiply zeros doesn't matter
     checkOperations("0000000000000000000000000000000000000001", "1");
+
+    //large numbers
     checkOperations("01010111101010101000011", "1,010,111,101,010,101");
     checkOperations("123456789", "123,456,789");
     checkOperations("1000000000000000000", "1,000,000,000,000,000");
@@ -817,6 +862,7 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("9999999999999999999.", "9,999,999,999,999,999.");
     checkOperations("1234567890123456789", "1,234,567,890,123,456");
 
+    //with float point
     checkOperations("3.0", "3.0");
     checkOperations("3.00", "3.00");
     checkOperations("0.00000000000000000", "0.0000000000000000");
@@ -831,13 +877,24 @@ public class RootControllerTest extends ControllerTestUtils {
 
   @Test
   void roundTest() {
-    checkOperations("0.0000000000000001+ 1=", "1");
+    //checking dependence of the number of digits after the decimal point on the length of the integer part
+    checkOperations("0.000000000000001+1=", "1.000000000000001");
+    checkOperations("0.0000000000000001+1=", "1");
+    checkOperations("2.000000000000001+1=", "3.000000000000001");
+    checkOperations("2.000000000000001+2=", "4.000000000000001");
+    checkOperations("2.000000000000001+3=", "5.000000000000001");
+    checkOperations("2.000000000000001+4=", "6.000000000000001");
+    checkOperations("2.000000000000001+8=", "10");
+
+
+    //Reverse dividing
     checkOperations("1/3*3=", "1");
-    checkOperations("1/3*3-1", "1 ÷ 3 × 3 -", "1");
+    checkOperations("10/3*3=", "10");
+
+
     checkOperations("0.0111111111111111*0.1=", "0.0011111111111111");
     checkOperations("2.0000000000000001+1========", "10");
     checkOperations("0.1*================", "1.E-17");
-    checkOperations("9999999999999999+2=", "1.E+16");
     checkOperations("9999999999999999*2=", "2.E+16");
     checkOperations("9999999999999999*8=", "7.999999999999999E+16");
     checkOperations("9999999999999999*8==", "6.399999999999999E+17");
@@ -848,22 +905,18 @@ public class RootControllerTest extends ControllerTestUtils {
     checkOperations("9999999999999999*6===", "2.16E+18");
     checkOperations("9999999999999999*6====", "1.296E+19");
     checkOperations("9999999999999999*6=====", "7.775999999999999E+19");
-    checkOperations("9999999999999999+6=", "1.000000000000001E+16");
-    checkOperations("9999999999999999+7=", "1.000000000000001E+16");
-    checkOperations("9999999999999999R+1=", "1");
-    checkOperations("9999999999999999R=", "0.0000000000000001");
-    checkOperations("9999999999999999R+=", "0.0000000000000002");
-    checkOperations("9999999999999999R+==", "0.0000000000000003");
-    checkOperations("9999999999999999R+===", "0.0000000000000004");
-    checkOperations("2.000000000000001+1=", "3.000000000000001");
-    checkOperations("2.000000000000001+2=", "4.000000000000001");
-    checkOperations("2.000000000000001+3=", "5.000000000000001");
-    checkOperations("2.000000000000001+4=", "6.000000000000001");
-    checkOperations("2.000000000000001+8=", "10");
 
-    checkOperations("0.0000000000000001+=", "0.0000000000000002");
-    checkOperations("0.0000000000000001-=", "0");
-    checkOperations("5√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√=", "1.000000000000001");
+    //check showing decimal part of engneer string
+    checkOperations("9999999999999999+1=", "1.E+16");
+    checkOperations("9999999999999999+2=", "1.E+16");
+    checkOperations("9999999999999999+6=", "1.000000000000001E+16");
+
+    //check border for sqrt action
+    checkOperations("5√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√", "1.000000000000002");
+    checkOperations("5√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√", "1.000000000000001");
+    checkOperations("5√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√√", "1");
+
+
     checkOperations("0.9999999999999999*999999999999999.1=", "999,999,999,999,999");
     checkOperations("0.9999999999999999*999999999999999.3=", "999,999,999,999,999.2");
     checkOperations("0.9999999999999999*999999999999999.5=", "999,999,999,999,999.4");
@@ -942,22 +995,59 @@ public class RootControllerTest extends ControllerTestUtils {
     memoryCheck("3+ 23 M- M- M- M- M-=/MR=", "-0.22608695652174");
 
     //Memory save
-    memoryCheck("1234567890 MS+ 20= M+ MR", "2,469,135,800");
+    memoryCheck("1234567890 MS + 20= M+ MR", "2,469,135,800");
     memoryCheck("9999999999999999 MS M+ MR", "2.E+16");
     memoryCheck("9999999999999999 MS M+ MR MS M+ MR MS M+ MR", "8.E+16");
   }
 
   @Test
-  void overflowTest() {
-    checkForBigFormula("1000000000000000 POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) )", "1.E+7680");
-    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("1000000000000000 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+  void boundaryTest() {
+    String maxPossibleIntegerPart = "1000000000000000*===================*================================*1000000000000000======*10========= -1*10+9=";
 
-    checkForBigFormula("0.0000000000000001 POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) )", "1.E-8192");
-    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
-    checkErrorOp("0.0000000000000001 POW POW POW POW POW POW POW POW POW POW POW POW POW POW POW", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    String maxPossibleFracPart = "0.0000000001*=========*=========*========MS C 0.0000000001*=========*========* MR = MS C 0.1*========* MR = MS C 0.0000000001*========* MR =";
+
+    String maxPossibleFull = maxPossibleFracPart + "MS C" + maxPossibleIntegerPart;
+
+    String smallNumber = "1000000000000000*===================*================================*1000000000000000======" +
+        "*10========= R";
+
+    //string for calculating number 1.e+9999
+    String oneDotEPlusFourNines = "1000000000^^^^^^^^^^*1000000000000000====================================================*10===";
+
+    //string for calculating number 1.e-9999
+    String theSmallestNumber = "0.000000001^^^^^^^^^^*0.0000000000000001================================================*0.000000000000001=";
+
+    //string for calculating number 999999999999999949999.....9.9999...9.8
+    //(16 nines, then digit 4, then 9983 nines, dot, and 9998 nines, and the last one digit is 8)
+    String boundaryNumber = oneDotEPlusFourNines + "*0.5=*0.1=============== MS /5=*10================- R ==- MR =*10=*0.1= MS C" + oneDotEPlusFourNines + "*9+ MR =";
+
+
+//    checkOperations(maxPossibleIntegerPart, "");
+
+//    checkOperations(maxPossibleFracPart, "");
+
+//    checkErrorOp(maxPossibleFull, "");
+//    clicker(maxPossibleFull);
+//    checkOperations(smallNumber + "MS C" + maxPossibleIntegerPart + "* MR =", "");
+//    boundaryCheck(boundaryNumber + "MS C" + theSmallestNumber + "+ MR =", "");
+//    clicker(smallNumber);
+//    boundaryCheck(boundaryNumber, "");
+//    boundaryCheck(theSmallestNumber + "MS C" + boundaryNumber + "+ MR =", "");
+//    boundaryCheck(theSmallestNumber,"");
+    boundaryCheck(oneDotEPlusFourNines,"");
+  }
+
+  @Test
+  void overflowTest() {
+    checkForBigFormula("1000000000000000 ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) )", "1.E+7680");
+    checkErrorOp("1000000000000000 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("1000000000000000 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("1000000000000000 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 1000000000000000 ) ) ) ) ) ) ) ) ) )", "Overflow");
+
+    checkForBigFormula("0.0000000000000001 ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) )", "1.E-8192");
+    checkErrorOp("0.0000000000000001 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("0.0000000000000001 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
+    checkErrorOp("0.0000000000000001 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^", "sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( sqr( 0.0000000000000001 ) ) ) ) ) ) ) ) ) )", "Overflow");
 
     checkOperations("9999999999999999+ 1=*=*=*=*=*=*=*=*=*=", "1.E+8192");
     checkOperations("9999999999999999+ 1=*=*=*=*=*=*=*=*=*=*=", "Overflow");
@@ -983,8 +1073,8 @@ public class RootControllerTest extends ControllerTestUtils {
     checkErrorOp("9999999999999999/0=", "Cannot divide by zero");
     checkErrorOp("-9999999999999998/0=", "Cannot divide by zero");
     checkErrorOp("-9999999999999999/0=", "Cannot divide by zero");
-    checkErrorOp("9999999999999999+ 1=/0=", "Cannot divide by zero");
-    checkErrorOp("9999999999999999+ 1=±/0=", "Cannot divide by zero");
+    checkErrorOp("9999999999999999+1=/0=", "Cannot divide by zero");
+    checkErrorOp("9999999999999999+1=±/0=", "Cannot divide by zero");
   }
 
   @Test
@@ -1014,10 +1104,10 @@ public class RootControllerTest extends ControllerTestUtils {
     checkSetNormal("9999999999999999=±√ 3", "3");
     checkSetNormal("9999999999999999+ 1=±√ 2", "2");
 
-    checkSetNormal("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOWPOW 1", "1");
-    checkSetNormal("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOW 0", "0");
+    checkSetNormal("0.0000000000000001^^^^^^^^^^ 1", "1");
+    checkSetNormal("0.0000000000000001^^^^^^^^^^^ 0", "0");
 
-    checkSetNormal("0.0000000000000001POWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWPOWCE", "0");
+    checkSetNormal("0.0000000000000001^^^^^^^^^^^^^^^CE", "0");
     checkSetNormal("0R=", "0");
     checkSetNormal("111110±√ C", "0");
     checkSetNormal("9999999999999998/0=<-", "0");
@@ -1088,11 +1178,12 @@ public class RootControllerTest extends ControllerTestUtils {
   @BeforeEach
   void before() {
     clear();
-    clickOnMemory(memoryOp.get("MC"));
   }
 
   void checkOperations(String pattern, String res) {
-    checkOperations(pattern, "", res);
+    clicker(pattern);
+    FxAssert.verifyThat("#display", hasText(res));
+    clear();
   }
 
   void checkOperations(String pattern, String formula, String res) {
@@ -1111,7 +1202,7 @@ public class RootControllerTest extends ControllerTestUtils {
     assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("*")).queryButton().isDisabled());
     assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("/")).queryButton().isDisabled());
     assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("√")).queryButton().isDisabled());
-    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("POW")).queryButton().isDisabled());
+    assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("^")).queryButton().isDisabled());
     assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(".")).queryButton().isDisabled());
     assertFalse(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("R")).queryButton().isDisabled());
     clear();
@@ -1139,7 +1230,7 @@ public class RootControllerTest extends ControllerTestUtils {
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("*")).queryButton().isDisabled());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("/")).queryButton().isDisabled());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("√")).queryButton().isDisabled());
-    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("POW")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("^")).queryButton().isDisabled());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(".")).queryButton().isDisabled());
     assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("R")).queryButton().isDisabled());
     assertTrue(robot.lookup(hasText("M")).queryButton().isDisabled());
@@ -1153,6 +1244,15 @@ public class RootControllerTest extends ControllerTestUtils {
 
   void memoryCheck(String pattern, String res) {
     memoryCheck(pattern, "", res);
+    clickOnMemory(memoryOp.get("MC"));
+  }
+
+  private void boundaryCheck(String pattern, String res) {
+    clicker(pattern);
+//    FxAssert.verifyThat("#display", hasText(res));
+    System.out.println(controller.getInputService().getCalc().getLeftOperand().toPlainString());
+    System.out.println(controller.getInputService().getCalc().getRightOperand().toPlainString());
+    clear();
   }
 
   void memoryCheck(String pattern, String formula, String res) {

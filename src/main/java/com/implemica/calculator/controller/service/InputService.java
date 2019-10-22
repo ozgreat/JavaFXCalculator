@@ -5,6 +5,7 @@ import com.implemica.calculator.model.util.CalcState;
 import com.implemica.calculator.model.util.Operation;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -23,6 +24,7 @@ public class InputService {
   /**
    * Calculator model to do calculations
    */
+  @Getter //todo delete
   private CalculatorModel calc;
 
   /**
@@ -205,7 +207,7 @@ public class InputService {
    * @param display number in textArea
    */
   public void saveToMemory(String display) {
-    calc.setMemory(new BigDecimal(display.replaceAll(",", "")));
+    calc.memorySave(new BigDecimal(display.replaceAll(",", "")));
   }
 
   /**
@@ -214,7 +216,6 @@ public class InputService {
    * @return string with last element of memory
    */
   public String recallFromMemory() {
-//    String res = displayFormat(calc.recallMemory().toString());
     if (calc.getCalcState() == CalcState.LEFT) {
       calc.setCalcState(CalcState.TRANSIENT);
     } else if (calc.getCalcState() == CalcState.TRANSIENT) {
@@ -299,6 +300,10 @@ public class InputService {
         df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
 
         return df.format(big) + ".";
+      } else if (display.startsWith("0") && display.length() < 17) {
+        return display;
+      } else if (display.startsWith("0") && display.length() >= 17) {
+        return display.substring(0, display.length() - 1);
       }
       String[] displayArr = displayBuf.split("\\.");
       String pattern = displayPattern.get(displayArr[0].length());

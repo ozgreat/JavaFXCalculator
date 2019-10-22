@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import javafx.scene.input.KeyCode;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.loadui.testfx.utils.FXTestUtils;
 
 import java.util.Arrays;
@@ -85,6 +86,12 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     }
   }
 
+  @Test
+  @Override
+  void memoryTest() {
+    super.memoryTest();
+  }
+
   @Override
   protected void clear() {
     pressOn("C");
@@ -97,7 +104,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     for (String s : pattern.split(" ")) {
       if (operationsKeyCode.containsKey(s)) {
         pressOn(s);
-      } else if (s.equals("POW")) {
+      } else if (s.equals("^")) {
         clickOn(operations.get(s));
       } else {
         handleDigit(s);

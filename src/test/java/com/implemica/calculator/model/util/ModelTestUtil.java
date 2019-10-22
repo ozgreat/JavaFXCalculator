@@ -64,7 +64,6 @@ public class ModelTestUtil {
         }
       }
     }
-//    System.out.println(x.toPlainString());
     calc = new CalculatorModel();
     return x;
   }
@@ -113,83 +112,4 @@ public class ModelTestUtil {
       assertEquals(expectedMessage, e.getMessage());
     }
   }
-
-
-  protected void universalCheck(String left, String right, Operation op, String expected) {
-    if (op.getType() == OperationType.BINARY) {
-      assertEquals(0, calc.doCalculate(op, new BigDecimal(left), new BigDecimal(right)).compareTo(new BigDecimal(expected)));
-    } else if (op.getType() == OperationType.UNARY) {
-      assertEquals(0, calc.doCalculate(op, new BigDecimal(left)).compareTo(new BigDecimal(expected)));
-    } else if (op.getType() == OperationType.PERCENT) {
-      if (op == Operation.PERCENT_ADD_SUBTRACT) {
-        assertEquals(0, calc.doCalculate(op, new BigDecimal(left), new BigDecimal(right)).compareTo(new BigDecimal(expected)));
-      } else if (op == Operation.PERCENT_MUL_DIVIDE) {
-        assertEquals(0, calc.doCalculate(op, new BigDecimal(left), new BigDecimal(right)).compareTo(new BigDecimal(expected)));
-      }
-    } else if (op.getType() == OperationType.MEMORY) {
-      if (op == Operation.MEMORY_CLEAR) {
-        calc.setMemory(new BigDecimal(left));
-        calc.clearMemory();
-
-        assertNull(calc.getMemory());
-      } else if (op == Operation.MEMORY_SAVE) {
-        calc.setMemory(new BigDecimal(left));
-
-        assertEquals(0, calc.getMemory().compareTo(new BigDecimal(expected)));
-      } else if (op == Operation.MEMORY_ADD && left == null) {
-        calc.memoryAdd(new BigDecimal(right));
-
-        assertEquals(0, calc.getMemory().compareTo(new BigDecimal(expected)));
-      } else if (op == Operation.MEMORY_SUB && left == null) {
-        calc.memorySub(new BigDecimal(right));
-
-        assertEquals(0, calc.getMemory().compareTo(new BigDecimal(expected)));
-      } else if (op == Operation.MEMORY_ADD) {
-        calc.setMemory(new BigDecimal(left));
-        calc.memoryAdd(new BigDecimal(right));
-
-        assertEquals(0, calc.getMemory().compareTo(new BigDecimal(expected)));
-      } else if (op == Operation.MEMORY_SUB) {
-        calc.setMemory(new BigDecimal(left));
-        calc.memorySub(new BigDecimal(right));
-
-        assertEquals(0, calc.getMemory().compareTo(new BigDecimal(expected)));
-      }
-      calc.clearMemory();
-    }
-  }
-
-  protected void universalThrowCheck(String left, String right, Operation op, Errors error) {
-    if (op.getType() == OperationType.BINARY) {
-      try {
-        calc.doCalculate(op, new BigDecimal(left), new BigDecimal(right));
-        fail();
-      } catch (ArithmeticException e) {
-        assertEquals(error.getMsg(), e.getMessage());
-      }
-    } else if (op.getType() == OperationType.UNARY) {
-      try {
-        calc.doCalculate(op, new BigDecimal(left));
-      } catch (ArithmeticException e) {
-        assertEquals(error.getMsg(), e.getMessage());
-      }
-    } else if (op.getType() == OperationType.PERCENT) {
-      if (op == Operation.PERCENT_ADD_SUBTRACT) {
-        try {
-          calc.doCalculate(op, new BigDecimal(left), new BigDecimal(right));
-          fail();
-        } catch (ArithmeticException e) {
-          assertEquals(error.getMsg(), e.getMessage());
-        }
-      } else if (op == Operation.PERCENT_MUL_DIVIDE) {
-        try {
-          calc.doCalculate(op, new BigDecimal(left), new BigDecimal(right));
-          fail();
-        } catch (ArithmeticException e) {
-          assertEquals(error.getMsg(), e.getMessage());
-        }
-      }
-    }
-  }
-
 }

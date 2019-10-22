@@ -33,7 +33,7 @@ public class ControllerTestUtils extends ApplicationTest {
     operations.put("*", "\uE947");
     operations.put("/", "\uE94A");
     operations.put("R", "⅟\uD835\uDC65");
-    operations.put("POW", "\uD835\uDC65²");
+    operations.put("^", "\uD835\uDC65²");
     operations.put("√", "\uE94B");
     operations.put("±", "\uE94D");
     operations.put("=", "\uE94E");

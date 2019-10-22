@@ -75,6 +75,9 @@ public class CalculatorModel {
 
   private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
 
+  private static BigDecimal debugleft;
+  private static BigDecimal debugRight;
+
   static {
     binaryOperations.put(ADD, BigDecimal::add);
     binaryOperations.put(SUBTRACT, BigDecimal::subtract);
@@ -106,6 +109,9 @@ public class CalculatorModel {
     }
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
+
+    debugleft = leftOperand;
+    debugRight = rightOperand;
 
     return getRounded10KIfItsPossible(res);
   }
@@ -164,6 +170,18 @@ public class CalculatorModel {
     return getMemory();
   }
 
+  public void memorySave(BigDecimal num) {
+    if (calcState == CalcState.TRANSIENT) {
+      memory = leftOperand;
+    } else if (calcState == CalcState.AFTER) {
+      memory = leftOperand;
+    } else if (calcState == CalcState.RIGHT || calcState == CalcState.LEFT) {
+      memory = num;
+    }
+    System.out.println(memory.toPlainString());
+    System.out.println(calcState);
+  }
+
   /**
    * Setting memory null value
    */
@@ -180,7 +198,7 @@ public class CalculatorModel {
     if (memory != null) {
       memory = getRounded10KIfItsPossible(memory.add(num));
     } else {
-      memory = num;
+      memorySave(num);
     }
   }
 
@@ -346,7 +364,7 @@ public class CalculatorModel {
         leftOperand = firstOperand;
         calcState = CalcState.AFTER;
         return leftOperand;
-      }else if(rightOperand == null){
+      } else if (rightOperand == null) {
         rightOperand = firstOperand;
         calcState = CalcState.RIGHT;
         return rightOperand;

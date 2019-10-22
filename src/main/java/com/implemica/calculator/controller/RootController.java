@@ -187,6 +187,7 @@ public class RootController {
   /**
    * Service that connect controller with model
    */
+  @Getter //todo delete
   private InputService inputService;
 
   /**
@@ -291,13 +292,6 @@ public class RootController {
   private static final KeyCombination REVERSE_SHORTCUT = new KeyCodeCombination(KeyCode.R);
 
   /**
-   * List of shortcut for binary operations
-   */
-  private final static List<KeyCodeCombination> BINARY_OP = Arrays.asList(new KeyCodeCombination(KeyCode.MINUS),
-      new KeyCodeCombination(KeyCode.SUBTRACT), new KeyCodeCombination(KeyCode.ADD), new KeyCodeCombination(KeyCode.MULTIPLY),
-      new KeyCodeCombination(KeyCode.DIVIDE), new KeyCodeCombination(KeyCode.SLASH));
-
-  /**
    * List of shortcut for numpad buttons
    */
   private final static List<KeyCodeCombination> NUMPAD_AND_DIGITS = Arrays.asList(new KeyCodeCombination(KeyCode.DIGIT0),
@@ -322,24 +316,32 @@ public class RootController {
   public RootController() {
     inputService = new InputService();
     formulaStr = "";
+  }
 
+  @FXML
+  public void initialize() {
     COMBINATIONS.put(CLEAR_SHORTCUT, this::clearAction);
     COMBINATIONS.put(CLEAR_ENTRY_SHORTCUT, this::clearEntryAction);
     COMBINATIONS.put(BACKSPACE_SHORTCUT, this::backspaceButtonAction);
     COMBINATIONS.put(EQUALS_SHORTCUT, this::equalAction);
-    COMBINATIONS.put(MEMORY_ADD, this::memoryPlusAction);
-    COMBINATIONS.put(MEMORY_SUB, this::memoryMinusAction);
-    COMBINATIONS.put(MEMORY_CLEAR, this::memoryClearAction);
-    COMBINATIONS.put(MEMORY_SAVE, this::memorySaveAction);
-    COMBINATIONS.put(MEMORY_RECALL, this::memoryRecallAction);
-    COMBINATIONS.put(MULTIPLY, () -> operationButtonAction(new ActionEvent(new Button("×"), null)));
-    COMBINATIONS.put(PLUS, () -> operationButtonAction(new ActionEvent(new Button("+"), null)));
-    COMBINATIONS.put(SQRT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94B"), null)));
-    COMBINATIONS.put(NEGATE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("\uE94D"), null)));
-    COMBINATIONS.put(PERCENT, () -> percentAction(new ActionEvent(new Button("\uE94C"), null)));
-    COMBINATIONS.put(REVERSE_SHORTCUT, () -> unaryOperationAction(new ActionEvent(new Button("⅟\uD835\uDC65"), null)));
+    COMBINATIONS.put(MEMORY_ADD, memoryPlusButton::fire);
+    COMBINATIONS.put(MEMORY_SUB, memoryMinusButton::fire);
+    COMBINATIONS.put(MEMORY_CLEAR, memoryClearButton::fire);
+    COMBINATIONS.put(MEMORY_SAVE, memorySaveButton::fire);
+    COMBINATIONS.put(MEMORY_RECALL, memoryRecallButton::fire);
+    COMBINATIONS.put(MULTIPLY, multiplyButton::fire);
+    COMBINATIONS.put(PLUS, addButton::fire);
+    COMBINATIONS.put(SQRT, sqrtButton::fire);
+    COMBINATIONS.put(NEGATE_SHORTCUT, negateButton::fire);
+    COMBINATIONS.put(PERCENT, percentButton::fire);
+    COMBINATIONS.put(REVERSE_SHORTCUT, reverseButton::fire);
+    COMBINATIONS.put(new KeyCodeCombination(KeyCode.MINUS), subtractButton::fire);
+    COMBINATIONS.put(new KeyCodeCombination(KeyCode.SUBTRACT), subtractButton::fire);
+    COMBINATIONS.put(new KeyCodeCombination(KeyCode.ADD), addButton::fire);
+    COMBINATIONS.put(new KeyCodeCombination(KeyCode.MULTIPLY), multiplyButton::fire);
+    COMBINATIONS.put(new KeyCodeCombination(KeyCode.DIVIDE), divideButton::fire);
+    COMBINATIONS.put(new KeyCodeCombination(KeyCode.SLASH), divideButton::fire);
   }
-
 
   /**
    * Processing of keys typed
@@ -352,10 +354,8 @@ public class RootController {
     NUMPAD_AND_DIGITS.stream().filter(keyCombinationMatcher).findFirst().
         ifPresent(comb -> addNumberOrDot(new ActionEvent(new Button(event.getText()), null)));
 
-    COMBINATIONS.keySet().stream().filter(keyCombinationMatcher).findFirst().ifPresent(code -> COMBINATIONS.get(code).run());
-
-    BINARY_OP.stream().filter(keyCombinationMatcher).findFirst()
-        .ifPresent(comb -> operationButtonAction(new ActionEvent(new Button(event.getText()), null)));
+    COMBINATIONS.keySet().stream().filter(keyCombinationMatcher).findFirst().
+        ifPresent(code -> COMBINATIONS.get(code).run());
   }
 
   /**
