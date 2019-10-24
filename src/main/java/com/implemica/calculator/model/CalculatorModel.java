@@ -9,14 +9,12 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
 import static com.implemica.calculator.model.util.Operation.*;
-import static java.lang.Integer.parseInt;
 
 @Getter
 @Setter
@@ -49,11 +47,6 @@ public class CalculatorModel {
   private CalcState calcState = CalcState.LEFT;
 
   /**
-   * Setting of precision for inner methods
-   */
-  public static final MathContext mc10K = new MathContext(10000);
-
-  /**
    * Setting of precision for outer methods
    */
   public static final MathContext mc16 = new MathContext(16);
@@ -61,7 +54,7 @@ public class CalculatorModel {
   /**
    * Maximum E degree
    */
-  private static final int MAX = 10000;
+  private static final int DIVIDE_SCALE = 10000;
 
   /**
    * Map of binary operations
@@ -75,19 +68,26 @@ public class CalculatorModel {
 
   private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
 
-  private static BigDecimal debugleft;
-  private static BigDecimal debugRight;
+  private static final BigDecimal MIN_DECIMAL = new BigDecimal("-1E10000");
+
+  private static final BigDecimal MIN_POSITIVE = new BigDecimal("1E-10000");
+
+  private static final BigDecimal MIN_NEGATIVE = new BigDecimal("-1E-10000");
+
+  private static final int MAX_SCALE = 9999;
+
+  private static final MathContext SQRT_CONTEXT = new MathContext(10000);
 
   static {
     binaryOperations.put(ADD, BigDecimal::add);
     binaryOperations.put(SUBTRACT, BigDecimal::subtract);
     binaryOperations.put(MULTIPLY, BigDecimal::multiply);
-    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, mc10K));
+    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));
 
-    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, mc10K));//⅟𝑥
+    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));//⅟𝑥
     unaryOperations.put(POW, x -> x.pow(2));//𝑥²
     unaryOperations.put(NEGATE, BigDecimal::negate);//±
-    unaryOperations.put(SQRT, x -> x.sqrt(mc10K));
+    unaryOperations.put(SQRT, x -> x.sqrt(SQRT_CONTEXT));
   }
 
 
@@ -110,10 +110,9 @@ public class CalculatorModel {
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
-    debugleft = leftOperand;
-    debugRight = rightOperand;
-
-    return getRounded10KIfItsPossible(res);
+    checkOverflow(res);
+    res = res.stripTrailingZeros();
+    return res;
   }
 
   /**
@@ -133,7 +132,8 @@ public class CalculatorModel {
 
     BigDecimal res = unaryOperations.get(op).apply(number);
 
-    return getRounded10KIfItsPossible(res);
+    checkOverflow(res);
+    return res.stripTrailingZeros();
   }
 
   /**
@@ -146,15 +146,16 @@ public class CalculatorModel {
 
     if (operation != null) {
       if ((operation == PERCENT_ADD_SUBTRACT) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
-        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), mc10K));
+        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));
       } else if (operation == PERCENT_MUL_DIVIDE) {
-        res = rightOperand.divide(BigDecimal.valueOf(100), mc10K);
+        res = rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP);
       }
     }
 
 
     rightOperand = res;
-    return getRounded10KIfItsPossible(res);
+    checkOverflow(res);
+    return res.stripTrailingZeros();
   }
 
   public BigDecimal getMemory() {
@@ -167,19 +168,21 @@ public class CalculatorModel {
     } else if (calcState == CalcState.RIGHT) {
       rightOperand = memory;
     }
-    return getMemory();
+    return getMemory().stripTrailingZeros();
   }
 
   public void memorySave(BigDecimal num) {
     if (calcState == CalcState.TRANSIENT) {
       memory = leftOperand;
     } else if (calcState == CalcState.AFTER) {
-      memory = leftOperand;
+      if (leftOperand == null) {
+        memory = BigDecimal.ZERO;
+      } else {
+        memory = leftOperand;
+      }
     } else if (calcState == CalcState.RIGHT || calcState == CalcState.LEFT) {
       memory = num;
     }
-    System.out.println(memory.toPlainString());
-    System.out.println(calcState);
   }
 
   /**
@@ -196,9 +199,10 @@ public class CalculatorModel {
    */
   public void memoryAdd(BigDecimal num) {
     if (memory != null) {
-      memory = getRounded10KIfItsPossible(memory.add(num));
+      checkOverflow(num);
+      memory = memory.add(num);
     } else {
-      memorySave(num);
+      memory = num;
     }
   }
 
@@ -209,76 +213,26 @@ public class CalculatorModel {
    */
   public void memorySub(BigDecimal num) {
     if (memory != null) {
-      memory = getRounded10KIfItsPossible(memory.subtract(num));
+      checkOverflow(num);
+      memory = memory.subtract(num);
     } else {
-      memory = num.negate();
+      num = num.negate();
+      memory = num;
     }
   }
 
-  private static BigDecimal getRounded10KIfItsPossible(BigDecimal res) throws ArithmeticException {
-    checkOverflow(res);
-    BigDecimal resStrip = getRounded(res, mc10K, mc10K.getPrecision());
-    if (resStrip != null) {
-      return resStrip;
-    } else {
-      return res;
-    }
-  }
-
-  /**
-   * Get rounded to mc16 number from given
-   *
-   * @param res given number
-   * @return rounded number
-   */
-  public static BigDecimal getRounded16IfItsPossible(BigDecimal res) {
-    checkOverflow(res);
-    MathContext mc = mc16;
-    if (res.compareTo(BigDecimal.ONE) < 0 && res.compareTo(BigDecimal.valueOf(-3)) > 0) {
-      mc = new MathContext(mc16.getPrecision() + 1);
-    }
-    res = res.round(mc);
-
-
-    BigDecimal resStrip = getRounded(res, mc, mc.getPrecision());
-
-    if (resStrip != null) {
-      return resStrip;
-    } else {
-      return res;
-    }
-  }
-
-  private static BigDecimal getRounded(BigDecimal res, MathContext mc, int precision) throws ArithmeticException {
-    if (res.toString().contains(".")) {
-      res = res.round(mc);
-//      checkOverflow(res);
-      BigDecimal resStrip = res.stripTrailingZeros();
-      if (resStrip.toPlainString().replace(".", "").length() <= precision && resStrip.toString().contains("E")) {
-        resStrip = new BigDecimal(resStrip.toPlainString());
-      } else if (resStrip.toString().replace(".", "").replace("-", "").length() > precision + 1) {
-        resStrip = getRounded(resStrip, new MathContext(mc.getPrecision() - 1), precision);
-      }
-      return resStrip;
-    }
-    checkOverflow(res);
-    return null;
-  }
-
-  private static void checkOverflow(BigDecimal res) throws ArithmeticException {
-    if (res.compareTo(MAX_DECIMAL) >= 0 || res.compareTo(MAX_DECIMAL.negate()) <= 0) {
+  public static void checkOverflow(BigDecimal res) throws ArithmeticException {
+    if (res.compareTo(MAX_DECIMAL) >= 0 || res.compareTo(MIN_DECIMAL) <= 0) {
       throw new ArithmeticException(Errors.OVERFLOW.getMsg());
     }
-    if (res.toEngineeringString().contains("E") && !res.toEngineeringString().endsWith("E")) {
-      DecimalFormat df = new DecimalFormat("0.################E0####");
-      String[] strArr = df.format(res).split("E");
-      if (MAX == Math.abs(parseInt(strArr[1])) && new BigDecimal(strArr[0]).abs().compareTo(BigDecimal.ONE) <= 0) {
-        throw new ArithmeticException(Errors.OVERFLOW.getMsg());
-      }
-      if (MAX < Math.abs(parseInt(strArr[1]))) {
-        throw new ArithmeticException(Errors.OVERFLOW.getMsg());
-      }
+
+    if (checkMinNumbers(res)) {
+      throw new ArithmeticException(Errors.OVERFLOW.getMsg());
     }
+  }
+
+  private static boolean checkMinNumbers(BigDecimal num) {
+    return (num.compareTo(MIN_POSITIVE) <= 0 && num.compareTo(BigDecimal.ZERO) > 0) || (num.compareTo(MIN_NEGATIVE) >= 0 && num.compareTo(BigDecimal.ZERO) < 0);
   }
 
   /**

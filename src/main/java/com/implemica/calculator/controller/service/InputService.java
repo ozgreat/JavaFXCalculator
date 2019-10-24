@@ -1,5 +1,6 @@
 package com.implemica.calculator.controller.service;
 
+import com.implemica.calculator.controller.util.NumberFormatter;
 import com.implemica.calculator.model.CalculatorModel;
 import com.implemica.calculator.model.util.CalcState;
 import com.implemica.calculator.model.util.Operation;
@@ -8,11 +9,13 @@ import javafx.scene.control.Button;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.implemica.calculator.controller.util.NumberFormatter.appendString;
+import static com.implemica.calculator.controller.util.NumberFormatter.parse;
 
 public class InputService {
   /**
@@ -97,44 +100,46 @@ public class InputService {
    * @param display numbers in textArea
    * @return new numbers in textArea
    */
-  public String enterNumberOrComma(ActionEvent event, String display) {
+  public String enterNumberOrComma(ActionEvent event, String display) throws ParseException {
     Button btn = (Button) event.getSource();
     String value = btn.getText();
 
+    boolean isEditible = NumberFormatter.isTooBigToInput(display+value)
+        && (calc.getCalcState() == CalcState.LEFT || calc.getCalcState() == CalcState.RIGHT);
+    if(isEditible){
+      return display;
+    }
+
+
     if (value.equals(".")) {
-      if (display.contains(".")) {
-        return display;
-      } else {
-        if (CalcState.AFTER == calc.getCalcState()) {
-          calc.setCalcState(CalcState.LEFT);
-        } else if (CalcState.TRANSIENT == calc.getCalcState()) {
-          calc.setCalcState(CalcState.RIGHT);
-        }
-        return displayFormat(display + value);
+      if (calc.getCalcState() == CalcState.AFTER) {
+        calc.setCalcState(CalcState.LEFT);
+        display = "0";
+      } else if (calc.getCalcState() == CalcState.TRANSIENT) {
+        calc.setCalcState(CalcState.RIGHT);
+        display = "0";
       }
+
+      if (!display.contains(".")) {
+        display += ".";
+      }
+
+      return display;
     }
 
     if (calc.getCalcState() == CalcState.AFTER) {
       calc.setCalcState(CalcState.LEFT);
-      return displayFormat(value);
+      return NumberFormatter.format(new BigDecimal(value));
     } else if (calc.getCalcState() == CalcState.TRANSIENT) {
       calc.setCalcState(CalcState.RIGHT);
-      return displayFormat(value);
+      return NumberFormatter.format(new BigDecimal(value));
     }
 
-    if (display.length() == MAX_LENGTH) {
-      return displayFormat(display);
-    }
-
-
-    if (Character.isDigit(value.charAt(0))) {
-      return displayFormat(display + value);
-    }
-
-    return "";
+    return NumberFormatter.format(parse(appendString(display + value)));
   }
 
   /**
+   * 1
    * Set calcState to CalcState.AFTER to type new numbers like textArea is clear
    */
   public void clearDisplay() {
@@ -151,10 +156,9 @@ public class InputService {
    * @param display numbers in textArea
    * @return result of operation if two operands exists or display if not
    */
-  public String enterOperation(ActionEvent event, String display) throws ArithmeticException {
-    display = display.replaceAll(",", "");
+  public String enterOperation(ActionEvent event, String display) throws ArithmeticException, ParseException {
     Button btn = (Button) event.getSource();
-    return displayFormat(calc.doCalculate(formatOperation(btn.getText()), new BigDecimal(display)).toString());
+    return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), parse(display)));
   }
 
   /**
@@ -163,8 +167,8 @@ public class InputService {
    * @param right right operand typed in calc
    * @return result of binary operation
    */
-  public String enterEqual(String right) throws ArithmeticException {
-    return displayFormat(calc.doCalculate(new BigDecimal(right.replaceAll(",", ""))).toString());
+  public String enterEqual(String right) throws ArithmeticException, ParseException {
+    return NumberFormatter.format(calc.doCalculate(parse(right)));
   }
 
 
@@ -175,13 +179,10 @@ public class InputService {
    * @param display numbers in textArea
    * @return result of operation
    */
-  public String unaryOp(ActionEvent event, String display) throws ArithmeticException {
+  public String unaryOp(ActionEvent event, String display) throws ArithmeticException, ParseException {
     Button btn = (Button) event.getSource();
-    display = display.replaceAll(",", "");
-
-    String res = calc.doCalculate(formatOperation(btn.getText()), new BigDecimal(display)).toString();
-
-    return displayFormat(res);
+    BigDecimal res = calc.doCalculate(formatOperation(btn.getText()), parse(display));
+    return NumberFormatter.format(res);
   }
 
   /**
@@ -190,12 +191,11 @@ public class InputService {
    * @param right right operand typed in calc
    * @return result of percent operation
    */
-  public String percentOp(String right) {
-    right = right.replaceAll(",", "");
+  public String percentOp(String right) throws ParseException {
     if (calc.getOperation() == Operation.ADD || calc.getOperation() == Operation.SUBTRACT) {
-      return displayFormat(calc.doCalculate(Operation.PERCENT_ADD_SUBTRACT, new BigDecimal(right)).toString());
+      return NumberFormatter.format(calc.doCalculate(Operation.PERCENT_ADD_SUBTRACT, parse(right)));
     } else if (calc.getOperation() == Operation.DIVIDE || calc.getOperation() == Operation.MULTIPLY) {
-      return displayFormat(calc.doCalculate(Operation.PERCENT_MUL_DIVIDE, new BigDecimal(right)).toString());
+      return NumberFormatter.format(calc.doCalculate(Operation.PERCENT_MUL_DIVIDE, parse(right)));
     }
     return "0";
   }
@@ -224,7 +224,7 @@ public class InputService {
       calc.setCalcState(CalcState.LEFT);
     }
 
-    return displayFormat(calc.recallMemory().toString());
+    return NumberFormatter.format(calc.recallMemory());
   }
 
   /**
@@ -239,8 +239,8 @@ public class InputService {
    *
    * @param display text in display of calculator
    */
-  public void addToMemory(String display) {
-    calc.memoryAdd(new BigDecimal(display.replaceAll(",", "")));
+  public void addToMemory(String display) throws ParseException {
+    calc.memoryAdd(parse(display));
   }
 
   /**
@@ -248,104 +248,8 @@ public class InputService {
    *
    * @param display text in display of calculator
    */
-  public void subToMemory(String display) {
-    calc.memorySub(new BigDecimal(display.replaceAll(",", "")));
-  }
-
-  /**
-   * Format number to required form
-   *
-   * @param display number that we format
-   * @return formated number
-   */
-  public String displayFormat(String display) {
-    DecimalFormat df;
-
-    if (display.contains(",")) {
-      display = display.replaceAll(",", "");
-    }
-
-
-    BigDecimal big = new BigDecimal(display);
-    String displayBuf = CalculatorModel.getRounded16IfItsPossible(big).toPlainString();
-    int length = displayBuf.replace(".", "").replace("-", "").length();
-
-    if (length <= 16 && !display.contains(".")) {
-      if ((calc.getCalcState() == CalcState.TRANSIENT || calc.getCalcState() == CalcState.AFTER) && displayBuf.contains(".")) {
-        String[] displayArr = displayBuf.split("\\.");
-        String pattern = displayPattern.get(displayArr[0].length());
-        df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
-      } else {
-        df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
-      }
-
-      return df.format(big);
-    } else if (displayBuf.startsWith("0") && length >= 17 && length <= 18 && display.contains(".")) {
-      if (display.endsWith(".")) {
-        df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
-
-        return df.format(big) + ".";
-      }
-
-      String pattern = displayPattern.get(0);
-      if (calc.getCalcState() == CalcState.LEFT && pattern.contains(".")) {
-        pattern = getFracPattern(display, pattern);
-      }
-
-      df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
-
-      return df.format(big);
-    } else if (display.contains(".")) {
-      if (display.endsWith(".")) {
-        df = new DecimalFormat("#,##0", new DecimalFormatSymbols(Locale.ENGLISH));
-
-        return df.format(big) + ".";
-      } else if (display.startsWith("0") && display.length() < 17) {
-        return display;
-      } else if (display.startsWith("0") && display.length() >= 17) {
-        return display.substring(0, display.length() - 1);
-      }
-      String[] displayArr = displayBuf.split("\\.");
-      String pattern = displayPattern.get(displayArr[0].length());
-      if (pattern != null) {
-        if (calc.getCalcState() == CalcState.LEFT && pattern.contains(".") && !pattern.endsWith(".")) {
-          pattern = getFracPattern(display, pattern);
-        }
-        df = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.ENGLISH));
-
-        String res = df.format(big);
-        if (res.equals("-0")) {
-          res = "0";
-        }
-
-        return res;
-      }
-    }
-
-    if (display.contains("E")) {
-      BigDecimal tmp = new BigDecimal(display);
-      String tmpStr = tmp.toPlainString();
-      if (tmpStr.replace(".", "").replace("-", "").length() <= 16) {
-        display = tmpStr;
-        return displayFormat(display);
-      } else if (tmpStr.startsWith("0") && tmpStr.replace(".", "").length() <= 17) {
-        display = tmpStr;
-        return displayFormat(display);
-      } else {
-        return formatLong(tmp);
-      }
-    }
-
-    return formatLong(big);
-  }
-
-  private String getFracPattern(String display, String pattern) {
-    String[] patternArr = pattern.split("\\.");
-    for (int i = 0; i < (display.length() - display.indexOf(".") - 1); i++) {
-      patternArr[1] = patternArr[1].replaceFirst("#", "0");
-    }
-    pattern = patternArr[0] + "." + patternArr[1];
-    return pattern;
+  public void subToMemory(String display) throws ParseException {
+    calc.memorySub(parse(display));
   }
 
   /**
@@ -367,6 +271,10 @@ public class InputService {
    */
   public String highFormula(ActionEvent event, String oldFormula, String display) {
     Button btn = (Button) event.getSource();
+
+    if (display.endsWith(".")) {
+      display = display.substring(0, display.length() - 1);
+    }
 
     if (calc.getCalcState() == CalcState.TRANSIENT && oldFormula.isBlank()) {
       calc.setCalcState(CalcState.LEFT);
@@ -486,52 +394,6 @@ public class InputService {
 
     int min = index.indexOf(Collections.min(index));
     return formula.substring(index.get(min));
-  }
-
-  private String formatLongN(BigDecimal big) {
-    big = big.round(CalculatorModel.mc10K);
-    DecimalFormat df = new DecimalFormat("0.###############E0###", new DecimalFormatSymbols(Locale.ENGLISH));
-    String res = df.format(big);
-    if (!res.contains("E-")) {
-      res = res.replace("E", "E+");
-    }
-
-    if (!res.contains(".")) {
-      res = res.replace("E", ".E");
-    }
-
-    return res;
-  }
-
-  private String formatLong(BigDecimal big) {
-    String display = big.round(CalculatorModel.mc10K).toEngineeringString();
-    if (!display.contains("E")) {
-      display = formatLongN(big);
-    }
-    String[] displayArr = display.split("E");
-    displayArr[0] = CalculatorModel.getRounded16IfItsPossible(new BigDecimal(displayArr[0])).toString();
-
-    if (!displayArr[0].contains(".")) {
-      while (displayArr[0].endsWith("0")) {
-        displayArr[1] = incrementEPart(displayArr, displayArr[1]);
-      }
-      displayArr[0] += ".";
-    }
-
-    display = displayArr[0] + "E" + displayArr[1];
-
-    return display;
-  }
-
-  private String incrementEPart(String[] displayArr, String ePart) {
-    displayArr[0] = displayArr[0].substring(0, displayArr[0].length() - 1);
-    int lastNum = Integer.parseInt(ePart);
-
-    if (lastNum + 1 >= 0) {
-      return "+" + (lastNum + 1);
-    } else {
-      return String.valueOf(lastNum + 1);
-    }
   }
 
   private Operation formatOperation(String op) {

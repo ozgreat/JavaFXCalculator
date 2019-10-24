@@ -2,6 +2,9 @@ package com.implemica.calculator.model.util;
 
 import com.implemica.calculator.model.CalculatorModel;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -98,6 +101,8 @@ public class ModelTestUtil {
   protected void checkOperations(String pattern, String expected) {
     BigDecimal x = patternRun(pattern);
 
+
+//    System.out.println(x.toPlainString());
     assertEquals(0, x.compareTo(new BigDecimal(expected)));
   }
 
