@@ -6,7 +6,6 @@ import com.implemica.calculator.model.util.CalcState;
 import com.implemica.calculator.model.util.Operation;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -27,13 +26,9 @@ public class InputService {
   /**
    * Calculator model to do calculations
    */
-  @Getter //todo delete
   private CalculatorModel calc;
 
-  /**
-   * Maximum possible number length in calculator's display
-   */
-  private final static int MAX_LENGTH = 21;
+  private boolean isMemoryRecall = false;
 
   /**
    * Map of unicode symbols for binary operations
@@ -44,11 +39,6 @@ public class InputService {
    * Map of unicode symbols for unary operations
    */
   private final static Map<String, Operation> unaryOperationUnicode = new HashMap<>();
-
-  /**
-   * Possible patterns to DecimalFormat
-   */
-  private final static Map<Integer, String> displayPattern = new HashMap<>();
 
   static {
     binaryOperationUnicode.put("\uE948", Operation.ADD);
@@ -70,25 +60,6 @@ public class InputService {
     unaryOperationUnicode.put("sqr", Operation.POW);
     unaryOperationUnicode.put("√", Operation.SQRT);
     unaryOperationUnicode.put("1/", Operation.REVERSE);
-
-
-    displayPattern.put(0, "0.################");
-    displayPattern.put(1, "0.###############");
-    displayPattern.put(2, "#0.##############");
-    displayPattern.put(3, "##0.#############");
-    displayPattern.put(4, "#,##0.############");
-    displayPattern.put(5, "#,##0.###########");
-    displayPattern.put(6, "#,##0.##########");
-    displayPattern.put(7, "#,##0.#########");
-    displayPattern.put(8, "#,##0.########");
-    displayPattern.put(9, "#,##0.#######");
-    displayPattern.put(10, "#,##0.######");
-    displayPattern.put(11, "#,##0.#####");
-    displayPattern.put(12, "#,##0.####");
-    displayPattern.put(13, "#,##0.###");
-    displayPattern.put(14, "#,##0.##");
-    displayPattern.put(15, "#,##0.#");
-    displayPattern.put(16, "#,###.");
   }
 
   public InputService() {
@@ -104,9 +75,9 @@ public class InputService {
     Button btn = (Button) event.getSource();
     String value = btn.getText();
 
-    boolean isEditible = NumberFormatter.isTooBigToInput(display+value)
+    boolean isEditible = NumberFormatter.isTooBigToInput(display + value)
         && (calc.getCalcState() == CalcState.LEFT || calc.getCalcState() == CalcState.RIGHT);
-    if(isEditible){
+    if (isEditible) {
       return display;
     }
 
@@ -158,6 +129,12 @@ public class InputService {
    */
   public String enterOperation(ActionEvent event, String display) throws ArithmeticException, ParseException {
     Button btn = (Button) event.getSource();
+
+    if (isMemoryRecall) {
+      isMemoryRecall = false;
+      return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), calc.getMemory()));
+    }
+
     return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), parse(display)));
   }
 
@@ -168,6 +145,13 @@ public class InputService {
    * @return result of binary operation
    */
   public String enterEqual(String right) throws ArithmeticException, ParseException {
+    if (isMemoryRecall) {
+      isMemoryRecall = false;
+
+      return NumberFormatter.format(calc.doCalculate(calc.getMemory()));
+    }
+
+
     return NumberFormatter.format(calc.doCalculate(parse(right)));
   }
 
@@ -181,6 +165,17 @@ public class InputService {
    */
   public String unaryOp(ActionEvent event, String display) throws ArithmeticException, ParseException {
     Button btn = (Button) event.getSource();
+
+    if (isMemoryRecall) {
+      isMemoryRecall = false;
+      return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), calc.getMemory()));
+    }
+
+    if (calc.getCalcState() == CalcState.AFTER) {
+      return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText())));
+    }
+
+
     BigDecimal res = calc.doCalculate(formatOperation(btn.getText()), parse(display));
     return NumberFormatter.format(res);
   }
@@ -192,12 +187,19 @@ public class InputService {
    * @return result of percent operation
    */
   public String percentOp(String right) throws ParseException {
+    Operation op;
     if (calc.getOperation() == Operation.ADD || calc.getOperation() == Operation.SUBTRACT) {
-      return NumberFormatter.format(calc.doCalculate(Operation.PERCENT_ADD_SUBTRACT, parse(right)));
-    } else if (calc.getOperation() == Operation.DIVIDE || calc.getOperation() == Operation.MULTIPLY) {
-      return NumberFormatter.format(calc.doCalculate(Operation.PERCENT_MUL_DIVIDE, parse(right)));
+      op = Operation.PERCENT_ADD_SUBTRACT;
+    } else {
+      op = Operation.PERCENT_MUL_DIVIDE;
     }
-    return "0";
+
+    if (isMemoryRecall) {
+      isMemoryRecall = false;
+      return NumberFormatter.format(calc.doCalculate(op, calc.getMemory()));
+    }
+
+    return NumberFormatter.format(calc.doCalculate(op, parse(right)));
   }
 
 
@@ -223,6 +225,8 @@ public class InputService {
     } else if (calc.getCalcState() == CalcState.AFTER) {
       calc.setCalcState(CalcState.LEFT);
     }
+
+    isMemoryRecall = true;
 
     return NumberFormatter.format(calc.recallMemory());
   }

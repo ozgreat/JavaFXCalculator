@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -70,9 +71,9 @@ public class CalculatorModel {
 
   private static final BigDecimal MIN_DECIMAL = new BigDecimal("-1E10000");
 
-  private static final BigDecimal MIN_POSITIVE = new BigDecimal("1E-10000");
+  private static final BigDecimal MIN_POSITIVE = new BigDecimal("1E-9999");
 
-  private static final BigDecimal MIN_NEGATIVE = new BigDecimal("-1E-10000");
+  private static final BigDecimal MIN_NEGATIVE = new BigDecimal("-1E-9999");
 
   private static final int MAX_SCALE = 9999;
 
@@ -84,7 +85,9 @@ public class CalculatorModel {
     binaryOperations.put(MULTIPLY, BigDecimal::multiply);
     binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));
 
-    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));//⅟𝑥
+    unaryOperations.put(REVERSE, x -> {
+      return BigDecimal.ONE.divide(x, DIVIDE_SCALE, RoundingMode.HALF_UP);
+    });//⅟𝑥
     unaryOperations.put(POW, x -> x.pow(2));//𝑥²
     unaryOperations.put(NEGATE, BigDecimal::negate);//±
     unaryOperations.put(SQRT, x -> x.sqrt(SQRT_CONTEXT));
@@ -232,7 +235,7 @@ public class CalculatorModel {
   }
 
   private static boolean checkMinNumbers(BigDecimal num) {
-    return (num.compareTo(MIN_POSITIVE) <= 0 && num.compareTo(BigDecimal.ZERO) > 0) || (num.compareTo(MIN_NEGATIVE) >= 0 && num.compareTo(BigDecimal.ZERO) < 0);
+    return (num.compareTo(MIN_POSITIVE) < 0 && num.compareTo(BigDecimal.ZERO) > 0) || (num.compareTo(MIN_NEGATIVE) > 0 && num.compareTo(BigDecimal.ZERO) < 0);
   }
 
   /**

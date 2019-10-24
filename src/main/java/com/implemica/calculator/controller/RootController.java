@@ -189,7 +189,6 @@ public class RootController {
   /**
    * Service that connect controller with model
    */
-  @Getter //todo delete
   private InputService inputService;
 
   /**

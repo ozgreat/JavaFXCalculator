@@ -999,43 +999,44 @@ public class RootControllerTest extends ControllerTestUtils {
     memoryCheck("9999999999999999 MS M+ MR", "2.E+16");
   }
 
-  //  @Disabled
   @Test
   void boundaryTest() {
-    String maxPossibleIntegerPart = "1000000000000000*===================*================================*1000000000000000======*10=========*9=MS";
+    String big = "1000000000000000*===================*================================*1000000000000000======" +
+        "*10=========";
 
-    String maxPossibleFracPart = "0.0000000001*=========*=========*========MS C 0.0000000001*=========*========* MR = MS C 0.1*========* MR = MS C 0.0000000001*========* MR =";
+    String maxMinusOne = "1000000000000000*===================*================================*1000000000000000======" +
+        "*10=========-1=/1000000000000000============================================================================" +
+        "=============================================================================================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "========================================-50000000=*1000000000000000=========================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "==============================================================================================================" +
+        "==========================================================================*10+9=";
 
-    String maxPossibleFull = maxPossibleFracPart + "MS C" + maxPossibleIntegerPart;
+    String smallNumber = big + "R";
 
-    String smallNumber = "1000000000000000*===================*================================*1000000000000000======" +
-        "*10========= R *2 / 10=";
+    String maxPossibleFracPart = smallNumber + "± - 1 = ±";
 
-    //string for calculating number 1.e+9999
-    String oneDotEPlusFourNines = "1000000000^^^^^^^^^^*1000000000000000====================================================*10===";
+    String boundaryNumber = maxMinusOne + "MS C" + maxPossibleFracPart + "+ MR =";
 
-    //string for calculating number 1.e-9999
-    String theSmallestNumber = "0.000000001^^^^^^^^^^*0.0000000000000001================================================*0.000000000000001=";
+    checkOperations(boundaryNumber + "MS", "9.999999999999999E+9999");
 
-    //string for calculating number 999999999999999949999.....9.9999...9.8
-    //(16 nines, then digit 4, then 9983 nines, dot, and 9998 nines, and the last one digit is 8)
-    String boundaryNumber = oneDotEPlusFourNines + "*0.5=*0.1=============== MS /5=*10================- R ==- MR =*10=*0.1= MS C" + oneDotEPlusFourNines + "*9+ MR =";
+    checkErrorOp(smallNumber + "+MR=", "Overflow");
+    checkErrorOp("1+MR=", "Overflow");
+    checkErrorOp("2*MR=", "Overflow");
+    checkErrorOp("MR^", "Overflow");
 
+    checkOperations(smallNumber + "±+MR=", "9.999999999999999E+9999");
+    checkOperations("1±-MR=" , "9.999999999999999E+9999");
 
-//    checkOperations(maxPossibleIntegerPart, "");
-
-//    checkOperations(maxPossibleFracPart, "");
-
-//    checkErrorOp(maxPossibleFull, "");
-//    clicker(maxPossibleFull);
-//    checkOperations(smallNumber + "MS C" + maxPossibleIntegerPart + "* MR =", "");
-//    boundaryCheck(boundaryNumber + "MS C" + theSmallestNumber + "+ MR =", "");
-//    clicker(smallNumber);
-//    boundaryCheck(boundaryNumber, "");
-//    boundaryCheck(theSmallestNumber + "MS C" + boundaryNumber + "+ MR =", "");
-    boundaryCheck(smallNumber, "");
-//    boundaryCheck(maxPossibleIntegerPart,"");
-//    boundaryCheck(oneDotEPlusFourNines, "");
+    checkErrorOp(smallNumber + "± + MR ±=","Overflow");
+    checkErrorOp(smallNumber + "^","Overflow");
   }
 
   @Test
@@ -1218,7 +1219,24 @@ public class RootControllerTest extends ControllerTestUtils {
   }
 
   void checkErrorOp(String pattern, String res) {
-    checkErrorOp(pattern, "", res);
+    clicker(pattern);
+    FXTestUtils.awaitEvents();
+    FxAssert.verifyThat("#display", hasText(res));
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("+")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("-")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("*")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("/")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("√")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("^")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(hasText(".")).queryButton().isDisabled());
+    assertTrue(robot.from(robot.lookup(".numpad").queryAll()).lookup(operations.get("R")).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText("M")).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("M-"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("M+"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("MR"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("MS"))).queryButton().isDisabled());
+    assertTrue(robot.lookup(hasText(memoryOp.get("MC"))).queryButton().isDisabled());
+    clear();
   }
 
   void checkErrorOp(String pattern, String formula, String res) {
@@ -1246,15 +1264,6 @@ public class RootControllerTest extends ControllerTestUtils {
   void memoryCheck(String pattern, String res) {
     memoryCheck(pattern, "", res);
     clickOnMemory(memoryOp.get("MC"));
-  }
-
-  private void boundaryCheck(String pattern, String res) {
-    clicker(pattern);
-    FxAssert.verifyThat("#display", hasText("2.E+10000"));
-    System.out.println(controller.getInputService().getCalc().getLeftOperand().toPlainString());
-    System.out.println(controller.getInputService().getCalc().getRightOperand().toPlainString());
-    System.out.println(controller.getInputService().getCalc().getMemory().toPlainString());
-    clear();
   }
 
   void memoryCheck(String pattern, String formula, String res) {
