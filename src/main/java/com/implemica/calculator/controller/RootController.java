@@ -189,6 +189,7 @@ public class RootController {
   /**
    * Service that connect controller with model
    */
+  @Getter
   private InputService inputService;
 
   /**

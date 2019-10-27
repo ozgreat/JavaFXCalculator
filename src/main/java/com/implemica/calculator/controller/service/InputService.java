@@ -6,6 +6,7 @@ import com.implemica.calculator.model.util.CalcState;
 import com.implemica.calculator.model.util.Operation;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -26,6 +27,7 @@ public class InputService {
   /**
    * Calculator model to do calculations
    */
+  @Getter
   private CalculatorModel calc;
 
   private boolean isMemoryRecall = false;

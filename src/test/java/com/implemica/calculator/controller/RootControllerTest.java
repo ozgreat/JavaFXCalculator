@@ -1019,9 +1019,9 @@ public class RootControllerTest extends ControllerTestUtils {
         "==============================================================================================================" +
         "==========================================================================*10+9=";
 
-    String smallNumber = big + "R";
+    String smallNumber = big + "R + 0 =";
 
-    String maxPossibleFracPart = smallNumber + "± - 1 = ±";
+    String maxPossibleFracPart = smallNumber + "- 1 = ±";
 
     String boundaryNumber = maxMinusOne + "MS C" + maxPossibleFracPart + "+ MR =";
 
@@ -1032,11 +1032,11 @@ public class RootControllerTest extends ControllerTestUtils {
     checkErrorOp("2*MR=", "Overflow");
     checkErrorOp("MR^", "Overflow");
 
+    checkOperations(smallNumber + "± + 1 =", "1");
     checkOperations(smallNumber + "±+MR=", "9.999999999999999E+9999");
-    checkOperations("1±-MR=" , "9.999999999999999E+9999");
+    checkOperations("1±+MR=", "9.999999999999999E+9999");
 
-    checkErrorOp(smallNumber + "± + MR ±=","Overflow");
-    checkErrorOp(smallNumber + "^","Overflow");
+    checkErrorOp(smallNumber + "^", "Overflow");
   }
 
   @Test
@@ -1185,6 +1185,9 @@ public class RootControllerTest extends ControllerTestUtils {
   void checkOperations(String pattern, String res) {
     clicker(pattern);
     FxAssert.verifyThat("#display", hasText(res));
+//    System.out.println(controller.getInputService().getCalc().getOperation());
+//    System.out.println(controller.getInputService().getCalc().getLeftOperand());
+//    System.out.println(controller.getInputService().getCalc().getRightOperand());
     clear();
   }
 
