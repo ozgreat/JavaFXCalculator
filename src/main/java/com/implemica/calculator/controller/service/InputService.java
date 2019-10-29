@@ -7,6 +7,7 @@ import com.implemica.calculator.model.util.Operation;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -27,10 +28,15 @@ public class InputService {
   /**
    * Calculator model to do calculations
    */
-  @Getter
   private CalculatorModel calc;
 
+  @Getter
+  @Setter
   private boolean isMemoryRecall = false;
+
+  @Getter
+  @Setter
+  private boolean isBackspacePossible = true;
 
   /**
    * Map of unicode symbols for binary operations
@@ -120,6 +126,8 @@ public class InputService {
     calc.setOperation(null);
     calc.setLeftOperand(null);
     calc.setRightOperand(null);
+    isMemoryRecall = false;
+    isBackspacePossible = true;
   }
 
   /**
@@ -153,10 +161,10 @@ public class InputService {
       return NumberFormatter.format(calc.doCalculate(calc.getMemory()));
     }
 
+    isBackspacePossible = false;
 
     return NumberFormatter.format(calc.doCalculate(parse(right)));
   }
-
 
   /**
    * Typing the unary operation
@@ -172,6 +180,8 @@ public class InputService {
       isMemoryRecall = false;
       return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), calc.getMemory()));
     }
+
+    isBackspacePossible = false;
 
     if (calc.getCalcState() == CalcState.AFTER) {
       return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText())));
@@ -192,14 +202,18 @@ public class InputService {
     Operation op;
     if (calc.getOperation() == Operation.ADD || calc.getOperation() == Operation.SUBTRACT) {
       op = Operation.PERCENT_ADD_SUBTRACT;
-    } else {
+    } else if (calc.getOperation() == Operation.MULTIPLY || calc.getOperation() == Operation.DIVIDE) {
       op = Operation.PERCENT_MUL_DIVIDE;
+    } else {
+      return "0";
     }
 
     if (isMemoryRecall) {
       isMemoryRecall = false;
       return NumberFormatter.format(calc.doCalculate(op, calc.getMemory()));
     }
+
+    isBackspacePossible = false;
 
     return NumberFormatter.format(calc.doCalculate(op, parse(right)));
   }
@@ -264,7 +278,7 @@ public class InputService {
    * @return true if can(calcState is not AFTER), else false
    */
   public boolean isBackspaceAvailable() {
-    return calc.getCalcState() != CalcState.AFTER;
+    return calc.getCalcState() != CalcState.AFTER && isBackspacePossible;
   }
 
   /**

@@ -9,7 +9,6 @@ import java.text.ParseException;
 
 public class NumberFormatter {
 
-  private static String EXPONENT_SEP;
   private static String POSITIVE_EXPONENT_SEP = "E+";
   private static String DEFAULT_EXPONENT_SEP = "E";
   private static char DECIMAL_SEP = '.';
@@ -32,12 +31,8 @@ public class NumberFormatter {
     formatter.setParseBigDecimal(true);
   }
 
+
   public static String format(BigDecimal number) {
-    return format(number, true);
-  }
-
-
-  public static String format(BigDecimal number, boolean isGroup) {
     BigDecimal numberInWork;
 
     if (number.scale() == 0) {
@@ -77,28 +72,52 @@ public class NumberFormatter {
 
         pattern += DEFAULT_EXPONENT_SEP + "0";
       } else {
-        if(intPartSize < 0){
+        if (intPartSize < 0) {
           intPartSize = 0;
         }
         pattern = GROUP_PATTERN + "#".repeat(MAX_SYMBOLS - intPartSize);
-
-        /*StringBuilder patternBuilder = new StringBuilder(pattern);
-
-        for (int i = 0; i < MAX_SYMBOLS - intPartSize; i++) {
-          patternBuilder.appendString("#");
-        }
-
-        pattern = patternBuilder.toString();*/
       }
     }
 
-    formatter.applyPattern(pattern);
-    formatter.setGroupingUsed(isGroup);
+    //Experimental
+    /*if (number.compareTo(new BigDecimal(number.toBigInteger())) != 0) {
+      symbols.setExponentSeparator("." + EXPONENT_SEP);
+      formatter.setDecimalFormatSymbols(symbols);
+    }*/
 
-    return secondaryFormat(formatter.format(numberInWork), trailingZerosAmount, numberInWork.precision() - numberInWork.scale());
+    formatter.applyPattern(pattern);
+    formatter.setGroupingUsed(true);
+
+    String res = formatter.format(numberInWork);
+
+    if (res.contains(DEFAULT_EXPONENT_SEP) && !res.contains(String.valueOf(DECIMAL_SEP))) {
+      res = res.replace(DEFAULT_EXPONENT_SEP, DECIMAL_SEP + DEFAULT_EXPONENT_SEP);
+    }
+
+    if (res.endsWith(String.valueOf(DECIMAL_SEP))) {
+      res = res.substring(0, res.length() - 1);
+    }
+
+    int intPartSize = numberInWork.precision() - numberInWork.scale();
+    if (trailingZerosAmount != 0) {
+      if (trailingZerosAmount > (MAX_SYMBOLS - intPartSize)) {
+        trailingZerosAmount = MAX_SYMBOLS - intPartSize;
+      }
+
+      if (!res.contains(String.valueOf(DECIMAL_SEP))) {
+        res += DECIMAL_SEP;
+      }
+
+      if (trailingZerosAmount <= (MAX_SYMBOLS - intPartSize)) {
+        res += "0".repeat(trailingZerosAmount);
+      }
+    }
+
+    return res;
   }
 
   private static void setExponentSep(boolean isPositive) {
+    String EXPONENT_SEP;
     if (isPositive) {
       EXPONENT_SEP = POSITIVE_EXPONENT_SEP;
     } else {
@@ -114,36 +133,9 @@ public class NumberFormatter {
     return (BigDecimal) formatter.parse(str);
   }
 
-  private static String secondaryFormat(String number, int zeros, int intPartSize) {
-    if (number.matches("-?\\d" + DEFAULT_EXPONENT_SEP + "\\+?-?\\d+")) {
-      number = number.replace(DEFAULT_EXPONENT_SEP, DECIMAL_SEP + DEFAULT_EXPONENT_SEP);
-    }
-
-    if (number.endsWith(String.valueOf(DECIMAL_SEP))) {
-      number = number.substring(0, number.length() - 1);
-    }
-
-    if (zeros != 0) {
-      if(zeros > (MAX_SYMBOLS - intPartSize)){
-        zeros = MAX_SYMBOLS - intPartSize;
-      }
-
-      if (!number.contains(String.valueOf(DECIMAL_SEP))) {
-        number += DECIMAL_SEP;
-      }
-
-      if(zeros<=(MAX_SYMBOLS - intPartSize)) {
-        number += "0".repeat(zeros);
-      }
-    }
-
-    return number;
-  }
-
   public static String appendString(String number) {
     return number.replace(String.valueOf(GROUP_SEP), "");
   }
-
 
   public static boolean isTooBigToInput(String number) {
     number = appendString(number);

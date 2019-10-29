@@ -258,6 +258,9 @@ public class CalculatorModel {
     } else if (operation.getType() == OperationType.UNARY) {
       if (firstOperand == null) {
         if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
+          if(leftOperand == null){
+            leftOperand = BigDecimal.ZERO;
+          }
           firstOperand = leftOperand;
         } else {
           firstOperand = rightOperand;
@@ -265,9 +268,9 @@ public class CalculatorModel {
       }
       if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
         leftOperand = getUnaryOperationResult(operation, firstOperand);
-        if (operation != NEGATE) {
+        /*if (operation != NEGATE) {
           calcState = CalcState.TRANSIENT;
-        }
+        }*/
         return leftOperand;
       } else if (calcState == CalcState.RIGHT) {
         rightOperand = getUnaryOperationResult(operation, firstOperand);
@@ -377,12 +380,10 @@ public class CalculatorModel {
         rightOperand = firstOperand;
         if (calcState == CalcState.TRANSIENT) {
           calcState = CalcState.RIGHT;
-        } else if (calcState == CalcState.LEFT) {
+        } /*else if (calcState == CalcState.LEFT) {
           calcState = CalcState.TRANSIENT;
           leftOperand = rightOperand;
-        } else if (calcState == CalcState.RIGHT) {
-          calcState = CalcState.AFTER;
-        }
+        }*/
 
         return doCalculate(operation, leftOperand, rightOperand);
       } else {

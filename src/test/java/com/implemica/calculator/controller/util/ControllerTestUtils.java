@@ -98,10 +98,9 @@ public class ControllerTestUtils extends ApplicationTest {
 
 
     awtRobot.mouseMove(x, y);
+    FXTestUtils.awaitEvents();
     awtRobot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
     awtRobot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-
-
     FXTestUtils.awaitEvents();
   }
 
@@ -118,7 +117,7 @@ public class ControllerTestUtils extends ApplicationTest {
   }
 
   protected void clickOnMemory(String query) {
-    Node node = robot.lookup(query).queryButton();
+    Node node = robot.lookup(hasText(query)).queryButton();
 
     clickOn(node);
   }

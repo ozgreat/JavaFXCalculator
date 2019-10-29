@@ -86,16 +86,16 @@ public class RootControllerKeyboardTest extends RootControllerTest {
     }
   }
 
+
   @Test
   @Override
-  void memoryTest() {
-    super.memoryTest();
+  void boundaryTest() {
+    super.boundaryTest();
   }
 
   @Override
   protected void clear() {
     pressOn("C");
-    pressOn("MC");
   }
 
   @Override
@@ -110,6 +110,7 @@ public class RootControllerKeyboardTest extends RootControllerTest {
         handleDigit(s);
       }
     }
+    FXTestUtils.awaitEvents();
   }
 
 }

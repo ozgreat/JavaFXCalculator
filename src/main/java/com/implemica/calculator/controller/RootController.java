@@ -189,7 +189,6 @@ public class RootController {
   /**
    * Service that connect controller with model
    */
-  @Getter
   private InputService inputService;
 
   /**
@@ -212,6 +211,8 @@ public class RootController {
    * Index of last visible symbol in formulaStr on formula Label
    */
   private int formulaEndIndex;
+
+  private boolean isError = false;
 
   /**
    * Background of history pane
@@ -367,7 +368,7 @@ public class RootController {
    */
   @FXML
   public void addNumberOrDot(ActionEvent event) { // buttons 0-9 and '.'
-    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
+    if (isError) {
       setNormal();
     }
     try {
@@ -382,7 +383,7 @@ public class RootController {
    */
   @FXML
   public void clearAction() { //button C
-    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
+    if (isError) {
       setNormal();
     }
     display.setText("0");
@@ -398,10 +399,12 @@ public class RootController {
    */
   @FXML
   public void clearEntryAction() {
-    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
+    if (isError) {
       setNormal();
     }
     display.setText("0");
+    inputService.setMemoryRecall(false);
+    inputService.setBackspacePossible(true);
   }
 
   /**
@@ -424,31 +427,11 @@ public class RootController {
    */
   @FXML
   public void backspaceButtonAction() {
-    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
+    if (isError) {
       setNormal();
     } else if (display.getText().length() == 1 && inputService.isBackspaceAvailable()) {
       clearEntryAction();
     } else if (inputService.isBackspaceAvailable()) {
-      /*BigDecimal result;
-      int scale = 0;
-      try {
-        result = NumberFormatter.parse(display.getText());
-        scale = result.scale();
-
-        if (!display.getText().endsWith(".")) {
-          result = NumberFormatter.parse(display.getText().substring(0, display.getText().length() - 1));
-        }
-      } catch (ParseException e) {
-        result = null;
-        handleError(e.getMessage());
-      }
-
-
-      String value = NumberFormatter.format(result);
-
-      if (scale == 1) {
-        value += ".";
-      }*/
       String value;
       if (display.getText().endsWith(".")) {
         try {
@@ -484,7 +467,7 @@ public class RootController {
    */
   @FXML
   public void equalAction() {
-    if (InputService.EXCEPTION_MESSAGES.contains(display.getText())) {
+    if (isError) {
       setNormal();
     }
     formula.setText("");
@@ -702,6 +685,7 @@ public class RootController {
   }
 
   private void handleError(String msg) {
+    isError = true;
     display.setText(msg);
     Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
         multiplyButton, reverseButton, memoryClearButton, memoryMinusButton, memoryPlusButton, memoryRecallButton,
@@ -709,8 +693,7 @@ public class RootController {
   }
 
   private void setNormal() {
-    display.setText("0");
-    formula.setText("");
+    isError = false;
     clearAction();
 
     Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
