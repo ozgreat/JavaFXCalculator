@@ -1,7 +1,7 @@
 package com.implemica.calculator.model;
 
 import com.implemica.calculator.model.util.CalcState;
-import com.implemica.calculator.model.util.Errors;
+import com.implemica.calculator.model.util.ErrorsMessages;
 import com.implemica.calculator.model.util.Operation;
 import com.implemica.calculator.model.util.OperationType;
 import lombok.Getter;
@@ -17,6 +17,14 @@ import java.util.function.UnaryOperator;
 
 import static com.implemica.calculator.model.util.Operation.*;
 
+/**
+ * Model of calculator, calculate {@link BigDecimal} with operations like sqrt, divide, multiply, etc.
+ *
+ * @author ozgreat
+ * @see BigDecimal
+ * @see Operation
+ * @see CalcState
+ */
 @Getter
 @Setter
 public class CalculatorModel {
@@ -36,10 +44,13 @@ public class CalculatorModel {
   private BigDecimal memory;
 
   /**
-   * Operation, that user will be use
+   * {@link Operation}, that user will be use
    */
   private Operation operation;
 
+  /**
+   * {@link Operation}, that user before current
+   */
   private Operation prevOperation;
 
   /**
@@ -48,25 +59,25 @@ public class CalculatorModel {
   private CalcState calcState = CalcState.LEFT;
 
   /**
-   * Setting of precision for outer methods
-   */
-  public static final MathContext mc16 = new MathContext(16);
-
-  /**
-   * Maximum E degree
+   * Maximum scale of number
+   *
+   * @see BigDecimal
    */
   private static final int DIVIDE_SCALE = 10000;
 
   /**
-   * Map of binary operations
+   * {@link Map} of binary operations
    */
   private final static Map<Operation, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
 
   /**
-   * Map of unary operations
+   * {@link Map} of unary operations
    */
   private final static Map<Operation, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
+  /**
+   * First {@link BigDecimal} value, that bigger than one and can't be calculating
+   */
   private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
 
   private static final BigDecimal MIN_DECIMAL = new BigDecimal("-1E10000");
@@ -75,19 +86,18 @@ public class CalculatorModel {
 
   private static final BigDecimal MIN_NEGATIVE = new BigDecimal("-1E-9999");
 
-  private static final int MAX_SCALE = 9999;
-
   private static final MathContext SQRT_CONTEXT = new MathContext(10000);
 
   static {
     binaryOperations.put(ADD, BigDecimal::add);
-    binaryOperations.put(SUBTRACT, BigDecimal::subtract);
+    binaryOperations.put(SUBTRACT, (bigDecimal, subtrahend) -> bigDecimal.subtract(subtrahend));
     binaryOperations.put(MULTIPLY, BigDecimal::multiply);
-    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));
+    binaryOperations.put(DIVIDE, (left, right) -> {
+      BigDecimal res = left.divide(right, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP);
+      return res;
+    });
 
-    unaryOperations.put(REVERSE, x -> {
-      return BigDecimal.ONE.divide(x, DIVIDE_SCALE, RoundingMode.HALF_UP);
-    });//⅟𝑥
+    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, DIVIDE_SCALE, RoundingMode.HALF_UP));//⅟𝑥
     unaryOperations.put(POW, x -> x.pow(2));//𝑥²
     unaryOperations.put(NEGATE, BigDecimal::negate);//±
     unaryOperations.put(SQRT, x -> x.sqrt(SQRT_CONTEXT));
@@ -102,9 +112,9 @@ public class CalculatorModel {
   private BigDecimal getBinaryOperationResult() throws ArithmeticException {
     if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
       if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
-        throw new ArithmeticException(Errors.RESULT_IS_UNDEFINED.getMsg());
+        throw new ArithmeticException(ErrorsMessages.RESULT_IS_UNDEFINED.getMsg());
       }
-      throw new ArithmeticException(Errors.CANNOT_DIVIDE_BY_ZERO.getMsg());
+      throw new ArithmeticException(ErrorsMessages.CANNOT_DIVIDE_BY_ZERO.getMsg());
     }
 
     if (leftOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
@@ -112,6 +122,11 @@ public class CalculatorModel {
     }
 
     BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
+
+    if (res.compareTo(leftOperand) == 0 && operation == DIVIDE && rightOperand.compareTo(BigDecimal.ONE) != 0
+        && leftOperand.compareTo(MIN_POSITIVE) == 0) {
+      throw new ArithmeticException(ErrorsMessages.OVERFLOW.getMsg());
+    }
 
     checkOverflow(res);
     res = res.stripTrailingZeros();
@@ -127,9 +142,9 @@ public class CalculatorModel {
    */
   private BigDecimal getUnaryOperationResult(Operation op, BigDecimal number) throws ArithmeticException {
     if (number.equals(BigDecimal.ZERO) && op == REVERSE) {
-      throw new ArithmeticException(Errors.CANNOT_DIVIDE_BY_ZERO.getMsg());
+      throw new ArithmeticException(ErrorsMessages.CANNOT_DIVIDE_BY_ZERO.getMsg());
     } else if (number.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
-      throw new ArithmeticException(Errors.INVALID_INPUT.getMsg());
+      throw new ArithmeticException(ErrorsMessages.INVALID_INPUT.getMsg());
     }
 
 
@@ -161,10 +176,10 @@ public class CalculatorModel {
     return res.stripTrailingZeros();
   }
 
-  public BigDecimal getMemory() {
-    return memory;
-  }
-
+  /**
+   * Get memory and setup them as operand if have to
+   * @return memory value
+   */
   public BigDecimal recallMemory() {
     if (calcState == CalcState.LEFT) {
       leftOperand = memory;
@@ -174,6 +189,10 @@ public class CalculatorModel {
     return getMemory().stripTrailingZeros();
   }
 
+  /**
+   * Save number to memory
+   * @param num num to save
+   */
   public void memorySave(BigDecimal num) {
     if (calcState == CalcState.TRANSIENT) {
       memory = leftOperand;
@@ -224,13 +243,18 @@ public class CalculatorModel {
     }
   }
 
+  /**
+   * Check, that number don't too big or too small
+   * @param res number to check
+   * @throws ArithmeticException if res is too big or too small
+   */
   public static void checkOverflow(BigDecimal res) throws ArithmeticException {
     if (res.compareTo(MAX_DECIMAL) >= 0 || res.compareTo(MIN_DECIMAL) <= 0) {
-      throw new ArithmeticException(Errors.OVERFLOW.getMsg());
+      throw new ArithmeticException(ErrorsMessages.OVERFLOW.getMsg());
     }
 
     if (checkMinNumbers(res)) {
-      throw new ArithmeticException(Errors.OVERFLOW.getMsg());
+      throw new ArithmeticException(ErrorsMessages.OVERFLOW.getMsg());
     }
   }
 
@@ -258,7 +282,7 @@ public class CalculatorModel {
     } else if (operation.getType() == OperationType.UNARY) {
       if (firstOperand == null) {
         if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
-          if(leftOperand == null){
+          if (leftOperand == null) {
             leftOperand = BigDecimal.ZERO;
           }
           firstOperand = leftOperand;

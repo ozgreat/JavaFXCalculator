@@ -25,6 +25,11 @@ import javafx.stage.Window;
 
 import java.io.IOException;
 
+/**
+ * Launcher class of application. Set up stage from fxml,
+ * listeners and implement resize and move of window, closing
+ * and hiding of window.
+ */
 public class Root extends Application {
   private static final String ROOT_FXML_PATH = "layout/root.fxml";
   private static final String TITLE = "Calculator";
@@ -33,7 +38,7 @@ public class Root extends Application {
   private static final double FONT_CHANGE_WIDTH_UP = 50d;
   private static final double MAX_FONT_SIZE = 74d;
   private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
-  private static final double MIN_HEIGHT_DELTA = 468.75; // scene - text; debug
+  private static final double MIN_HEIGHT_DELTA = 468.75;
   private static final double MAX_HEIGHT_DELTA = 516.76;
   private static Root root;
 
@@ -64,6 +69,7 @@ public class Root extends Application {
 
 
   private Dimension2D minSize = new Dimension2D(325, 530);
+
 
   @Override
   public void start(Stage primaryStage) throws IOException {
@@ -161,6 +167,11 @@ public class Root extends Application {
     return loader;
   }
 
+  /**
+   * Return scene, if scene is null init, them
+   * @return scene
+   * @throws IOException if fxml not loaded
+   */
   public Scene getScene() throws IOException {
     if (scene == null) {
       initAll();

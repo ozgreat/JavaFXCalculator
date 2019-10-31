@@ -2,6 +2,7 @@ package com.implemica.calculator.controller;
 
 import com.implemica.calculator.controller.service.InputService;
 import com.implemica.calculator.controller.util.NumberFormatter;
+import com.implemica.calculator.model.util.ErrorsMessages;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +29,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+/**
+ * FX Controller for {@link com.implemica.calculator.view.Root}
+ *
+ * @see InputService
+ * @see com.implemica.calculator.view.Root
+ */
 public class RootController {
   /**
    * Label with number, display of calculator
@@ -686,7 +692,13 @@ public class RootController {
 
   private void handleError(String msg) {
     isError = true;
-    display.setText(msg);
+
+    if(ErrorsMessages.isMessageMatch(msg)) {
+      display.setText(msg);
+    }else{
+      display.setText("Something get wrong");
+    }
+
     Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
         multiplyButton, reverseButton, memoryClearButton, memoryMinusButton, memoryPlusButton, memoryRecallButton,
         memorySaveButton, memoryShow).collect(Collectors.toList()).forEach(button -> button.setDisable(true));
@@ -701,7 +713,6 @@ public class RootController {
         collect(Collectors.toList()).forEach(button -> button.setDisable(false));
 
     memoryDisableIfEmpty();
-
   }
 
   private void memoryDisableIfEmpty() {

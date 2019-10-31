@@ -98,7 +98,6 @@ public class ControllerTestUtils extends ApplicationTest {
 
 
     awtRobot.mouseMove(x, y);
-    FXTestUtils.awaitEvents();
     awtRobot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
     awtRobot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     FXTestUtils.awaitEvents();

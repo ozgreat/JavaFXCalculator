@@ -15,21 +15,30 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.implemica.calculator.controller.util.NumberFormatter.appendString;
+import static com.implemica.calculator.controller.util.NumberFormatter.removeGroupSeparator;
 import static com.implemica.calculator.controller.util.NumberFormatter.parse;
 
+/**
+ * Service class, that is bridge between {@link com.implemica.calculator.controller.RootController} and
+ * {@link CalculatorModel}. Calling from {@link com.implemica.calculator.controller.RootController} and
+ * transmit query from controller to model.
+ *
+ * @author ozreat
+ * @see com.implemica.calculator.controller.RootController
+ * @see CalculatorModel
+ * @see Operation
+ * @see CalcState
+ * @see NumberFormatter
+ */
 public class InputService {
-  /**
-   * List of possible exception messages to calculator display
-   */
-  public static final List<String> EXCEPTION_MESSAGES = Arrays.asList("Cannot divide by zero", "Overflow",
-      "Result is undefined", "Invalid input");
-
   /**
    * Calculator model to do calculations
    */
   private CalculatorModel calc;
 
+  /**
+   * Flag, that confirm status of number on display
+   */
   @Getter
   @Setter
   private boolean isMemoryRecall = false;
@@ -114,7 +123,7 @@ public class InputService {
       return NumberFormatter.format(new BigDecimal(value));
     }
 
-    return NumberFormatter.format(parse(appendString(display + value)));
+    return NumberFormatter.format(parse(removeGroupSeparator(display + value)));
   }
 
   /**
@@ -217,7 +226,6 @@ public class InputService {
 
     return NumberFormatter.format(calc.doCalculate(op, parse(right)));
   }
-
 
   /**
    * Save number from display to memory

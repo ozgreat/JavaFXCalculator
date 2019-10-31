@@ -2,6 +2,9 @@ package com.implemica.calculator.model.util;
 
 import lombok.Getter;
 
+/**
+ * Enum of possible operations
+ */
 public enum Operation {
   SQRT(OperationType.UNARY , "√"),
   POW(OperationType.UNARY, "sqr"),
@@ -23,6 +26,7 @@ public enum Operation {
 
   @Getter
   final private String symbol;
+
 
   Operation(OperationType type) {
     this.type = type;
