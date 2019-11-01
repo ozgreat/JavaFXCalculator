@@ -204,7 +204,9 @@ public class RootControllerKeyboardTest extends RootControllerMouseTest {
     checkOperations("99999999999999 + 1 =", "100,000,000,000,000");
     checkOperations("99999999999999 + 99999999999999 =", "199,999,999,999,998");
     checkOperations("100000000000000 + 99999999999999 =", "199,999,999,999,999");
+
     checkOperations("0.000000000000001+=",  "0.000000000000002");
+    checkOperations("0.000000000000001+==",  "0.000000000000003");
   }
 
   @Test
@@ -332,7 +334,9 @@ public class RootControllerKeyboardTest extends RootControllerMouseTest {
     checkOperations("100000000000000-1=", "99,999,999,999,999");
     checkOperations("99999999999999-99999999999999=", "0");
     checkOperations("100000000000000-99999999999999=", "1");
-    checkOperations("0.000000000000001-2=",  "-1.000000000000001");
+
+    checkOperations("0.000000000000001-2=",  "-1.999999999999999");
+    checkOperations("0.000000000000002 - 0.000000000000001=", "0.000000000000001");
   }
 
   @Test
@@ -460,7 +464,9 @@ public class RootControllerKeyboardTest extends RootControllerMouseTest {
     checkOperations("9999999999999999*1=", "9,999,999,999,999,999");
     checkOperations("9999999999999999*2=", "2.E+16");
     checkOperations("10000000000000*=", "1.E+26");
+
     checkOperations("0.000000000000001*2=",  "0.000000000000002");
+    checkOperations("0.000000000000001*=",  "1.E-30");
   }
 
   @Test
@@ -585,6 +591,9 @@ public class RootControllerKeyboardTest extends RootControllerMouseTest {
     checkOperations("9999999999999999/2=", "5,000,000,000,000,000");
     checkOperations("9999999999999999/2*2=", "9,999,999,999,999,999");
 
+    checkOperations("0.000000000000001/=", "1");
+    checkOperations("0.000000000000001/0.0000000000001=", "0.01");
+    checkOperations("1/0.000000000000001=","1,000,000,000,000,000");
   }
 
   @Test
@@ -628,6 +637,7 @@ public class RootControllerKeyboardTest extends RootControllerMouseTest {
     checkOperations("9999999999999999±", "-9,999,999,999,999,999");
     checkOperations("1000000000000000±", "-1,000,000,000,000,000");
     checkOperations("9999999999999999*2=±", "-2.E+16");
+    checkOperations("0.000000000000001±", "-0.000000000000001");
   }
 
   @Test
@@ -708,7 +718,7 @@ public class RootControllerKeyboardTest extends RootControllerMouseTest {
     checkOperations("3=6+", "6 +", "6");
     checkOperations("2=+", "2 +", "2");
 
-    checkOperations("5000000000000000 +", "5000000000000000 +", "500,0000,000,000,000");
+    checkOperations("5000000000000000=+", "5000000000000000 +", "5,000,000,000,000,000");
   }
 
   @Test

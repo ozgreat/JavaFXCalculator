@@ -1,6 +1,5 @@
 package com.implemica.calculator.model;
 
-import com.implemica.calculator.model.CalculatorModel;
 import com.implemica.calculator.model.util.Operation;
 
 import java.math.BigDecimal;
