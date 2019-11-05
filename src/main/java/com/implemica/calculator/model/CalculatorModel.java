@@ -1,12 +1,5 @@
 package com.implemica.calculator.model;
 
-import com.implemica.calculator.model.util.CalcState;
-import com.implemica.calculator.model.util.ErrorsMessages;
-import com.implemica.calculator.model.util.Operation;
-import com.implemica.calculator.model.util.OperationType;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -15,7 +8,7 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
-import static com.implemica.calculator.model.util.Operation.*;
+import static com.implemica.calculator.model.Operation.*;
 
 /**
  * Model of calculator, calculate {@link BigDecimal} with operations like sqrt, divide, multiply, etc.
@@ -23,10 +16,8 @@ import static com.implemica.calculator.model.util.Operation.*;
  * @author ozgreat
  * @see BigDecimal
  * @see Operation
- * @see CalcState
+ * @see CalculatorState
  */
-@Getter
-@Setter
 public class CalculatorModel {
   /**
    * Left operand of binary and percent operations
@@ -37,6 +28,35 @@ public class CalculatorModel {
    * Right operand of binary and percent operations
    */
   private BigDecimal rightOperand;
+
+  public void setLeftOperand(BigDecimal leftOperand) {
+    this.leftOperand = leftOperand;
+  }
+
+
+  public void setRightOperand(BigDecimal rightOperand) {
+    this.rightOperand = rightOperand;
+  }
+
+  public BigDecimal getMemory() {
+    return memory;
+  }
+
+  public Operation getOperation() {
+    return operation;
+  }
+
+  public void setOperation(Operation operation) {
+    this.operation = operation;
+  }
+
+  public CalculatorState getCalculatorState() {
+    return calculatorState;
+  }
+
+  public void setCalculatorState(CalculatorState calculatorState) {
+    this.calculatorState = calculatorState;
+  }
 
   /**
    * Memory cell in calculator
@@ -56,7 +76,7 @@ public class CalculatorModel {
   /**
    * Current state of calculator
    */
-  private CalcState calcState = CalcState.LEFT;
+  private CalculatorState calculatorState = CalculatorState.LEFT;
 
   /**
    * Maximum scale of number
@@ -90,12 +110,9 @@ public class CalculatorModel {
 
   static {
     binaryOperations.put(ADD, BigDecimal::add);
-    binaryOperations.put(SUBTRACT, (bigDecimal, subtrahend) -> bigDecimal.subtract(subtrahend));
+    binaryOperations.put(SUBTRACT, BigDecimal::subtract);
     binaryOperations.put(MULTIPLY, BigDecimal::multiply);
-    binaryOperations.put(DIVIDE, (left, right) -> {
-      BigDecimal res = left.divide(right, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP);
-      return res;
-    });
+    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, DIVIDE_SCALE, RoundingMode.HALF_UP));
 
     unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, DIVIDE_SCALE, RoundingMode.HALF_UP));//⅟𝑥
     unaryOperations.put(POW, x -> x.pow(2));//𝑥²
@@ -109,12 +126,12 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private BigDecimal getBinaryOperationResult() throws ArithmeticException {
+  private BigDecimal getBinaryOperationResult() throws CalculationException {
     if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
       if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
-        throw new ArithmeticException(ErrorsMessages.RESULT_IS_UNDEFINED.getMsg());
+        throw new ResultIsUndefinedException();
       }
-      throw new ArithmeticException(ErrorsMessages.CANNOT_DIVIDE_BY_ZERO.getMsg());
+      throw new CannotDivideByZeroException();
     }
 
     if (leftOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
@@ -125,7 +142,7 @@ public class CalculatorModel {
 
     if (res.compareTo(leftOperand) == 0 && operation == DIVIDE && rightOperand.compareTo(BigDecimal.ONE) != 0
         && leftOperand.compareTo(MIN_POSITIVE) == 0) {
-      throw new ArithmeticException(ErrorsMessages.OVERFLOW.getMsg());
+      throw new OverflowException();
     }
 
     checkOverflow(res);
@@ -140,11 +157,11 @@ public class CalculatorModel {
    * @param number number, that we calc
    * @return string with result of calculation
    */
-  private BigDecimal getUnaryOperationResult(Operation op, BigDecimal number) throws ArithmeticException {
+  private BigDecimal getUnaryOperationResult(Operation op, BigDecimal number) throws CalculationException {
     if (number.equals(BigDecimal.ZERO) && op == REVERSE) {
-      throw new ArithmeticException(ErrorsMessages.CANNOT_DIVIDE_BY_ZERO.getMsg());
+      throw new CannotDivideByZeroException();
     } else if (number.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
-      throw new ArithmeticException(ErrorsMessages.INVALID_INPUT.getMsg());
+      throw new InvalidInputException();
     }
 
 
@@ -159,14 +176,14 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private BigDecimal getPercentOperation(Operation operation) throws ArithmeticException {
+  private BigDecimal getPercentOperation(Operation operation) throws OverflowException {
     BigDecimal res = BigDecimal.ZERO;
 
     if (operation != null) {
       if ((operation == PERCENT_ADD_SUBTRACT) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
-        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP));
+        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, RoundingMode.HALF_UP));
       } else if (operation == PERCENT_MUL_DIVIDE) {
-        res = rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP);
+        res = rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, RoundingMode.HALF_UP);
       }
     }
 
@@ -178,12 +195,13 @@ public class CalculatorModel {
 
   /**
    * Get memory and setup them as operand if have to
+   *
    * @return memory value
    */
   public BigDecimal recallMemory() {
-    if (calcState == CalcState.LEFT) {
+    if (calculatorState == CalculatorState.LEFT) {
       leftOperand = memory;
-    } else if (calcState == CalcState.RIGHT) {
+    } else if (calculatorState == CalculatorState.RIGHT) {
       rightOperand = memory;
     }
     return getMemory().stripTrailingZeros();
@@ -191,18 +209,19 @@ public class CalculatorModel {
 
   /**
    * Save number to memory
+   *
    * @param num num to save
    */
   public void memorySave(BigDecimal num) {
-    if (calcState == CalcState.TRANSIENT) {
+    if (calculatorState == CalculatorState.TRANSIENT) {
       memory = leftOperand;
-    } else if (calcState == CalcState.AFTER) {
+    } else if (calculatorState == CalculatorState.AFTER) {
       if (leftOperand == null) {
         memory = BigDecimal.ZERO;
       } else {
         memory = leftOperand;
       }
-    } else if (calcState == CalcState.RIGHT || calcState == CalcState.LEFT) {
+    } else if (calculatorState == CalculatorState.RIGHT || calculatorState == CalculatorState.LEFT) {
       memory = num;
     }
   }
@@ -219,7 +238,7 @@ public class CalculatorModel {
    *
    * @param num number that we add
    */
-  public void memoryAdd(BigDecimal num) {
+  public void memoryAdd(BigDecimal num) throws OverflowException {
     if (memory != null) {
       checkOverflow(num);
       memory = memory.add(num);
@@ -233,7 +252,7 @@ public class CalculatorModel {
    *
    * @param num number that we subtract
    */
-  public void memorySub(BigDecimal num) {
+  public void memorySub(BigDecimal num) throws OverflowException {
     if (memory != null) {
       checkOverflow(num);
       memory = memory.subtract(num);
@@ -245,21 +264,23 @@ public class CalculatorModel {
 
   /**
    * Check, that number don't too big or too small
+   *
    * @param res number to check
    * @throws ArithmeticException if res is too big or too small
    */
-  public static void checkOverflow(BigDecimal res) throws ArithmeticException {
+  public static void checkOverflow(BigDecimal res) throws OverflowException {
     if (res.compareTo(MAX_DECIMAL) >= 0 || res.compareTo(MIN_DECIMAL) <= 0) {
-      throw new ArithmeticException(ErrorsMessages.OVERFLOW.getMsg());
+      throw new OverflowException();
     }
 
     if (checkMinNumbers(res)) {
-      throw new ArithmeticException(ErrorsMessages.OVERFLOW.getMsg());
+      throw new OverflowException();
     }
   }
 
   private static boolean checkMinNumbers(BigDecimal num) {
-    return (num.compareTo(MIN_POSITIVE) < 0 && num.compareTo(BigDecimal.ZERO) > 0) || (num.compareTo(MIN_NEGATIVE) > 0 && num.compareTo(BigDecimal.ZERO) < 0);
+    return (num.compareTo(MIN_POSITIVE) < 0 && num.compareTo(BigDecimal.ZERO) > 0)
+        || (num.compareTo(MIN_NEGATIVE) > 0 && num.compareTo(BigDecimal.ZERO) < 0);
   }
 
   /**
@@ -271,17 +292,17 @@ public class CalculatorModel {
    * @return result of calculation, that written at left or right operand field
    * @throws ArithmeticException If Overflow, Invalid input or Dividing by Zero
    */
-  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand, BigDecimal secondOperand) throws ArithmeticException {
+  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand, BigDecimal secondOperand) throws CalculationException {
     if (operation.getType() == OperationType.BINARY) {
       leftOperand = firstOperand;
       rightOperand = secondOperand;
       this.operation = operation;
-      calcState = CalcState.AFTER;
+      calculatorState = CalculatorState.AFTER;
       leftOperand = getBinaryOperationResult();
       return leftOperand;
     } else if (operation.getType() == OperationType.UNARY) {
       if (firstOperand == null) {
-        if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
+        if (calculatorState == CalculatorState.AFTER || calculatorState == CalculatorState.LEFT) {
           if (leftOperand == null) {
             leftOperand = BigDecimal.ZERO;
           }
@@ -290,16 +311,16 @@ public class CalculatorModel {
           firstOperand = rightOperand;
         }
       }
-      if (calcState == CalcState.AFTER || calcState == CalcState.LEFT) {
+      if (calculatorState == CalculatorState.AFTER || calculatorState == CalculatorState.LEFT) {
         leftOperand = getUnaryOperationResult(operation, firstOperand);
         /*if (operation != NEGATE) {
-          calcState = CalcState.TRANSIENT;
+          calculatorState = CalculatorState.TRANSIENT;
         }*/
         return leftOperand;
-      } else if (calcState == CalcState.RIGHT) {
+      } else if (calculatorState == CalculatorState.RIGHT) {
         rightOperand = getUnaryOperationResult(operation, firstOperand);
         return rightOperand;
-      } else if (calcState == CalcState.TRANSIENT) {
+      } else if (calculatorState == CalculatorState.TRANSIENT) {
         if (firstOperand == null) {
           firstOperand = leftOperand;
         }
@@ -323,18 +344,18 @@ public class CalculatorModel {
    * @param firstOperand first operand of calculation
    * @return result of calculation, that written at left or right operand field or firstOperand
    */
-  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand) {
+  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand) throws CalculationException {
     if (operation == null) {
       if (leftOperand != null && this.operation != null) {
-        if (calcState == CalcState.TRANSIENT && this.operation == DIVIDE && rightOperand != null && !firstOperand.equals(rightOperand)) {
+        if (calculatorState == CalculatorState.TRANSIENT && this.operation == DIVIDE && rightOperand != null && !firstOperand.equals(rightOperand)) {
           rightOperand = leftOperand;
-        } else if (calcState != CalcState.AFTER) {
+        } else if (calculatorState != CalculatorState.AFTER) {
           rightOperand = firstOperand;
         }
 
         if (this.operation.getType() == OperationType.BINARY) {
           leftOperand = getBinaryOperationResult();
-          calcState = CalcState.AFTER;
+          calculatorState = CalculatorState.AFTER;
           return leftOperand;
         } else if (this.operation.getType() == OperationType.PERCENT) {
           rightOperand = firstOperand;
@@ -346,20 +367,20 @@ public class CalculatorModel {
         return leftOperand;
       } else if (leftOperand == null) {
         leftOperand = firstOperand;
-        calcState = CalcState.AFTER;
+        calculatorState = CalculatorState.AFTER;
         return leftOperand;
       } else if (rightOperand == null) {
         rightOperand = firstOperand;
-        calcState = CalcState.RIGHT;
+        calculatorState = CalculatorState.RIGHT;
         return rightOperand;
       } else {
-        calcState = CalcState.AFTER;
+        calculatorState = CalculatorState.AFTER;
         return firstOperand;
       }
     } else if (operation.getType() == OperationType.BINARY) {
-      if (calcState == CalcState.LEFT) {
+      if (calculatorState == CalculatorState.LEFT) {
         leftOperand = firstOperand;
-        calcState = CalcState.TRANSIENT;
+        calculatorState = CalculatorState.TRANSIENT;
         this.operation = operation;
 
         if (rightOperand == null) {
@@ -367,14 +388,14 @@ public class CalculatorModel {
         }
 
         return leftOperand;
-      } else if (calcState == CalcState.RIGHT) {
+      } else if (calculatorState == CalculatorState.RIGHT) {
         rightOperand = firstOperand;
         leftOperand = doCalculate(this.operation, leftOperand, firstOperand);
         this.operation = operation;
-        calcState = CalcState.TRANSIENT;
+        calculatorState = CalculatorState.TRANSIENT;
         return leftOperand;
-      } else if (calcState == CalcState.AFTER) {
-        calcState = CalcState.TRANSIENT;
+      } else if (calculatorState == CalculatorState.AFTER) {
+        calculatorState = CalculatorState.TRANSIENT;
 
         if (leftOperand == null) {
           leftOperand = firstOperand;
@@ -383,7 +404,7 @@ public class CalculatorModel {
         this.operation = operation;
 
         return firstOperand;
-      } else if (calcState == CalcState.TRANSIENT) {
+      } else if (calculatorState == CalculatorState.TRANSIENT) {
         this.operation = operation;
 
         return firstOperand;
@@ -402,10 +423,10 @@ public class CalculatorModel {
       }
       if (leftOperand != null) {
         rightOperand = firstOperand;
-        if (calcState == CalcState.TRANSIENT) {
-          calcState = CalcState.RIGHT;
-        } /*else if (calcState == CalcState.LEFT) {
-          calcState = CalcState.TRANSIENT;
+        if (calculatorState == CalculatorState.TRANSIENT) {
+          calculatorState = CalculatorState.RIGHT;
+        } /*else if (calculatorState == CalculatorState.LEFT) {
+          calculatorState = CalculatorState.TRANSIENT;
           leftOperand = rightOperand;
         }*/
 
@@ -415,7 +436,7 @@ public class CalculatorModel {
       }
     } else if (operation.getType() == OperationType.MEMORY) {
       if (firstOperand == null) {
-        if (calcState == CalcState.RIGHT) {
+        if (calculatorState == CalculatorState.RIGHT) {
           firstOperand = rightOperand;
         } else {
           firstOperand = leftOperand;
@@ -429,7 +450,7 @@ public class CalculatorModel {
       } else if (operation == MEMORY_CLEAR) {
         clearMemory();
       } else {
-        setMemory(firstOperand);
+        memory = firstOperand;
       }
       return memory;
     }
@@ -442,11 +463,17 @@ public class CalculatorModel {
    * @param firstOperand operand that we add to calculation
    * @return result of calculation
    */
-  public BigDecimal doCalculate(BigDecimal firstOperand) {
+  public BigDecimal doCalculate(BigDecimal firstOperand) throws CalculationException {
     return doCalculate(null, firstOperand);
   }
 
-  public BigDecimal doCalculate(Operation operation) {
+  /**
+   * Use if want to set operation and calculate if we need it because of current {@link CalculatorState}
+   *
+   * @param operation {@link Operation} that we set
+   * @return result of calculation
+   */
+  public BigDecimal doCalculate(Operation operation) throws CalculationException {
     return doCalculate(operation, null);
   }
 }

@@ -31,9 +31,9 @@ import java.io.IOException;
  * and hiding of window.
  */
 public class Root extends Application {
-  private static final String ROOT_FXML_PATH = "layout/root.fxml";
+  private static final String ROOT_FXML_PATH = "com/implemica/calculator/view/root.fxml";
   private static final String TITLE = "Calculator";
-  private static final String ICON_PATH = "/icons/icon.png";
+  private static final String ICON_PATH = "/com/implemica/calculator/view/icon.png";
   private static final double FONT_CHANGE_WIDTH_DOWN = 34.98;
   private static final double FONT_CHANGE_WIDTH_UP = 50d;
   private static final double MAX_FONT_SIZE = 74d;

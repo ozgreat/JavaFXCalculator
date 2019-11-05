@@ -1,8 +1,6 @@
 package com.implemica.calculator.controller;
 
-import com.implemica.calculator.controller.service.InputService;
-import com.implemica.calculator.controller.util.NumberFormatter;
-import com.implemica.calculator.model.util.ErrorsMessages;
+import com.implemica.calculator.model.CalculationException;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,7 +16,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -205,7 +202,6 @@ public class RootController {
   /**
    * String, that contains full history of operations before equals
    */
-  @Getter
   private String formulaStr;
 
   /**
@@ -380,7 +376,7 @@ public class RootController {
     try {
       display.setText(inputService.enterNumberOrComma(event, display.getText()));
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
   }
 
@@ -424,7 +420,7 @@ public class RootController {
     try {
       display.setText(inputService.enterOperation(event, display.getText()));
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
   }
 
@@ -438,7 +434,7 @@ public class RootController {
     } else if (display.getText().length() == 1 && inputService.isBackspaceAvailable()) {
       clearEntryAction();
     } else if (inputService.isBackspaceAvailable()) {
-      String value;
+      String value = display.getText();
       if (display.getText().endsWith(".")) {
         try {
           BigDecimal result = NumberFormatter.parse(display.getText());
@@ -448,8 +444,7 @@ public class RootController {
             value += ".";
           }
         } catch (Throwable e) {
-          value = e.getMessage();
-          handleError(e.getMessage());
+          handleError(e);
         }
       } else if (display.getText().contains(".")) {
         String[] displayArr = display.getText().split("\\.");
@@ -459,8 +454,7 @@ public class RootController {
           BigDecimal result = NumberFormatter.parse(display.getText().substring(0, display.getText().length() - 1));
           value = NumberFormatter.format(result);
         } catch (Throwable e) {
-          value = e.getMessage();
-          handleError(e.getMessage());
+          handleError(e);
         }
       }
 
@@ -484,7 +478,7 @@ public class RootController {
       String value = inputService.enterEqual(display.getText());
       display.setText(value);
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
   }
 
@@ -500,7 +494,7 @@ public class RootController {
       String value = inputService.unaryOp(ae, display.getText());
       display.setText(value);
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
   }
 
@@ -515,7 +509,7 @@ public class RootController {
     try {
       value = inputService.percentOp(display.getText());
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
     display.setText(value);
     formulaCalc(ae);
@@ -536,7 +530,11 @@ public class RootController {
   @FXML
   public void memoryRecallAction() {
     if (!inputService.isMemoryEmpty()) {
-      display.setText(inputService.recallFromMemory());
+      try {
+        display.setText(inputService.recallFromMemory());
+      } catch (Throwable e) {
+        handleError(e);
+      }
     }
   }
 
@@ -557,7 +555,7 @@ public class RootController {
     try {
       inputService.addToMemory(display.getText());
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
     memoryDisableIfEmpty();
   }
@@ -570,7 +568,7 @@ public class RootController {
     try {
       inputService.subToMemory(display.getText());
     } catch (Throwable e) {
-      handleError(e.getMessage());
+      handleError(e);
     }
     memoryDisableIfEmpty();
   }
@@ -690,13 +688,14 @@ public class RootController {
     formula.setText(text.getText());
   }
 
-  private void handleError(String msg) {
+  private void handleError(Throwable throwable) {
     isError = true;
 
-    if(ErrorsMessages.isMessageMatch(msg)) {
-      display.setText(msg);
-    }else{
+    if (throwable instanceof CalculationException) {
+      display.setText(throwable.getMessage());
+    } else {
       display.setText("Something get wrong");
+      throwable.printStackTrace();
     }
 
     Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
@@ -727,5 +726,9 @@ public class RootController {
       memoryRecallButton.setDisable(false);
       memoryShow.setDisable(false);
     }
+  }
+
+  public String getFormulaStr() {
+    return formulaStr;
   }
 }

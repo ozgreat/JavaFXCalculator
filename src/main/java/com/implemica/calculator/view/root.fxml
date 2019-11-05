@@ -1,0 +1,905 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<BorderPane fx:id="bp" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="530.0"
+            minWidth="325.0" onKeyPressed="#keyPressProcess" styleClass="mainBorderPane" stylesheets="@root.css"
+            xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.implemica.calculator.controller.RootController">
+  <center>
+    <AnchorPane prefHeight="450.0" prefWidth="323.0">
+      <children>
+        <GridPane layoutX="4.0" layoutY="2.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0"
+                  AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0">
+          <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+          </columnConstraints>
+          <rowConstraints>
+            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="146.0" vgrow="ALWAYS"/>
+            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="371.0" vgrow="ALWAYS"/>
+          </rowConstraints>
+          <children>
+            <AnchorPane prefHeight="124.0" prefWidth="123.0">
+              <children>
+                <AnchorPane layoutX="1.0" layoutY="-5.0" maxHeight="1.7976931348623157E308"
+                            maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="320.0" prefHeight="150.0"
+                            prefWidth="323.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <children>
+                    <Button id="sideMenuButton" layoutY="-3.0" mnemonicParsing="false" onMouseClicked="#openSideBar"
+                            prefHeight="34.0" prefWidth="40.0" text="" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.topAnchor="5.0">
+                      <font>
+                        <Font name="Segoe MDL2 Assets" size="15.0"/>
+                      </font>
+                      <cursor>
+                        <Cursor fx:constant="DEFAULT"/>
+                      </cursor>
+                    </Button>
+                    <Label id="standard" fx:id="standardLabel" layoutX="40.0" layoutY="-1.0" prefHeight="30.0"
+                           prefWidth="80.0" text="Standard" AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="7.0">
+                      <font>
+                        <Font name="Segoe MDL2 Assets" size="16.0"/>
+                      </font>
+                    </Label>
+                    <Label id="formula" fx:id="formula" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="10.0"
+                           layoutY="51.0" prefHeight="5.0" prefWidth="303.0" textAlignment="RIGHT" textOverrun="CLIP"
+                           AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="16.0"/>
+                    <Label id="display" fx:id="display" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="5.0"
+                           layoutY="56.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                           minHeight="-Infinity" minWidth="308.0" prefHeight="57.0" prefWidth="313.0" text="0"
+                           textAlignment="RIGHT" wrapText="true" AnchorPane.bottomAnchor="37.0"
+                           AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="56.0">
+                      <font>
+                        <Font name="Segoe MDL2 Assets" size="15.0"/>
+                      </font>
+                      <rotationAxis>
+                        <Point3D/>
+                      </rotationAxis>
+                      <padding>
+                        <Insets right="3.0"/>
+                      </padding>
+                    </Label>
+                    <Button id="history" fx:id="openHistory" layoutX="275.0" layoutY="-3.0" mnemonicParsing="false"
+                            onAction="#historyAction" prefHeight="40.0" prefWidth="43.0" text="" textOverrun="CLIP"
+                            AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
+                      <font>
+                        <Font name="Segoe MDL2 Assets" size="12.0"/>
+                      </font>
+                      <cursor>
+                        <Cursor fx:constant="DEFAULT"/>
+                      </cursor>
+                    </Button>
+                    <Button fx:id="leftFormulaButton" alignment="CENTER" contentDisplay="CENTER" ellipsisString=""
+                            graphicTextGap="0.0" layoutX="8.0" layoutY="48.0" mnemonicParsing="false"
+                            onAction="#leftFormulaButtonAction" pickOnBounds="false" prefHeight="10.0" prefWidth="10.0"
+                            styleClass="moveFormulaButton" textAlignment="JUSTIFY" textOverrun="CLIP" visible="false"
+                            wrapText="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="48.0">
+                      <font>
+                        <Font size="11.0"/>
+                      </font>
+                      <cursor>
+                        <Cursor fx:constant="DEFAULT"/>
+                      </cursor>
+                      <graphic>
+                        <Label styleClass="moveFormulaButton" text="" textAlignment="JUSTIFY" textOverrun="CLIP"
+                               wrapText="true">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="8.0"/>
+                          </font>
+                        </Label>
+                      </graphic>
+                    </Button>
+                    <Button fx:id="rightFormulaButton" ellipsisString="&gt;" graphicTextGap="0.0" layoutX="294.0"
+                            layoutY="76.0" mnemonicParsing="false" onAction="#rightFormulaButtonAction"
+                            prefHeight="10.0" prefWidth="10.0" styleClass="moveFormulaButton" textAlignment="JUSTIFY"
+                            textOverrun="CLIP" visible="false" wrapText="true" AnchorPane.rightAnchor="0.0"
+                            AnchorPane.topAnchor="46.0">
+                      <font>
+                        <Font size="11.0"/>
+                      </font>
+                      <graphic>
+                        <Label styleClass="moveFormulaButton" text="" textAlignment="JUSTIFY" textOverrun="CLIP"
+                               wrapText="true">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="8.0"/>
+                          </font>
+                        </Label>
+                      </graphic>
+                    </Button>
+                  </children>
+                </AnchorPane>
+                <AnchorPane fx:id="historyUpperPane" layoutY="-2.0" maxHeight="1.7976931348623157E308"
+                            maxWidth="1.7976931348623157E308" onMouseClicked="#historyAction" prefHeight="153.0"
+                            prefWidth="325.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+              </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="391.0" prefWidth="323.0" GridPane.rowIndex="1">
+              <children>
+                <AnchorPane layoutX="6.0" layoutY="1.0" prefHeight="336.0" prefWidth="323.0"
+                            AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0"
+                            AnchorPane.topAnchor="0.0">
+                  <children>
+                    <GridPane id="numpad" layoutY="31.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0"
+                              prefWidth="317.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+                      <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0"
+                                           prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0"
+                                           prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0"
+                                           prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0"
+                                           prefWidth="100.0"/>
+                      </columnConstraints>
+                      <rowConstraints>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS"/>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS"/>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS"/>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS"/>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS"/>
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS"/>
+                      </rowConstraints>
+                      <children>
+                        <Button fx:id="percentButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#percentAction"
+                                prefHeight="60.0" prefWidth="80.0" text="" GridPane.hgrow="ALWAYS"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button id="sqrt" fx:id="sqrtButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" styleClass="numpad"
+                                text="" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="powButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#unaryOperationAction" prefHeight="60.0"
+                                prefWidth="76.0" text="𝑥²" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="ex"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="reverseButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text="⅟𝑥"
+                                GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="ex"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#clearEntryAction" prefHeight="60.0" prefWidth="80.0"
+                                text="CE" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="clearButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#clearAction" prefHeight="60.0" prefWidth="80.0"
+                                text="C" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#backspaceButtonAction" prefHeight="60.0"
+                                prefWidth="80.0" text="" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS"
+                                GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="divideButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text=""
+                                GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="arithmeticButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="7" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="8" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="9" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="multiplyButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text=""
+                                GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="arithmeticButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="fiveButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="5" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="6" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="subtractButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#operationButtonAction" prefHeight="60.0" prefWidth="80.0" text=""
+                                GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="arithmeticButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="2" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="3" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="addButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#operationButtonAction" prefHeight="60.0"
+                                prefWidth="80.0" text="" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS"
+                                GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="arithmeticButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="negateButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#unaryOperationAction" prefHeight="60.0" prefWidth="80.0" text=""
+                                GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="secondaryButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#addNumberOrDot" prefHeight="60.0" prefWidth="80.0"
+                                text="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="digitButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button id="point" fx:id="pointButton" maxHeight="1.7976931348623157E308"
+                                maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addNumberOrDot"
+                                prefHeight="60.0" prefWidth="80.0" text="." GridPane.columnIndex="2"
+                                GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="numpad"/>
+                            <String fx:value="secondaryButton"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                mnemonicParsing="false" onAction="#equalAction" prefHeight="60.0" prefWidth="80.0"
+                                text="" GridPane.columnIndex="3" GridPane.columnSpan="2147483647"
+                                GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.rowSpan="2147483647"
+                                GridPane.vgrow="ALWAYS">
+                          <font>
+                            <Font name="Segoe MDL2 Assets" size="15.0"/>
+                          </font>
+                          <styleClass>
+                            <String fx:value="arithmeticButton"/>
+                            <String fx:value="numpad"/>
+                          </styleClass>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                      </children>
+                      <cursor>
+                        <Cursor fx:constant="DEFAULT"/>
+                      </cursor>
+                    </GridPane>
+                    <ButtonBar buttonMinWidth="20.0" layoutX="-6.0" layoutY="-1.0" maxWidth="450.0" prefHeight="30.0"
+                               prefWidth="316.0" AnchorPane.leftAnchor="-14.0" AnchorPane.topAnchor="0.0">
+                      <buttons>
+                        <Button fx:id="memoryClearButton" disable="true" maxHeight="-Infinity" maxWidth="-Infinity"
+                                minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
+                                onAction="#memoryClearAction" prefHeight="30.0" prefWidth="141415.0"
+                                styleClass="memoryButton" text="MC">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="14.0"/>
+                          </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="memoryRecallButton" disable="true" mnemonicParsing="false"
+                                onAction="#memoryRecallAction" styleClass="memoryButton" text="MR">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="14.0"/>
+                          </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="memoryPlusButton" mnemonicParsing="false" onAction="#memoryPlusAction"
+                                styleClass="memoryButton" text="M+">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="14.0"/>
+                          </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="memoryMinusButton" mnemonicParsing="false" onAction="#memoryMinusAction"
+                                styleClass="memoryButton" text="M-">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="14.0"/>
+                          </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="memorySaveButton" mnemonicParsing="false" onAction="#memorySaveAction"
+                                styleClass="memoryButton" text="MS">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="14.0"/>
+                          </font>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                        <Button fx:id="memoryShow" alignment="CENTER" contentDisplay="CENTER" disable="true"
+                                mnemonicParsing="false" onAction="#memoryShowAction" prefHeight="12.0" prefWidth="12.0"
+                                styleClass="memoryButton" text="M" wrapText="true">
+                          <font>
+                            <Font name="Calculator MDL2 Assets" size="14.0"/>
+                          </font>
+                          <graphic>
+                            <Label alignment="TOP_RIGHT" contentDisplay="CENTER" prefHeight="13.0" prefWidth="26.0"
+                                   text="" textAlignment="RIGHT">
+                              <font>
+                                <Font name="Segoe MDL2 Assets" size="6.0"/>
+                              </font>
+                              <opaqueInsets>
+                                <Insets/>
+                              </opaqueInsets>
+                            </Label>
+                          </graphic>
+                          <cursor>
+                            <Cursor fx:constant="DEFAULT"/>
+                          </cursor>
+                        </Button>
+                      </buttons>
+                    </ButtonBar>
+                  </children>
+                </AnchorPane>
+                <AnchorPane fx:id="historyPane" disable="true" layoutY="31.0" maxHeight="1.7976931348623157E308"
+                            maxWidth="1.7976931348623157E308" prefHeight="305.0" prefWidth="323.0"
+                            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                            AnchorPane.topAnchor="31.0">
+                  <children>
+                    <Label id="historyLabel" fx:id="historyLabel" prefHeight="42.0" prefWidth="320.0"
+                           text="There's no history yet" visible="false">
+                      <padding>
+                        <Insets left="3.0"/>
+                      </padding>
+                    </Label>
+                  </children>
+                </AnchorPane>
+              </children>
+            </AnchorPane>
+          </children>
+        </GridPane>
+        <BorderPane fx:id="sideMenuBorderPane" layoutX="1.0" layoutY="43.0" prefHeight="450.0" prefWidth="269.0"
+                    styleClass="sideMenuBorderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-272.0"
+                    AnchorPane.topAnchor="43.0">
+          <bottom>
+            <AnchorPane prefHeight="56.0" prefWidth="270.0" BorderPane.alignment="CENTER">
+              <children>
+                <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="46.0" prefWidth="270.0"
+                        text="About" AnchorPane.bottomAnchor="10.0" AnchorPane.topAnchor="10.0">
+                  <styleClass>
+                    <String fx:value="numpad"/>
+                    <String fx:value="sideMenuButton"/>
+                    <String fx:value="sideMenuButtonText"/>
+                  </styleClass>
+                  <graphic>
+                    <Label styleClass="sideMenuButton" text=""/>
+                  </graphic>
+                </Button>
+              </children>
+            </AnchorPane>
+          </bottom>
+          <center>
+            <ScrollPane hbarPolicy="NEVER" prefHeight="487.0" prefWidth="270.0" styleClass="sideMenuBorderPane"
+                        BorderPane.alignment="CENTER">
+              <content>
+                <GridPane alignment="CENTER" prefHeight="725.0" prefWidth="251.0" styleClass="sideMenuBorderPane">
+                  <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="200.0"/>
+                  </columnConstraints>
+                  <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0"
+                                    vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                  </rowConstraints>
+                  <children>
+                    <Label prefHeight="77.0" prefWidth="251.0" styleClass="sideMenuLabel" text="  Calculator"
+                           GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"/>
+                    <Button id="standardButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0"
+                            prefWidth="284.0" text="Standard" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1"
+                            GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <opaqueInsets>
+                        <Insets bottom="5.0" top="5.0"/>
+                      </opaqueInsets>
+                      <GridPane.margin>
+                        <Insets/>
+                      </GridPane.margin>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Scientific" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Programmer" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Date Calculation" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4"
+                            GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Label prefHeight="77.0" prefWidth="251.0" styleClass="sideMenuLabel" text="  Converter"
+                           GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.vgrow="ALWAYS"/>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Currency" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Volume" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Length" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Weight and Mass" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9"
+                            GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Temperature" GridPane.hgrow="ALWAYS" GridPane.rowIndex="10" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Energy" GridPane.hgrow="ALWAYS" GridPane.rowIndex="11" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Area" GridPane.hgrow="ALWAYS" GridPane.rowIndex="12" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Speed" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Time" GridPane.hgrow="ALWAYS" GridPane.rowIndex="14" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Power" GridPane.hgrow="ALWAYS" GridPane.rowIndex="15" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Data" GridPane.hgrow="ALWAYS" GridPane.rowIndex="16" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Pressure" GridPane.hgrow="ALWAYS" GridPane.rowIndex="17" GridPane.vgrow="ALWAYS">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                    <Button alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="130.0" prefWidth="284.0"
+                            text="Angle" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="18" GridPane.vgrow="SOMETIMES">
+                      <styleClass>
+                        <String fx:value="numpad"/>
+                        <String fx:value="sideMenuButton"/>
+                        <String fx:value="sideMenuButtonText"/>
+                      </styleClass>
+                      <graphic>
+                        <Label styleClass="sideMenuButton" text=""/>
+                      </graphic>
+                    </Button>
+                  </children>
+                </GridPane>
+              </content>
+            </ScrollPane>
+          </center>
+        </BorderPane>
+        <AnchorPane fx:id="sideBarOffPane" layoutX="248.0" onMouseClicked="#openSideBar" prefHeight="489.0"
+                    prefWidth="70.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="270.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+      </children>
+    </AnchorPane>
+  </center>
+  <top>
+    <AnchorPane fx:id="windowBar">
+      <children>
+        <Button id="closeButton" fx:id="closeButton" layoutX="276.0" mnemonicParsing="false" prefHeight="35.0"
+                prefWidth="44.0" styleClass="windowButton" text="" AnchorPane.rightAnchor="0.0">
+          <font>
+            <Font name="Segoe MDL2 Assets" size="12.0"/>
+          </font>
+          <cursor>
+            <Cursor fx:constant="DEFAULT"/>
+          </cursor>
+        </Button>
+        <Button fx:id="maximizeButton" ellipsisString="" layoutX="238.0" mnemonicParsing="false" prefHeight="34.0"
+                prefWidth="39.0" styleClass="windowButton" text="" AnchorPane.rightAnchor="40.0">
+          <font>
+            <Font name="Segoe MDL2 Assets" size="12.0"/>
+          </font>
+          <cursor>
+            <Cursor fx:constant="DEFAULT"/>
+          </cursor>
+        </Button>
+        <Button fx:id="minimizeWindow" layoutX="196.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="42.0"
+                styleClass="windowButton" text="" AnchorPane.rightAnchor="80.0">
+          <font>
+            <Font name="Segoe MDL2 Assets" size="12.0"/>
+          </font>
+          <cursor>
+            <Cursor fx:constant="DEFAULT"/>
+          </cursor>
+        </Button>
+        <Label layoutX="14.0" layoutY="6.0" text="Calculator"/>
+      </children>
+      <BorderPane.margin>
+        <Insets/>
+      </BorderPane.margin>
+    </AnchorPane>
+  </top>
+</BorderPane>

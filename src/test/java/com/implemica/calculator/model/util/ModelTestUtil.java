@@ -1,14 +1,14 @@
 package com.implemica.calculator.model.util;
 
+import com.implemica.calculator.model.CalculationException;
 import com.implemica.calculator.model.CalculatorModel;
+import com.implemica.calculator.model.Operation;
+import com.implemica.calculator.model.OperationType;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static com.implemica.calculator.model.util.Operation.*;
+import static com.implemica.calculator.model.Operation.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ModelTestUtil {
@@ -41,7 +41,7 @@ public class ModelTestUtil {
 
   protected CalculatorModel calc;
 
-  private BigDecimal patternRun(String pattern) {
+  private BigDecimal patternRun(String pattern) throws CalculationException {
     pattern = patternBuilder(pattern);
     BigDecimal x = BigDecimal.ZERO;
     String[] split = pattern.split(" ");
@@ -94,7 +94,7 @@ public class ModelTestUtil {
     return patternBuilder.toString();
   }
 
-  protected void checkOperations(String pattern, String expected) {
+  protected void checkOperations(String pattern, String expected) throws CalculationException {
     BigDecimal x = patternRun(pattern);
 
 
@@ -102,14 +102,14 @@ public class ModelTestUtil {
     assertEquals(0, x.compareTo(new BigDecimal(expected)));
   }
 
-  protected void checkOperations(String pattern){
+  protected void checkOperations(String pattern) throws CalculationException {
     assertNull(patternRun(pattern));
   }
 
   protected void checkThrow(String pattern, String expectedMessage){
     try{
       patternRun(pattern);
-    }catch (ArithmeticException e){
+    }catch (CalculationException e){
       assertEquals(expectedMessage, e.getMessage());
     }
   }
