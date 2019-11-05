@@ -10,8 +10,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.implemica.calculator.controller.NumberFormatter.parse;
-import static com.implemica.calculator.controller.NumberFormatter.removeGroupSeparator;
+import static com.implemica.calculator.controller.NumberFormatter.*;
 import static java.lang.Math.max;
 
 /**
@@ -22,11 +21,31 @@ import static java.lang.Math.max;
  * @author ozreat
  * @see com.implemica.calculator.controller.RootController
  * @see CalculatorModel
- * @see Operation
+ * @see ArithmeticOperation
  * @see CalculatorState
  * @see NumberFormatter
  */
 class InputService {
+  /**
+   * Map of binary {@link ArithmeticOperation} to get ArithmeticOperation from string
+   */
+  private final static Map<String, ArithmeticOperation> binaryOperationObject = new HashMap<>();
+
+  /**
+   * Map of unary {@link ArithmeticOperation} to get ArithmeticOperation from string
+   */
+  private final static Map<String, ArithmeticOperation> unaryOperationObject = new HashMap<>();
+
+  /**
+   * Map to get operation symbol from {@link ArithmeticOperation}
+   */
+  private final static Map<ArithmeticOperation, String> operationSymbols = new HashMap<>();
+
+  /**
+   * Default display number
+   */
+  static final String DEFAULT_DISPLAY_NUMBER = "0";
+
   /**
    * Calculator model to do calculations
    */
@@ -42,50 +61,35 @@ class InputService {
    */
   private boolean isBackspacePossible = true;
 
-  /**
-   * Map of binary {@link Operation} to get Operation from string
-   */
-  private final static Map<String, Operation> binaryOperationObject = new HashMap<>();
-
-  /**
-   * Map of unary {@link Operation} to get Operation from string
-   */
-  private final static Map<String, Operation> unaryOperationObject = new HashMap<>();
-
-  /**
-   * Map to get operation symbol from {@link Operation}
-   */
-  private final static Map<Operation, String> operationSymbols = new HashMap<>();
-
   static {
-    binaryOperationObject.put("\uE948", Operation.ADD);
-    binaryOperationObject.put("\uE949", Operation.SUBTRACT);
-    binaryOperationObject.put("\uE947", Operation.MULTIPLY);
-    binaryOperationObject.put("\uE94A", Operation.DIVIDE);
-    binaryOperationObject.put("/", Operation.DIVIDE);
-    binaryOperationObject.put("*", Operation.MULTIPLY);
-    binaryOperationObject.put("+", Operation.ADD);
-    binaryOperationObject.put("-", Operation.SUBTRACT);
-    binaryOperationObject.put("×", Operation.MULTIPLY);
-    binaryOperationObject.put("÷", Operation.DIVIDE);
+    binaryOperationObject.put("\uE948", ArithmeticOperation.ADD);
+    binaryOperationObject.put("\uE949", ArithmeticOperation.SUBTRACT);
+    binaryOperationObject.put("\uE947", ArithmeticOperation.MULTIPLY);
+    binaryOperationObject.put("\uE94A", ArithmeticOperation.DIVIDE);
+    binaryOperationObject.put("/", ArithmeticOperation.DIVIDE);
+    binaryOperationObject.put("*", ArithmeticOperation.MULTIPLY);
+    binaryOperationObject.put("+", ArithmeticOperation.ADD);
+    binaryOperationObject.put("-", ArithmeticOperation.SUBTRACT);
+    binaryOperationObject.put("×", ArithmeticOperation.MULTIPLY);
+    binaryOperationObject.put("÷", ArithmeticOperation.DIVIDE);
 
-    unaryOperationObject.put("\uE94B", Operation.SQRT);
-    unaryOperationObject.put("\uE94D", Operation.NEGATE);
-    unaryOperationObject.put("⅟\uD835\uDC65", Operation.REVERSE);//⅟𝑥
-    unaryOperationObject.put("\uD835\uDC65²", Operation.POW);//𝑥²
-    unaryOperationObject.put("negate", Operation.NEGATE);
-    unaryOperationObject.put("sqr", Operation.POW);
-    unaryOperationObject.put("√", Operation.SQRT);
-    unaryOperationObject.put("1/", Operation.REVERSE);
+    unaryOperationObject.put("\uE94B", ArithmeticOperation.SQRT);
+    unaryOperationObject.put("\uE94D", ArithmeticOperation.NEGATE);
+    unaryOperationObject.put("⅟\uD835\uDC65", ArithmeticOperation.REVERSE);//⅟𝑥
+    unaryOperationObject.put("\uD835\uDC65²", ArithmeticOperation.POW);//𝑥²
+    unaryOperationObject.put("negate", ArithmeticOperation.NEGATE);
+    unaryOperationObject.put("sqr", ArithmeticOperation.POW);
+    unaryOperationObject.put("√", ArithmeticOperation.SQRT);
+    unaryOperationObject.put("1/", ArithmeticOperation.REVERSE);
 
-    operationSymbols.put(Operation.ADD, "+");
-    operationSymbols.put(Operation.DIVIDE, "÷");
-    operationSymbols.put(Operation.MULTIPLY, "×");
-    operationSymbols.put(Operation.SUBTRACT, "-");
-    operationSymbols.put(Operation.SQRT, "√");
-    operationSymbols.put(Operation.NEGATE, "negate");
-    operationSymbols.put(Operation.REVERSE, "1/");
-    operationSymbols.put(Operation.POW, "sqr");
+    operationSymbols.put(ArithmeticOperation.ADD, "+");
+    operationSymbols.put(ArithmeticOperation.DIVIDE, "÷");
+    operationSymbols.put(ArithmeticOperation.MULTIPLY, "×");
+    operationSymbols.put(ArithmeticOperation.SUBTRACT, "-");
+    operationSymbols.put(ArithmeticOperation.SQRT, "√");
+    operationSymbols.put(ArithmeticOperation.NEGATE, "negate");
+    operationSymbols.put(ArithmeticOperation.REVERSE, "1/");
+    operationSymbols.put(ArithmeticOperation.POW, "sqr");
   }
 
   public InputService() {
@@ -109,24 +113,24 @@ class InputService {
     Button btn = (Button) event.getSource();
     String value = btn.getText();
 
-    boolean isEditible = NumberFormatter.isTooBigToInput(display + value)
+    boolean isNotEditable = NumberFormatter.isTooBigToInput(display + value)
         && (calc.getCalculatorState() == CalculatorState.LEFT || calc.getCalculatorState() == CalculatorState.RIGHT);
-    if (isEditible) {
+    if (isNotEditable) {
       return display;
     }
 
 
-    if (value.equals(".")) {
+    if (value.equals(String.valueOf(DECIMAL_SEPARATOR))) {
       if (calc.getCalculatorState() == CalculatorState.AFTER) {
         calc.setCalculatorState(CalculatorState.LEFT);
-        display = "0";
+        display = DEFAULT_DISPLAY_NUMBER;
       } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {
         calc.setCalculatorState(CalculatorState.RIGHT);
-        display = "0";
+        display = DEFAULT_DISPLAY_NUMBER;
       }
 
-      if (!display.contains(".")) {
-        display += ".";
+      if (!display.contains(String.valueOf(DECIMAL_SEPARATOR))) {
+        display += DECIMAL_SEPARATOR;
       }
 
       return display;
@@ -163,15 +167,16 @@ class InputService {
    * @param display numbers in textArea
    * @return result of operation if two operands exists or display if not
    */
-  public String enterOperation(ActionEvent event, String display) throws ParseException, CalculationException {
+  public String enterOperation(ActionEvent event, String display) throws ParseException, NegativeRootException,
+      OverflowException, CannotDivideByZeroException, DivideZeroByZeroException {
     Button btn = (Button) event.getSource();
 
     if (isMemoryRecall) {
       isMemoryRecall = false;
-      return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), calc.getMemory()));
+      return NumberFormatter.format(calc.calculate(formatOperation(btn.getText()), calc.getMemory()));
     }
 
-    return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), parse(display)));
+    return NumberFormatter.format(calc.calculate(formatOperation(btn.getText()), parse(display)));
   }
 
   /**
@@ -180,16 +185,17 @@ class InputService {
    * @param right right operand typed in calc
    * @return result of binary operation
    */
-  public String enterEqual(String right) throws ParseException, CalculationException {
+  public String enterEqual(String right) throws ParseException, DivideZeroByZeroException, OverflowException,
+      CannotDivideByZeroException, NegativeRootException {
     if (isMemoryRecall) {
       isMemoryRecall = false;
 
-      return NumberFormatter.format(calc.doCalculate(calc.getMemory()));
+      return NumberFormatter.format(calc.calculate(calc.getMemory()));
     }
 
     isBackspacePossible = false;
 
-    return NumberFormatter.format(calc.doCalculate(parse(right)));
+    return NumberFormatter.format(calc.calculate(parse(right)));
   }
 
   /**
@@ -199,22 +205,23 @@ class InputService {
    * @param display numbers in textArea
    * @return result of operation
    */
-  public String unaryOp(ActionEvent event, String display) throws ParseException, CalculationException {
+  public String unaryOp(ActionEvent event, String display) throws ParseException, NegativeRootException,
+      OverflowException, CannotDivideByZeroException, DivideZeroByZeroException {
     Button btn = (Button) event.getSource();
 
     if (isMemoryRecall) {
       isMemoryRecall = false;
-      return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText()), calc.getMemory()));
+      return NumberFormatter.format(calc.calculate(formatOperation(btn.getText()), calc.getMemory()));
     }
 
     isBackspacePossible = false;
 
     if (calc.getCalculatorState() == CalculatorState.AFTER) {
-      return NumberFormatter.format(calc.doCalculate(formatOperation(btn.getText())));
+      return NumberFormatter.format(calc.calculate(formatOperation(btn.getText())));
     }
 
 
-    BigDecimal res = calc.doCalculate(formatOperation(btn.getText()), parse(display));
+    BigDecimal res = calc.calculate(formatOperation(btn.getText()), parse(display));
     return NumberFormatter.format(res);
   }
 
@@ -224,24 +231,28 @@ class InputService {
    * @param right right operand typed in calc
    * @return result of percent operation
    */
-  public String percentOp(String right) throws ParseException, CalculationException {
-    Operation op;
-    if (calc.getOperation() == Operation.ADD || calc.getOperation() == Operation.SUBTRACT) {
-      op = Operation.PERCENT_ADD_SUBTRACT;
-    } else if (calc.getOperation() == Operation.MULTIPLY || calc.getOperation() == Operation.DIVIDE) {
-      op = Operation.PERCENT_MUL_DIVIDE;
+  public String percentOp(String right) throws ParseException, NegativeRootException, OverflowException,
+      CannotDivideByZeroException, DivideZeroByZeroException {
+    ArithmeticOperation op;
+    if (calc.getOperation() == ArithmeticOperation.ADD || calc.getOperation() == ArithmeticOperation.SUBTRACT) {
+      op = ArithmeticOperation.PERCENT_ADD_SUBTRACT;
+    } else if (calc.getOperation() == ArithmeticOperation.MULTIPLY || calc.getOperation() == ArithmeticOperation.DIVIDE) {
+      op = ArithmeticOperation.PERCENT_MUL_DIVIDE;
     } else {
       return "0";
     }
 
+    String result;
     if (isMemoryRecall) {
       isMemoryRecall = false;
-      return NumberFormatter.format(calc.doCalculate(op, calc.getMemory()));
+      result = NumberFormatter.format(calc.calculate(op, calc.getMemory()));
+    } else {
+      result = NumberFormatter.format(calc.calculate(op, parse(right)));
     }
 
     isBackspacePossible = false;
 
-    return NumberFormatter.format(calc.doCalculate(op, parse(right)));
+    return result;
   }
 
   /**
@@ -356,7 +367,7 @@ class InputService {
         return oldFormula.substring(0, oldFormula.indexOf(str)) + operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( "
             + str + " )";
       }
-      if (unaryOperationObject.get(btn.getText()) == Operation.NEGATE && calc.getOperation() == null) {
+      if (unaryOperationObject.get(btn.getText()) == ArithmeticOperation.NEGATE && calc.getOperation() == null) {
         return oldFormula;
       }
       if (!oldFormula.isBlank()) {
@@ -443,8 +454,8 @@ class InputService {
     return formula.substring(index.get(min));
   }
 
-  private Operation formatOperation(String op) {
-    Operation formatted = binaryOperationObject.get(op);
+  private ArithmeticOperation formatOperation(String op) {
+    ArithmeticOperation formatted = binaryOperationObject.get(op);
     if (formatted != null) {
       return formatted;
     }
@@ -465,6 +476,4 @@ class InputService {
   private boolean containsBinaryOperator(String formula) {
     return formula.contains("+") || formula.contains("-") || formula.contains("×") || formula.contains("÷");
   }
-
-//
 }

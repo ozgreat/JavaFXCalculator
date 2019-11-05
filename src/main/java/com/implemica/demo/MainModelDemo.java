@@ -1,8 +1,6 @@
 package com.implemica.demo;
 
-import com.implemica.calculator.model.CalculationException;
-import com.implemica.calculator.model.CalculatorModel;
-import com.implemica.calculator.model.Operation;
+import com.implemica.calculator.model.*;
 
 import java.math.BigDecimal;
 
@@ -17,12 +15,12 @@ public class MainModelDemo {
 
     BigDecimal x;
     try {
-      x = calc.doCalculate(Operation.ADD, a, b);
-      x = calc.doCalculate(Operation.DIVIDE, x, c);
-      x = calc.doCalculate(Operation.SUBTRACT, x, d);
-      x = calc.doCalculate(Operation.SQRT, x);
-      x = calc.doCalculate(Operation.ADD, x, e);
-    } catch (CalculationException ex) {
+      x = calc.calculate(ArithmeticOperation.ADD, a, b);
+      x = calc.calculate(ArithmeticOperation.DIVIDE, x, c);
+      x = calc.calculate(ArithmeticOperation.SUBTRACT, x, d);
+      x = calc.calculate(ArithmeticOperation.SQRT, x);
+      x = calc.calculate(ArithmeticOperation.ADD, x, e);
+    } catch (CannotDivideByZeroException | DivideZeroByZeroException | NegativeRootException | OverflowException ex) {
       System.err.println("Answer: " + ex.getMessage());
       x = null;
     }

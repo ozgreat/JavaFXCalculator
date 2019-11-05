@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
-import static com.implemica.calculator.model.Operation.*;
+import static com.implemica.calculator.model.ArithmeticOperation.*;
 
 /**
  * Model of calculator, calculate {@link BigDecimal} with operations like sqrt, divide, multiply, etc.
  *
  * @author ozgreat
  * @see BigDecimal
- * @see Operation
+ * @see ArithmeticOperation
  * @see CalculatorState
  */
 public class CalculatorModel {
@@ -42,11 +42,11 @@ public class CalculatorModel {
     return memory;
   }
 
-  public Operation getOperation() {
+  public ArithmeticOperation getOperation() {
     return operation;
   }
 
-  public void setOperation(Operation operation) {
+  public void setOperation(ArithmeticOperation operation) {
     this.operation = operation;
   }
 
@@ -64,14 +64,14 @@ public class CalculatorModel {
   private BigDecimal memory;
 
   /**
-   * {@link Operation}, that user will be use
+   * {@link ArithmeticOperation}, that user will be use
    */
-  private Operation operation;
+  private ArithmeticOperation operation;
 
   /**
-   * {@link Operation}, that user before current
+   * {@link ArithmeticOperation}, that user before current
    */
-  private Operation prevOperation;
+  private ArithmeticOperation prevOperation;
 
   /**
    * Current state of calculator
@@ -88,12 +88,12 @@ public class CalculatorModel {
   /**
    * {@link Map} of binary operations
    */
-  private final static Map<Operation, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
+  private final static Map<ArithmeticOperation, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
 
   /**
    * {@link Map} of unary operations
    */
-  private final static Map<Operation, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
+  private final static Map<ArithmeticOperation, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
 
   /**
    * First {@link BigDecimal} value, that bigger than one and can't be calculating
@@ -126,10 +126,11 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private BigDecimal getBinaryOperationResult() throws CalculationException {
+  private BigDecimal getBinaryOperationResult() throws OverflowException, DivideZeroByZeroException,
+      CannotDivideByZeroException {
     if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
       if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
-        throw new ResultIsUndefinedException();
+        throw new DivideZeroByZeroException();
       }
       throw new CannotDivideByZeroException();
     }
@@ -157,11 +158,12 @@ public class CalculatorModel {
    * @param number number, that we calc
    * @return string with result of calculation
    */
-  private BigDecimal getUnaryOperationResult(Operation op, BigDecimal number) throws CalculationException {
+  private BigDecimal getUnaryOperationResult(ArithmeticOperation op, BigDecimal number)
+      throws CannotDivideByZeroException, NegativeRootException, OverflowException {
     if (number.equals(BigDecimal.ZERO) && op == REVERSE) {
       throw new CannotDivideByZeroException();
     } else if (number.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
-      throw new InvalidInputException();
+      throw new NegativeRootException();
     }
 
 
@@ -176,7 +178,7 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private BigDecimal getPercentOperation(Operation operation) throws OverflowException {
+  private BigDecimal getPercentOperation(ArithmeticOperation operation) throws OverflowException {
     BigDecimal res = BigDecimal.ZERO;
 
     if (operation != null) {
@@ -286,21 +288,23 @@ public class CalculatorModel {
   /**
    * Calculate operations
    *
-   * @param operation     Operation, that we do
+   * @param operation     ArithmeticOperation, that we do
    * @param firstOperand  first operand of calculation
    * @param secondOperand second operand of calculation
    * @return result of calculation, that written at left or right operand field
    * @throws ArithmeticException If Overflow, Invalid input or Dividing by Zero
    */
-  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand, BigDecimal secondOperand) throws CalculationException {
-    if (operation.getType() == OperationType.BINARY) {
+  public BigDecimal calculate(ArithmeticOperation operation, BigDecimal firstOperand, BigDecimal secondOperand)
+      throws OverflowException, DivideZeroByZeroException, CannotDivideByZeroException, NegativeRootException {
+    BigDecimal result = null;
+    if (operation.getType() == ArithmeticOperationType.BINARY) {
       leftOperand = firstOperand;
       rightOperand = secondOperand;
       this.operation = operation;
       calculatorState = CalculatorState.AFTER;
       leftOperand = getBinaryOperationResult();
-      return leftOperand;
-    } else if (operation.getType() == OperationType.UNARY) {
+      result = leftOperand;
+    } else if (operation.getType() == ArithmeticOperationType.UNARY) {
       if (firstOperand == null) {
         if (calculatorState == CalculatorState.AFTER || calculatorState == CalculatorState.LEFT) {
           if (leftOperand == null) {
@@ -313,38 +317,38 @@ public class CalculatorModel {
       }
       if (calculatorState == CalculatorState.AFTER || calculatorState == CalculatorState.LEFT) {
         leftOperand = getUnaryOperationResult(operation, firstOperand);
-        /*if (operation != NEGATE) {
-          calculatorState = CalculatorState.TRANSIENT;
-        }*/
-        return leftOperand;
+
+        result = leftOperand;
       } else if (calculatorState == CalculatorState.RIGHT) {
         rightOperand = getUnaryOperationResult(operation, firstOperand);
-        return rightOperand;
-      } else if (calculatorState == CalculatorState.TRANSIENT) {
+        result = rightOperand;
+      } else {
         if (firstOperand == null) {
           firstOperand = leftOperand;
         }
         rightOperand = getUnaryOperationResult(operation, firstOperand);
-        return rightOperand;
+        result = rightOperand;
       }
-    } else if (operation.getType() == OperationType.PERCENT) {
+    } else if (operation.getType() == ArithmeticOperationType.PERCENT) {
       leftOperand = firstOperand;
       rightOperand = secondOperand;
       rightOperand = getPercentOperation(operation);
-      return rightOperand;
+      result = rightOperand;
     }
-    return null;
+    return result;
   }
 
   /**
    * Calculate operations, if one of operand is null(already written at field,
    * will be written at future or operation is unary)
    *
-   * @param operation    Operation, that we do
+   * @param operation    ArithmeticOperation, that we do
    * @param firstOperand first operand of calculation
    * @return result of calculation, that written at left or right operand field or firstOperand
    */
-  public BigDecimal doCalculate(Operation operation, BigDecimal firstOperand) throws CalculationException {
+  public BigDecimal calculate(ArithmeticOperation operation, BigDecimal firstOperand)
+      throws OverflowException, DivideZeroByZeroException, CannotDivideByZeroException, NegativeRootException {
+    BigDecimal result = firstOperand;
     if (operation == null) {
       if (leftOperand != null && this.operation != null) {
         if (calculatorState == CalculatorState.TRANSIENT && this.operation == DIVIDE && rightOperand != null && !firstOperand.equals(rightOperand)) {
@@ -353,31 +357,27 @@ public class CalculatorModel {
           rightOperand = firstOperand;
         }
 
-        if (this.operation.getType() == OperationType.BINARY) {
+        if (this.operation.getType() == ArithmeticOperationType.BINARY) {
           leftOperand = getBinaryOperationResult();
           calculatorState = CalculatorState.AFTER;
-          return leftOperand;
-        } else if (this.operation.getType() == OperationType.PERCENT) {
+        } else if (this.operation.getType() == ArithmeticOperationType.PERCENT) {
           rightOperand = firstOperand;
           rightOperand = getPercentOperation(this.operation);
           this.operation = prevOperation;
           return rightOperand;
         }
 
-        return leftOperand;
+        result = leftOperand;
       } else if (leftOperand == null) {
         leftOperand = firstOperand;
         calculatorState = CalculatorState.AFTER;
-        return leftOperand;
       } else if (rightOperand == null) {
         rightOperand = firstOperand;
         calculatorState = CalculatorState.RIGHT;
-        return rightOperand;
       } else {
         calculatorState = CalculatorState.AFTER;
-        return firstOperand;
       }
-    } else if (operation.getType() == OperationType.BINARY) {
+    } else if (operation.getType() == ArithmeticOperationType.BINARY) {
       if (calculatorState == CalculatorState.LEFT) {
         leftOperand = firstOperand;
         calculatorState = CalculatorState.TRANSIENT;
@@ -387,13 +387,13 @@ public class CalculatorModel {
           rightOperand = leftOperand;
         }
 
-        return leftOperand;
+        result = leftOperand;
       } else if (calculatorState == CalculatorState.RIGHT) {
         rightOperand = firstOperand;
-        leftOperand = doCalculate(this.operation, leftOperand, firstOperand);
+        leftOperand = calculate(this.operation, leftOperand, firstOperand);
         this.operation = operation;
         calculatorState = CalculatorState.TRANSIENT;
-        return leftOperand;
+        result = leftOperand;
       } else if (calculatorState == CalculatorState.AFTER) {
         calculatorState = CalculatorState.TRANSIENT;
 
@@ -402,19 +402,12 @@ public class CalculatorModel {
         }
 
         this.operation = operation;
-
-        return firstOperand;
       } else if (calculatorState == CalculatorState.TRANSIENT) {
         this.operation = operation;
-
-        return firstOperand;
       }
-    } else if (operation.getType() == OperationType.UNARY) {
-      if (firstOperand == null) {
-        return doCalculate(operation, null, null);
-      }
-      return doCalculate(operation, firstOperand, null);
-    } else if (operation.getType() == OperationType.PERCENT) {
+    } else if (operation.getType() == ArithmeticOperationType.UNARY) {
+      result = calculate(operation, firstOperand, null);
+    } else if (operation.getType() == ArithmeticOperationType.PERCENT) {
       if (firstOperand == null) {
         prevOperation = this.operation;
         this.operation = operation;
@@ -425,36 +418,14 @@ public class CalculatorModel {
         rightOperand = firstOperand;
         if (calculatorState == CalculatorState.TRANSIENT) {
           calculatorState = CalculatorState.RIGHT;
-        } /*else if (calculatorState == CalculatorState.LEFT) {
-          calculatorState = CalculatorState.TRANSIENT;
-          leftOperand = rightOperand;
-        }*/
-
-        return doCalculate(operation, leftOperand, rightOperand);
-      } else {
-        return BigDecimal.ZERO;
-      }
-    } else if (operation.getType() == OperationType.MEMORY) {
-      if (firstOperand == null) {
-        if (calculatorState == CalculatorState.RIGHT) {
-          firstOperand = rightOperand;
-        } else {
-          firstOperand = leftOperand;
         }
-      }
 
-      if (operation == MEMORY_ADD) {
-        memoryAdd(firstOperand);
-      } else if (operation == MEMORY_SUB) {
-        memorySub(firstOperand);
-      } else if (operation == MEMORY_CLEAR) {
-        clearMemory();
+        result = calculate(operation, leftOperand, rightOperand);
       } else {
-        memory = firstOperand;
+        result = BigDecimal.ZERO;
       }
-      return memory;
     }
-    return null;
+    return result;
   }
 
   /**
@@ -463,17 +434,44 @@ public class CalculatorModel {
    * @param firstOperand operand that we add to calculation
    * @return result of calculation
    */
-  public BigDecimal doCalculate(BigDecimal firstOperand) throws CalculationException {
-    return doCalculate(null, firstOperand);
+  public BigDecimal calculate(BigDecimal firstOperand) throws NegativeRootException, OverflowException,
+      CannotDivideByZeroException, DivideZeroByZeroException {
+    return calculate(null, firstOperand);
   }
 
   /**
    * Use if want to set operation and calculate if we need it because of current {@link CalculatorState}
    *
-   * @param operation {@link Operation} that we set
+   * @param operation {@link ArithmeticOperation} that we set
    * @return result of calculation
    */
-  public BigDecimal doCalculate(Operation operation) throws CalculationException {
-    return doCalculate(operation, null);
+  public BigDecimal calculate(ArithmeticOperation operation) throws NegativeRootException, OverflowException,
+      CannotDivideByZeroException, DivideZeroByZeroException {
+    return calculate(operation, null);
+  }
+
+  public BigDecimal calculateMemory(MemoryOperation operation, BigDecimal firstOperand) throws OverflowException {
+    if (firstOperand == null) {
+      if (calculatorState == CalculatorState.RIGHT) {
+        firstOperand = rightOperand;
+      } else {
+        firstOperand = leftOperand;
+      }
+    }
+
+    if (operation == MemoryOperation.MEMORY_ADD) {
+      memoryAdd(firstOperand);
+    } else if (operation == MemoryOperation.MEMORY_SUB) {
+      memorySub(firstOperand);
+    } else if (operation == MemoryOperation.MEMORY_CLEAR) {
+      clearMemory();
+    } else {
+      memory = firstOperand;
+    }
+    return memory;
+  }
+
+  public BigDecimal calculateMemory(MemoryOperation operation) throws OverflowException {
+    return calculateMemory(operation, null);
   }
 }

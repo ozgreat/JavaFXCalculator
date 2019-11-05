@@ -5,7 +5,7 @@ package com.implemica.calculator.model;
  *
  * @author ozgreat
  */
-public class CannotDivideByZeroException extends CalculationException {
+public class CannotDivideByZeroException extends Exception {
   /**
    * Message of exception
    */

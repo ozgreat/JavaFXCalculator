@@ -1,6 +1,9 @@
 package com.implemica.calculator.controller;
 
-import com.implemica.calculator.model.CalculationException;
+import com.implemica.calculator.model.CannotDivideByZeroException;
+import com.implemica.calculator.model.DivideZeroByZeroException;
+import com.implemica.calculator.model.NegativeRootException;
+import com.implemica.calculator.model.OverflowException;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,8 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.implemica.calculator.controller.InputService.DEFAULT_DISPLAY_NUMBER;
+import static com.implemica.calculator.controller.NumberFormatter.DECIMAL_SEPARATOR;
 
 /**
  * FX Controller for {@link com.implemica.calculator.view.Root}
@@ -33,6 +38,126 @@ import java.util.stream.Stream;
  * @see com.implemica.calculator.view.Root
  */
 public class RootController {
+  /**
+   * Background of history pane
+   */
+  private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
+
+  /**
+   * Keyboard shortcut for sqrt button
+   */
+  private final static KeyCombination SQRT = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * Keyboard shortcut for percent button
+   */
+  private static final KeyCombination PERCENT = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * Keyboard shortcut fot MR button
+   */
+  private static final KeyCombination MEMORY_RECALL = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for M+ button
+   */
+  private static final KeyCombination MEMORY_ADD = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for M- button
+   */
+  private static final KeyCombination MEMORY_SUB = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for MS button
+   */
+  private static final KeyCombination MEMORY_SAVE = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * Keyboard shortcut for MC button
+   */
+  private static final KeyCombination MEMORY_CLEAR = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN);
+
+  /**
+   * One of keyboard shortcuts for plus button
+   */
+  private static final KeyCombination PLUS = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * One of keyboard shortcuts for multiply button
+   */
+  private static final KeyCombination MULTIPLY = new KeyCodeCombination(KeyCode.DIGIT8, KeyCombination.SHIFT_DOWN);
+
+  /**
+   * Keyboard shortcut  button
+   */
+  private static final KeyCombination NEGATE_SHORTCUT = new KeyCodeCombination(KeyCode.F9);
+
+  /**
+   * Keyboard shortcut for C button
+   */
+  private static final KeyCombination CLEAR_SHORTCUT = new KeyCodeCombination(KeyCode.ESCAPE);
+
+  /**
+   * Keyboard shortcut for CE button
+   */
+  private static final KeyCombination CLEAR_ENTRY_SHORTCUT = new KeyCodeCombination(KeyCode.DELETE);
+
+  /**
+   * Keyboard shortcut for backspace button
+   */
+  private static final KeyCombination BACKSPACE_SHORTCUT = new KeyCodeCombination(KeyCode.BACK_SPACE);
+
+  /**
+   * Keyboard shortcut for equals button
+   */
+  private static final KeyCombination EQUALS_SHORTCUT = new KeyCodeCombination(KeyCode.EQUALS);
+
+  /**
+   * Keyboard shortcut for ⅟𝑥 button
+   */
+  private static final KeyCombination REVERSE_SHORTCUT = new KeyCodeCombination(KeyCode.R);
+
+  /**
+   * Duration of opening sidebar
+   */
+  private static final int OPEN_SIDEBAR_DURATION = 200;
+
+  /**
+   * Sidebar's opening shift value
+   */
+
+  private static final int SIDEBAR_SHIFT = 272;
+
+  /**
+   * Formula on display maximum length
+   */
+  private static final int FORMULA_MAX_LENGTH = 40;
+
+  /**
+   * Default display font
+   */
+  private static final Font DEFAULT_FONT = new Font("Segoe UI", 14);
+
+  /**
+   * List of shortcut for numpad buttons
+   */
+  private final static List<KeyCodeCombination> NUMPAD_AND_DIGITS = Arrays.asList(new KeyCodeCombination(KeyCode.DIGIT0),
+      new KeyCodeCombination(KeyCode.DIGIT1), new KeyCodeCombination(KeyCode.DIGIT2), new KeyCodeCombination(KeyCode.DIGIT3),
+      new KeyCodeCombination(KeyCode.DIGIT4), new KeyCodeCombination(KeyCode.DIGIT5), new KeyCodeCombination(KeyCode.DIGIT6),
+      new KeyCodeCombination(KeyCode.DIGIT7), new KeyCodeCombination(KeyCode.DIGIT8), new KeyCodeCombination(KeyCode.DIGIT9),
+      new KeyCodeCombination(KeyCode.NUMPAD0), new KeyCodeCombination(KeyCode.NUMPAD1), new KeyCodeCombination(KeyCode.NUMPAD2),
+      new KeyCodeCombination(KeyCode.NUMPAD3), new KeyCodeCombination(KeyCode.NUMPAD4), new KeyCodeCombination(KeyCode.NUMPAD5),
+      new KeyCodeCombination(KeyCode.NUMPAD6), new KeyCodeCombination(KeyCode.NUMPAD7), new KeyCodeCombination(KeyCode.NUMPAD8),
+      new KeyCodeCombination(KeyCode.NUMPAD9), new KeyCodeCombination(KeyCode.PERIOD));
+
+
+  /**
+   * Map, that run action by shortcut
+   */
+  private final Map<KeyCombination, Runnable> COMBINATIONS = new HashMap<>();
+
+
   /**
    * Label with number, display of calculator
    */
@@ -214,106 +339,7 @@ public class RootController {
    */
   private int formulaEndIndex;
 
-  private boolean isError = false;
-
-  /**
-   * Background of history pane
-   */
-  private static final Background BACKGROUND = new Background(new BackgroundFill(Paint.valueOf("#f2f2f2"), CornerRadii.EMPTY, Insets.EMPTY));
-
-  /**
-   * Keyboard shortcut for sqrt button
-   */
-  private final static KeyCombination SQRT = new KeyCodeCombination(KeyCode.DIGIT2, KeyCombination.SHIFT_DOWN);
-
-  /**
-   * Keyboard shortcut for percent button
-   */
-  private static final KeyCombination PERCENT = new KeyCodeCombination(KeyCode.DIGIT5, KeyCombination.SHIFT_DOWN);
-
-  /**
-   * Keyboard shortcut fot MR button
-   */
-  private static final KeyCombination MEMORY_RECALL = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
-
-  /**
-   * Keyboard shortcut for M+ button
-   */
-  private static final KeyCombination MEMORY_ADD = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN);
-
-  /**
-   * Keyboard shortcut for M- button
-   */
-  private static final KeyCombination MEMORY_SUB = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
-
-  /**
-   * Keyboard shortcut for MS button
-   */
-  private static final KeyCombination MEMORY_SAVE = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);
-
-  /**
-   * Keyboard shortcut for MC button
-   */
-  private static final KeyCombination MEMORY_CLEAR = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN);
-
-  /**
-   * One of keyboard shortcuts for plus button
-   */
-  private static final KeyCombination PLUS = new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHIFT_DOWN);
-
-  /**
-   * One of keyboard shortcuts for multiply button
-   */
-  private static final KeyCombination MULTIPLY = new KeyCodeCombination(KeyCode.DIGIT8, KeyCombination.SHIFT_DOWN);
-
-  /**
-   * Keyboard shortcut  button
-   */
-  private static final KeyCombination NEGATE_SHORTCUT = new KeyCodeCombination(KeyCode.F9);
-
-  /**
-   * Keyboard shortcut for C button
-   */
-  private static final KeyCombination CLEAR_SHORTCUT = new KeyCodeCombination(KeyCode.ESCAPE);
-
-  /**
-   * Keyboard shortcut for CE button
-   */
-  private static final KeyCombination CLEAR_ENTRY_SHORTCUT = new KeyCodeCombination(KeyCode.DELETE);
-
-  /**
-   * Keyboard shortcut for backspace button
-   */
-  private static final KeyCombination BACKSPACE_SHORTCUT = new KeyCodeCombination(KeyCode.BACK_SPACE);
-
-  /**
-   * Keyboard shortcut for equals button
-   */
-  private static final KeyCombination EQUALS_SHORTCUT = new KeyCodeCombination(KeyCode.EQUALS);
-
-  /**
-   * Keyboard shortcut for ⅟𝑥 button
-   */
-  private static final KeyCombination REVERSE_SHORTCUT = new KeyCodeCombination(KeyCode.R);
-
-  /**
-   * List of shortcut for numpad buttons
-   */
-  private final static List<KeyCodeCombination> NUMPAD_AND_DIGITS = Arrays.asList(new KeyCodeCombination(KeyCode.DIGIT0),
-      new KeyCodeCombination(KeyCode.DIGIT1), new KeyCodeCombination(KeyCode.DIGIT2), new KeyCodeCombination(KeyCode.DIGIT3),
-      new KeyCodeCombination(KeyCode.DIGIT4), new KeyCodeCombination(KeyCode.DIGIT5), new KeyCodeCombination(KeyCode.DIGIT6),
-      new KeyCodeCombination(KeyCode.DIGIT7), new KeyCodeCombination(KeyCode.DIGIT8), new KeyCodeCombination(KeyCode.DIGIT9),
-      new KeyCodeCombination(KeyCode.NUMPAD0), new KeyCodeCombination(KeyCode.NUMPAD1), new KeyCodeCombination(KeyCode.NUMPAD2),
-      new KeyCodeCombination(KeyCode.NUMPAD3), new KeyCodeCombination(KeyCode.NUMPAD4), new KeyCodeCombination(KeyCode.NUMPAD5),
-      new KeyCodeCombination(KeyCode.NUMPAD6), new KeyCodeCombination(KeyCode.NUMPAD7), new KeyCodeCombination(KeyCode.NUMPAD8),
-      new KeyCodeCombination(KeyCode.NUMPAD9), new KeyCodeCombination(KeyCode.PERIOD));
-
-
-  /**
-   * Map, that run action by shortcut
-   */
-  private final Map<KeyCombination, Runnable> COMBINATIONS = new HashMap<>();
-
+  private boolean isException = false;
 
   /**
    * Init inputService, assigns empty string to formulaStr, put COMBINATIONS into map
@@ -370,30 +396,29 @@ public class RootController {
    */
   @FXML
   public void addNumberOrDot(ActionEvent event) { // buttons 0-9 and '.'
-    if (isError) {
+    if (isException) {
       setNormal();
     }
     try {
       display.setText(inputService.enterNumberOrComma(event, display.getText()));
+    } catch (OverflowException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
   }
 
   /**
-   * Setting text in textArea to 0 and call clear in service
+   * Setting text in textArea to default value and call clear in service
    */
   @FXML
   public void clearAction() { //button C
-    if (isError) {
+    if (isException) {
       setNormal();
     }
-    display.setText("0");
+    display.setText(DEFAULT_DISPLAY_NUMBER);
     inputService.clearDisplay();
-    formula.setText("");
-    formulaStr = "";
-    leftFormulaButton.setVisible(false);
-    rightFormulaButton.setVisible(false);
+    clearFormula();
   }
 
   /**
@@ -401,10 +426,10 @@ public class RootController {
    */
   @FXML
   public void clearEntryAction() {
-    if (isError) {
+    if (isException) {
       setNormal();
     }
-    display.setText("0");
+    display.setText(DEFAULT_DISPLAY_NUMBER);
     inputService.setMemoryRecall(false);
     inputService.setBackspacePossible(true);
   }
@@ -419,8 +444,10 @@ public class RootController {
     formulaCalc(event);
     try {
       display.setText(inputService.enterOperation(event, display.getText()));
+    } catch (CannotDivideByZeroException | DivideZeroByZeroException | OverflowException | NegativeRootException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
   }
 
@@ -429,36 +456,32 @@ public class RootController {
    */
   @FXML
   public void backspaceButtonAction() {
-    if (isError) {
-      setNormal();
-    } else if (display.getText().length() == 1 && inputService.isBackspaceAvailable()) {
-      clearEntryAction();
-    } else if (inputService.isBackspaceAvailable()) {
-      String value = display.getText();
-      if (display.getText().endsWith(".")) {
-        try {
-          BigDecimal result = NumberFormatter.parse(display.getText());
+    try {
+      String displayText = display.getText();
+      if (isException) {
+        setNormal();
+      } else if (displayText.length() == 1 && inputService.isBackspaceAvailable()) {
+        clearEntryAction();
+      } else if (inputService.isBackspaceAvailable()) {
+        if (displayText.endsWith(String.valueOf(DECIMAL_SEPARATOR))) {
+          BigDecimal result = NumberFormatter.parse(displayText);
           int scale = result.scale();
-          value = NumberFormatter.format(result);
+          displayText = NumberFormatter.format(result);
           if (scale == 1) {
-            value += ".";
+            displayText += DECIMAL_SEPARATOR;
           }
-        } catch (Throwable e) {
-          handleError(e);
+        } else if (displayText.contains(String.valueOf(DECIMAL_SEPARATOR))) {
+          String[] displayArr = displayText.split("\\.");
+          displayText = displayArr[0] + DECIMAL_SEPARATOR + displayArr[1].substring(0, displayArr[1].length() - 1);
+        } else {
+          BigDecimal result = NumberFormatter.parse(displayText.substring(0, displayText.length() - 1));
+          displayText = NumberFormatter.format(result);
         }
-      } else if (display.getText().contains(".")) {
-        String[] displayArr = display.getText().split("\\.");
-        value = displayArr[0] + "." + displayArr[1].substring(0, displayArr[1].length() - 1);
-      } else {
-        try {
-          BigDecimal result = NumberFormatter.parse(display.getText().substring(0, display.getText().length() - 1));
-          value = NumberFormatter.format(result);
-        } catch (Throwable e) {
-          handleError(e);
-        }
-      }
 
-      display.setText(value);
+        display.setText(displayText);
+      }
+    } catch (Throwable e) {
+      e.printStackTrace();
     }
   }
 
@@ -467,18 +490,17 @@ public class RootController {
    */
   @FXML
   public void equalAction() {
-    if (isError) {
+    if (isException) {
       setNormal();
     }
-    formula.setText("");
-    formulaStr = "";
-    leftFormulaButton.setVisible(false);
-    rightFormulaButton.setVisible(false);
+    clearFormula();
     try {
       String value = inputService.enterEqual(display.getText());
       display.setText(value);
+    } catch (CannotDivideByZeroException | DivideZeroByZeroException | NegativeRootException | OverflowException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
   }
 
@@ -493,8 +515,10 @@ public class RootController {
     try {
       String value = inputService.unaryOp(ae, display.getText());
       display.setText(value);
+    } catch (NegativeRootException | CannotDivideByZeroException | OverflowException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
   }
 
@@ -505,13 +529,15 @@ public class RootController {
    */
   @FXML
   public void percentAction(ActionEvent ae) {
-    String value = display.getText();
+    String displayText = display.getText();
     try {
-      value = inputService.percentOp(display.getText());
+      displayText = inputService.percentOp(display.getText());
+    } catch (OverflowException | DivideZeroByZeroException | CannotDivideByZeroException | NegativeRootException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
-    display.setText(value);
+    display.setText(displayText);
     formulaCalc(ae);
   }
 
@@ -532,8 +558,8 @@ public class RootController {
     if (!inputService.isMemoryEmpty()) {
       try {
         display.setText(inputService.recallFromMemory());
-      } catch (Throwable e) {
-        handleError(e);
+      } catch (OverflowException e) {
+        handleException(e);
       }
     }
   }
@@ -554,8 +580,10 @@ public class RootController {
   public void memoryPlusAction() {
     try {
       inputService.addToMemory(display.getText());
+    } catch (OverflowException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
     memoryDisableIfEmpty();
   }
@@ -567,8 +595,10 @@ public class RootController {
   public void memoryMinusAction() {
     try {
       inputService.subToMemory(display.getText());
+    } catch (OverflowException e) {
+      handleException(e);
     } catch (Throwable e) {
-      handleError(e);
+      e.printStackTrace();
     }
     memoryDisableIfEmpty();
   }
@@ -578,42 +608,41 @@ public class RootController {
    */
   @FXML
   public void historyAction() {
+    boolean flag = historyPane.isDisable();
+
+    historyPane.setDisable(!flag);
+    historyUpperPane.setDisable(!flag);
+    historyLabel.setVisible(flag);
+    historyUpperPane.setVisible(flag);
+    memoryRecallButton.setDisable(flag);
+    memoryClearButton.setDisable(flag);
+    memoryPlusButton.setDisable(flag);
+    memoryMinusButton.setDisable(flag);
+    memoryShow.setDisable(flag);
+    memorySaveButton.setDisable(flag);
+
+    Background background;
     if (historyPane.isDisable()) {
-      historyPane.setDisable(false);
-      historyLabel.setVisible(true);
-      historyPane.setBackground(BACKGROUND);
-      historyUpperPane.setDisable(false);
-      historyUpperPane.setVisible(true);
-      memoryRecallButton.setDisable(true);
-      memoryClearButton.setDisable(true);
-      memoryPlusButton.setDisable(true);
-      memoryMinusButton.setDisable(true);
-      memoryShow.setDisable(true);
-      memorySaveButton.setDisable(true);
+      background = BACKGROUND;
     } else {
-      historyPane.setDisable(true);
-      historyLabel.setVisible(false);
-      historyPane.setBackground(Background.EMPTY);
-      historyUpperPane.setDisable(true);
-      historyUpperPane.setVisible(false);
-      memoryPlusButton.setDisable(false);
-      memoryMinusButton.setDisable(false);
-      memorySaveButton.setDisable(false);
+      background = Background.EMPTY;
       memoryDisableIfEmpty();
     }
+    historyPane.setBackground(background);
   }
+
 
   /**
    * Open side bar stub
    */
   @FXML
   public void openSideBar() {
-    Duration duration = Duration.millis(200);
+    Duration duration = Duration.millis(OPEN_SIDEBAR_DURATION);
     TranslateTransition transition = new TranslateTransition(duration, sideMenuBorderPane);
     if (isSideBarOpened) {
-      transition.setByX(-272);
+      transition.setByX(-SIDEBAR_SHIFT);
     } else {
-      transition.setByX(272);
+      transition.setByX(SIDEBAR_SHIFT);
     }
     transition.play();
     standardLabel.setVisible(!standardLabel.isVisible());
@@ -637,9 +666,9 @@ public class RootController {
   @FXML
   public void rightFormulaButtonAction() {
     leftFormulaButton.setVisible(true);
-    if (formulaEndIndex + 40 < formulaStr.length()) {
-      formulaBegIndex += 40;
-      formulaEndIndex += 40;
+    if (formulaEndIndex + FORMULA_MAX_LENGTH < formulaStr.length()) {
+      formulaBegIndex += FORMULA_MAX_LENGTH;
+      formulaEndIndex += FORMULA_MAX_LENGTH;
       formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
     } else {
       while (formula.getText().length() != formulaStr.length() - formulaBegIndex) {
@@ -657,9 +686,9 @@ public class RootController {
   @FXML
   public void leftFormulaButtonAction() {
     rightFormulaButton.setVisible(true);
-    if (formulaBegIndex > 40) {
-      formulaBegIndex -= 40;
-      formulaEndIndex -= 40;
+    if (formulaBegIndex > FORMULA_MAX_LENGTH) {
+      formulaBegIndex -= FORMULA_MAX_LENGTH;
+      formulaEndIndex -= FORMULA_MAX_LENGTH;
       formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
     } else {
       formulaBegIndex = 0;
@@ -672,7 +701,7 @@ public class RootController {
   private void formulaCalc(ActionEvent event) {
     formulaStr = inputService.highFormula(event, formulaStr, display.getText());
     Text text = new Text(formulaStr);
-    text.setFont(new Font("Segoe UI", 14));
+    text.setFont(DEFAULT_FONT);
     if (text.getLayoutBounds().getWidth() > formula.getWidth()) {
       leftFormulaButton.setVisible(true);
       for (int i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) {
@@ -688,44 +717,45 @@ public class RootController {
     formula.setText(text.getText());
   }
 
-  private void handleError(Throwable throwable) {
-    isError = true;
+  private void handleException(Exception e) {
+    isException = true;
 
-    if (throwable instanceof CalculationException) {
-      display.setText(throwable.getMessage());
-    } else {
-      display.setText("Something get wrong");
-      throwable.printStackTrace();
-    }
+    display.setText(e.getMessage());
 
-    Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
-        multiplyButton, reverseButton, memoryClearButton, memoryMinusButton, memoryPlusButton, memoryRecallButton,
-        memorySaveButton, memoryShow).collect(Collectors.toList()).forEach(button -> button.setDisable(true));
+    disableButtonIfError();
   }
 
   private void setNormal() {
-    isError = false;
+    isException = false;
     clearAction();
 
-    Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
-        multiplyButton, reverseButton, memoryMinusButton, memoryPlusButton, memorySaveButton).
-        collect(Collectors.toList()).forEach(button -> button.setDisable(false));
+    disableButtonIfError();
 
     memoryDisableIfEmpty();
   }
 
+  private void disableButtonIfError() {
+    Stream.of(negateButton, addButton, subtractButton, sqrtButton, percentButton, pointButton, powButton, divideButton,
+        multiplyButton, reverseButton, memoryMinusButton, memoryPlusButton, memorySaveButton, memoryShow,
+        memoryRecallButton, memoryClearButton).forEach(button -> button.setDisable(isException));
+  }
+
   private void memoryDisableIfEmpty() {
-    if (inputService.isMemoryEmpty()) {
-      memoryShow.setDisable(true);
-      memoryClearButton.setDisable(true);
-      memoryRecallButton.setDisable(true);
-      memoryShow.setDisable(true);
-    } else {
-      memoryShow.setDisable(false);
-      memoryClearButton.setDisable(false);
-      memoryRecallButton.setDisable(false);
-      memoryShow.setDisable(false);
-    }
+    setMemoryFlags(inputService.isMemoryEmpty());
+  }
+
+  private void setMemoryFlags(boolean flag) {
+    memoryShow.setDisable(flag);
+    memoryClearButton.setDisable(flag);
+    memoryRecallButton.setDisable(flag);
+    memoryShow.setDisable(flag);
+  }
+
+  private void clearFormula() {
+    formula.setText("");
+    formulaStr = "";
+    leftFormulaButton.setVisible(false);
+    rightFormulaButton.setVisible(false);
   }
 
   public String getFormulaStr() {

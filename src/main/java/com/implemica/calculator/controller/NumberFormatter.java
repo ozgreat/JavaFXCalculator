@@ -26,22 +26,22 @@ class NumberFormatter {
    *
    * @see DecimalFormat
    */
-  private static String POSITIVE_EXPONENT_SEP = "E+";
+  private static String POSITIVE_EXPONENT_SEPARATOR = "E+";
 
   /**
    * Default exponent separator
    */
-  private static String DEFAULT_EXPONENT_SEP = "E";
+  private static String DEFAULT_EXPONENT_SEPARATOR = "E";
 
   /**
    * Separator, that separate integer and decimal part of number
    */
-  private static char DECIMAL_SEP = '.';
+  static char DECIMAL_SEPARATOR = '.';
 
   /**
    * Separator, that separate group of number in integer part of number
    */
-  private static char GROUP_SEP = ',';
+  private static char GROUP_SEPARATOR = ',';
 
   /**
    * {@link DecimalFormat} object, that we use to format and parse numbers
@@ -76,11 +76,11 @@ class NumberFormatter {
   /**
    * Pattern of Integer part in common case
    */
-  private static final String GROUP_PATTERN = "###" + GROUP_SEP + "###" + DECIMAL_SEP;
+  private static final String GROUP_PATTERN = "###" + GROUP_SEPARATOR + "###" + DECIMAL_SEPARATOR;
 
   static {
-    symbols.setGroupingSeparator(GROUP_SEP);
-    symbols.setDecimalSeparator(DECIMAL_SEP);
+    symbols.setGroupingSeparator(GROUP_SEPARATOR);
+    symbols.setDecimalSeparator(DECIMAL_SEPARATOR);
     formatter.setDecimalFormatSymbols(symbols);
     formatter.setParseBigDecimal(true);
   }
@@ -112,7 +112,7 @@ class NumberFormatter {
     String pattern;
 
     if (numberInWork.abs().compareTo(MIN_PLAIN) < 0 && numberInWork.scale() > MAX_SYMBOLS) {
-      pattern = "0" + DECIMAL_SEP + FIFTEEN_DIEZ + DEFAULT_EXPONENT_SEP + "0";
+      pattern = "0" + DECIMAL_SEPARATOR + FIFTEEN_DIEZ + DEFAULT_EXPONENT_SEPARATOR + "0";
     } else {
       int scale = numberInWork.scale();
       int precision = numberInWork.precision();
@@ -126,7 +126,7 @@ class NumberFormatter {
       intPartSize = precision - scale;
 
       if (intPartSize > MAX_SYMBOLS) {
-        pattern = "0" + DECIMAL_SEP;
+        pattern = "0" + DECIMAL_SEPARATOR;
 
         if (scale > 0 && scale < MAX_SYMBOLS) {
           pattern += "0".repeat(scale);
@@ -134,7 +134,7 @@ class NumberFormatter {
           pattern += FIFTEEN_DIEZ;
         }
 
-        pattern += DEFAULT_EXPONENT_SEP + "0";
+        pattern += DEFAULT_EXPONENT_SEPARATOR + "0";
       } else {
         if (intPartSize < 0) {
           intPartSize = 0;
@@ -148,11 +148,11 @@ class NumberFormatter {
 
     String res = formatter.format(numberInWork);
 
-    if (res.contains(DEFAULT_EXPONENT_SEP) && !res.contains(String.valueOf(DECIMAL_SEP))) {
-      res = res.replace(DEFAULT_EXPONENT_SEP, DECIMAL_SEP + DEFAULT_EXPONENT_SEP);
+    if (res.contains(DEFAULT_EXPONENT_SEPARATOR) && !res.contains(String.valueOf(DECIMAL_SEPARATOR))) {
+      res = res.replace(DEFAULT_EXPONENT_SEPARATOR, DECIMAL_SEPARATOR + DEFAULT_EXPONENT_SEPARATOR);
     }
 
-    if (res.endsWith(String.valueOf(DECIMAL_SEP))) {
+    if (res.endsWith(String.valueOf(DECIMAL_SEPARATOR))) {
       res = res.substring(0, res.length() - 1);
     }
 
@@ -162,8 +162,8 @@ class NumberFormatter {
         trailingZerosAmount = MAX_SYMBOLS - intPartSize;
       }
 
-      if (!res.contains(String.valueOf(DECIMAL_SEP))) {
-        res += DECIMAL_SEP;
+      if (!res.contains(String.valueOf(DECIMAL_SEPARATOR))) {
+        res += DECIMAL_SEPARATOR;
       }
 
       if (trailingZerosAmount <= (MAX_SYMBOLS - intPartSize)) {
@@ -182,9 +182,9 @@ class NumberFormatter {
   private static void setExponentSep(boolean isPositive) {
     String EXPONENT_SEP;
     if (isPositive) {
-      EXPONENT_SEP = POSITIVE_EXPONENT_SEP;
+      EXPONENT_SEP = POSITIVE_EXPONENT_SEPARATOR;
     } else {
-      EXPONENT_SEP = DEFAULT_EXPONENT_SEP;
+      EXPONENT_SEP = DEFAULT_EXPONENT_SEPARATOR;
     }
     symbols.setExponentSeparator(EXPONENT_SEP);
     formatter.setDecimalFormatSymbols(symbols);
@@ -201,7 +201,7 @@ class NumberFormatter {
    * @see ParseException
    */
   public static BigDecimal parse(String str) throws ParseException {
-    setExponentSep(str.contains(POSITIVE_EXPONENT_SEP));
+    setExponentSep(str.contains(POSITIVE_EXPONENT_SEPARATOR));
 
     return (BigDecimal) formatter.parse(str);
   }
@@ -213,7 +213,7 @@ class NumberFormatter {
    * @return number without group separator
    */
   public static String removeGroupSeparator(String number) {
-    return number.replace(String.valueOf(GROUP_SEP), "");
+    return number.replace(String.valueOf(GROUP_SEPARATOR), "");
   }
 
   /**
@@ -227,6 +227,6 @@ class NumberFormatter {
     boolean isFirstZero = number.startsWith("0") || number.startsWith("-0");
     int coef = isFirstZero ? 1 : 0;
 
-    return MAX_SYMBOLS + coef < number.replace("-", "").replace(String.valueOf(DECIMAL_SEP), "").length();
+    return MAX_SYMBOLS + coef < number.replace("-", "").replace(String.valueOf(DECIMAL_SEPARATOR), "").length();
   }
 }

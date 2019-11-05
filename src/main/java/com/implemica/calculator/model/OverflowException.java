@@ -5,7 +5,7 @@ package com.implemica.calculator.model;
  *
  * @author ozgreat
  */
-public class OverflowException extends CalculationException {
+public class OverflowException extends Exception {
   /**
    * Message of exception
    */
