@@ -19,6 +19,45 @@ import static com.implemica.calculator.model.ArithmeticOperation.*;
  * @see CalculatorState
  */
 public class CalculatorModel {
+
+  /**
+   * Maximum scale of number
+   *
+   * @see BigDecimal
+   */
+  private static final int DIVIDE_SCALE = 10000;
+
+  /**
+   * {@link Map} of binary operations
+   */
+  private final static Map<ArithmeticOperation, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
+
+  /**
+   * {@link Map} of unary operations
+   */
+  private final static Map<ArithmeticOperation, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
+
+  /**
+   * First impossible {@link BigDecimal} value, that bigger than one
+   */
+  private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
+
+  /**
+   * First impossible {@link BigDecimal} value, that less that minus one
+   */
+  private static final BigDecimal MIN_DECIMAL = new BigDecimal("-1E10000");
+
+  /**
+   * Minimum possible positive {@link BigDecimal} value in calculator
+   */
+  private static final BigDecimal MIN_POSITIVE = new BigDecimal("1E-9999");
+
+  /**
+   * {@link MathContext} for sqrt operation
+   */
+  private static final MathContext SQRT_CONTEXT = new MathContext(10000);
+
+
   /**
    * Left operand of binary and percent operations
    */
@@ -28,6 +67,39 @@ public class CalculatorModel {
    * Right operand of binary and percent operations
    */
   private BigDecimal rightOperand;
+
+  /**
+   * Memory cell in calculator
+   */
+  private BigDecimal memory;
+
+  /**
+   * {@link ArithmeticOperation}, that user will be use
+   */
+  private ArithmeticOperation operation;
+
+  /**
+   * {@link ArithmeticOperation}, that user before current
+   */
+  private ArithmeticOperation prevOperation;
+
+  /**
+   * Current state of calculator
+   */
+  private CalculatorState calculatorState = CalculatorState.LEFT;
+
+  static {
+    binaryOperations.put(ADD, BigDecimal::add);
+    binaryOperations.put(SUBTRACT, BigDecimal::subtract);
+    binaryOperations.put(MULTIPLY, BigDecimal::multiply);
+    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, DIVIDE_SCALE, RoundingMode.HALF_UP));
+
+    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, DIVIDE_SCALE, RoundingMode.HALF_UP));//⅟𝑥
+    unaryOperations.put(POW, x -> x.pow(2));//𝑥²
+    unaryOperations.put(NEGATE, BigDecimal::negate);//±
+    unaryOperations.put(SQRT, x -> x.sqrt(SQRT_CONTEXT));
+  }
+
 
   public void setLeftOperand(BigDecimal leftOperand) {
     this.leftOperand = leftOperand;
@@ -56,68 +128,6 @@ public class CalculatorModel {
 
   public void setCalculatorState(CalculatorState calculatorState) {
     this.calculatorState = calculatorState;
-  }
-
-  /**
-   * Memory cell in calculator
-   */
-  private BigDecimal memory;
-
-  /**
-   * {@link ArithmeticOperation}, that user will be use
-   */
-  private ArithmeticOperation operation;
-
-  /**
-   * {@link ArithmeticOperation}, that user before current
-   */
-  private ArithmeticOperation prevOperation;
-
-  /**
-   * Current state of calculator
-   */
-  private CalculatorState calculatorState = CalculatorState.LEFT;
-
-  /**
-   * Maximum scale of number
-   *
-   * @see BigDecimal
-   */
-  private static final int DIVIDE_SCALE = 10000;
-
-  /**
-   * {@link Map} of binary operations
-   */
-  private final static Map<ArithmeticOperation, BinaryOperator<BigDecimal>> binaryOperations = new HashMap<>();
-
-  /**
-   * {@link Map} of unary operations
-   */
-  private final static Map<ArithmeticOperation, UnaryOperator<BigDecimal>> unaryOperations = new HashMap<>();
-
-  /**
-   * First {@link BigDecimal} value, that bigger than one and can't be calculating
-   */
-  private static final BigDecimal MAX_DECIMAL = new BigDecimal("1E10000");
-
-  private static final BigDecimal MIN_DECIMAL = new BigDecimal("-1E10000");
-
-  private static final BigDecimal MIN_POSITIVE = new BigDecimal("1E-9999");
-
-  private static final BigDecimal MIN_NEGATIVE = new BigDecimal("-1E-9999");
-
-  private static final MathContext SQRT_CONTEXT = new MathContext(10000);
-
-  static {
-    binaryOperations.put(ADD, BigDecimal::add);
-    binaryOperations.put(SUBTRACT, BigDecimal::subtract);
-    binaryOperations.put(MULTIPLY, BigDecimal::multiply);
-    binaryOperations.put(DIVIDE, (left, right) -> left.divide(right, DIVIDE_SCALE, RoundingMode.HALF_UP));
-
-    unaryOperations.put(REVERSE, x -> BigDecimal.ONE.divide(x, DIVIDE_SCALE, RoundingMode.HALF_UP));//⅟𝑥
-    unaryOperations.put(POW, x -> x.pow(2));//𝑥²
-    unaryOperations.put(NEGATE, BigDecimal::negate);//±
-    unaryOperations.put(SQRT, x -> x.sqrt(SQRT_CONTEXT));
   }
 
 
@@ -281,8 +291,7 @@ public class CalculatorModel {
   }
 
   private static boolean checkMinNumbers(BigDecimal num) {
-    return (num.compareTo(MIN_POSITIVE) < 0 && num.compareTo(BigDecimal.ZERO) > 0)
-        || (num.compareTo(MIN_NEGATIVE) > 0 && num.compareTo(BigDecimal.ZERO) < 0);
+    return (num.abs().compareTo(MIN_POSITIVE) < 0 && num.abs().compareTo(BigDecimal.ZERO) > 0);
   }
 
   /**
@@ -292,11 +301,14 @@ public class CalculatorModel {
    * @param firstOperand  first operand of calculation
    * @param secondOperand second operand of calculation
    * @return result of calculation, that written at left or right operand field
-   * @throws ArithmeticException If Overflow, Invalid input or Dividing by Zero
+   * @throws OverflowException if calculation result too big or too small
+   * @throws DivideZeroByZeroException if first and second operand are 0 and operation is divide
+   * @throws CannotDivideByZeroException if second operand is 0 and operation is divide
+   * @throws NegativeRootException if operand is negative and operations is sqrt
    */
   public BigDecimal calculate(ArithmeticOperation operation, BigDecimal firstOperand, BigDecimal secondOperand)
       throws OverflowException, DivideZeroByZeroException, CannotDivideByZeroException, NegativeRootException {
-    BigDecimal result = null;
+    BigDecimal result = firstOperand;
     if (operation.getType() == ArithmeticOperationType.BINARY) {
       leftOperand = firstOperand;
       rightOperand = secondOperand;
@@ -450,6 +462,14 @@ public class CalculatorModel {
     return calculate(operation, null);
   }
 
+  /**
+   * Calculating of memory operations
+   *
+   * @param operation    {@link MemoryOperation} that have to be calculated
+   * @param firstOperand {@link BigDecimal} which we have to perform the operation
+   * @return result of calculation
+   * @throws OverflowException if calculated value is to or to small
+   */
   public BigDecimal calculateMemory(MemoryOperation operation, BigDecimal firstOperand) throws OverflowException {
     if (firstOperand == null) {
       if (calculatorState == CalculatorState.RIGHT) {
@@ -471,6 +491,13 @@ public class CalculatorModel {
     return memory;
   }
 
+  /**
+   * {@code calculateMemory} method, when operand is null, because we don't need them(MC or MR) or we set that earlier
+   *
+   * @param operation {@link MemoryOperation} that have to be calculated
+   * @return result of calculation
+   * @throws OverflowException if calculated value is to or to small
+   */
   public BigDecimal calculateMemory(MemoryOperation operation) throws OverflowException {
     return calculateMemory(operation, null);
   }

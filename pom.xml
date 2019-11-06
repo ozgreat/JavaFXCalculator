@@ -60,13 +60,6 @@
             <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
-
-        <!--Guava-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>28.0-jre</version>
-        </dependency>
     </dependencies>
 
     <build>

@@ -1,5 +1,10 @@
 package com.implemica.calculator.model;
 
+/**
+ * Enum of possible memory operations in calculator
+ *
+ * @author ozgreat
+ */
 public enum MemoryOperation {
   /**
    * Memory add operation

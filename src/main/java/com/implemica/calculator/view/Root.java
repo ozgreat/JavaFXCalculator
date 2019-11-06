@@ -31,46 +31,135 @@ import java.io.IOException;
  * and hiding of window.
  */
 public class Root extends Application {
+  /**
+   * Path to fmxl file of stage
+   */
   private static final String ROOT_FXML_PATH = "com/implemica/calculator/view/root.fxml";
+  /**
+   * Title text of window
+   */
   private static final String TITLE = "Calculator";
+  /**
+   * Path to icon of application
+   */
   private static final String ICON_PATH = "/com/implemica/calculator/view/icon.png";
+  /**
+   * Width from border of application after which text on display starts getting smaller
+   */
   private static final double FONT_CHANGE_WIDTH_DOWN = 34.98;
+  /**
+   * Width from border of application after which text on display starts getting bigger
+   */
   private static final double FONT_CHANGE_WIDTH_UP = 50d;
+  /**
+   * Maximum font size
+   */
   private static final double MAX_FONT_SIZE = 74d;
-  private static final String SEGOE_UI_SEMIBOLD = "Segoe UI Semibold";
-  private static final double MIN_HEIGHT_DELTA = 468.75;
-  private static final double MAX_HEIGHT_DELTA = 516.76;
+  /**
+   * Name of standard font
+   */
+  private static final String DEFAULT_FONT = "Segoe UI Semibold";
+  /**
+   * Delta of text on buttons width and width of scene, when button's font size starts growing
+   */
+  private static final double GROWING_HEIGHT_DELTA = 468.75;
+  /**
+   * Delta of text on buttons width and width of scene, when button's font size starts decrease
+   */
+  private static final double DECREASE_HEIGHT_DELTA = 516.76;
+  /**
+   * Current {@code Root} object
+   */
   private static Root root;
-
-  private FXMLLoader loader = new FXMLLoader(Root.class.getClassLoader().getResource(ROOT_FXML_PATH));
-  private Parent parent;
-  private Stage stage;
-  private BorderPane mainPane;
-  private Label display;
+  /**
+   * Current scene
+   */
   private static Scene scene;
 
-  private static double xOffset = 0;
+  /**
+   * Loader of fxml
+   */
+  private FXMLLoader loader = new FXMLLoader(Root.class.getClassLoader().getResource(ROOT_FXML_PATH));
+  /**
+   * Parent node
+   */
+  private Parent parent;
+  /**
+   * Current stage
+   */
+  private Stage stage;
+  /**
+   * Main pane of application
+   */
+  private BorderPane mainPane;
+  /**
+   * Display label
+   */
+  private Label display;
 
+  /**
+   * X coordinate of current position.
+   */
+  private static double xOffset = 0;
+  /**
+   * Y coordinate of current position.
+   */
   private static double yOffset = 0;
 
+  /**
+   * X coordinate of moving
+   */
   private double dx;
+  /**
+   * Y coordinate of moving
+   */
   private double dy;
-  private double deltaX;
-  private double deltaY;
-  private final static double border = 5;
+  /**
+   * Padding for application in which resize is possible.
+   */
+  private final static double BORDER = 5;
+  /**
+   * True if application should be moved horizontally (when the cursor is on the left edge of the window).
+   */
   private boolean moveH;
+  /**
+   * True if application should be moved vertically (when the cursor is on the top edge of the window).
+   */
   private boolean moveV;
+  /**
+   * True if applying horizontal resizing.
+   */
   private boolean resizeH = false;
+  /**
+   * True if applying vertical resizing.
+   */
   private boolean resizeV = false;
+  /**
+   * True if application now is fullscreen
+   */
   private boolean isFullscreen = false;
 
+  /**
+   * Current screen
+   */
   private Screen screen;
+  /**
+   * Application window bounds
+   */
   private Rectangle2D backupWindowBounds;
 
-
+  /**
+   * Application window min size
+   */
   private Dimension2D minSize = new Dimension2D(325, 530);
 
 
+  /**
+   * Starting method
+   *
+   * @param primaryStage - the primary stage for this application, onto which the application scene can be set.
+   * @throws IOException if didn't find and/or load fxml file
+   */
   @Override
   public void start(Stage primaryStage) throws IOException {
     stage = primaryStage;
@@ -127,7 +216,7 @@ public class Root extends Application {
     display.textProperty().addListener(observable -> {
       Text text = new Text(display.getText());
       double fontSize = display.getFont().getSize();
-      text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
+      text.setFont(new Font(DEFAULT_FONT, fontSize));
       double width = text.getLayoutBounds().getWidth();
       Scene scene = display.getScene();
       double sceneWidth = scene.getWidth();
@@ -136,9 +225,9 @@ public class Root extends Application {
       double heightDelta = sceneHeight - textHeight;
 
 
-      while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width || heightDelta < MAX_HEIGHT_DELTA) {
+      while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width || heightDelta < DECREASE_HEIGHT_DELTA) {
         fontSize--;
-        text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
+        text.setFont(new Font(DEFAULT_FONT, fontSize));
         width = text.getLayoutBounds().getWidth();
         textHeight = text.getLayoutBounds().getHeight();
         heightDelta = sceneHeight - textHeight;
@@ -146,9 +235,9 @@ public class Root extends Application {
 
 
       while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && fontSize <= MAX_FONT_SIZE
-          && heightDelta > MIN_HEIGHT_DELTA) {
+          && heightDelta > GROWING_HEIGHT_DELTA) {
         fontSize++;
-        text.setFont(new Font(SEGOE_UI_SEMIBOLD, fontSize));
+        text.setFont(new Font(DEFAULT_FONT, fontSize));
         width = text.getLayoutBounds().getWidth();
         textHeight = text.getLayoutBounds().getHeight();
         heightDelta = sceneHeight - textHeight;
@@ -156,7 +245,7 @@ public class Root extends Application {
 
 
       display.setStyle(" -fx-font-size:" + fontSize + ";\n" +
-          "  -fx-font-family: \"" + SEGOE_UI_SEMIBOLD + "\";\n" +
+          "  -fx-font-family: \"" + DEFAULT_FONT + "\";\n" +
           "  -fx-text-alignment: right;");
 
 
@@ -169,6 +258,7 @@ public class Root extends Application {
 
   /**
    * Return scene, if scene is null init, them
+   *
    * @return scene
    * @throws IOException if fxml not loaded
    */
@@ -179,6 +269,11 @@ public class Root extends Application {
     return scene;
   }
 
+  /**
+   * return {@code root}. If root is null init new
+   *
+   * @return {@code root}
+   */
   public static Root getRoot() {
     if (root == null) {
       root = new Root();
@@ -264,7 +359,7 @@ public class Root extends Application {
 
     if (stage.getHeight() >= screen.getVisualBounds().getHeight() && stage.getWidth() >= (screen.getVisualBounds().getWidth() / 2d)) {
       resizeButtonTextPlus();
-    }else{
+    } else {
       resizeButtonTextMinus();
     }
   }
@@ -272,6 +367,7 @@ public class Root extends Application {
   private void dragResize(MouseEvent event) {
     Stage stage = (Stage) mainPane.getScene().getWindow();
     if (resizeH) {
+      double deltaX;
       if (stage.getWidth() <= minSize.getWidth()) {
         if (moveH) {
           deltaX = stage.getX() - event.getScreenX() + 1;
@@ -296,6 +392,7 @@ public class Root extends Application {
     }
 
     if (resizeV) {
+      double deltaY;
       if (stage.getHeight() <= minSize.getHeight()) {
         if (moveV) {
           deltaY = stage.getY() - event.getScreenY() + 1;
@@ -328,42 +425,42 @@ public class Root extends Application {
 
   private void moveResize(MouseEvent t) {
     Scene scene = mainPane.getScene();
-    if (t.getX() < border && t.getY() < border) {
+    if (t.getX() < BORDER && t.getY() < BORDER) {
       scene.setCursor(Cursor.NW_RESIZE);
       resizeH = true;
       resizeV = true;
       moveH = true;
       moveV = true;
-    } else if (t.getX() < border && t.getY() > scene.getHeight() - border) {
+    } else if (t.getX() < BORDER && t.getY() > scene.getHeight() - BORDER) {
       scene.setCursor(Cursor.SW_RESIZE);
       resizeH = true;
       resizeV = true;
       moveH = true;
       moveV = false;
-    } else if (t.getX() > scene.getWidth() - border && t.getY() < border) {
+    } else if (t.getX() > scene.getWidth() - BORDER && t.getY() < BORDER) {
       scene.setCursor(Cursor.NE_RESIZE);
       resizeH = true;
       resizeV = true;
       moveH = false;
       moveV = true;
-    } else if (t.getX() > scene.getWidth() - border && t.getY() > scene.getHeight() - border) {
+    } else if (t.getX() > scene.getWidth() - BORDER && t.getY() > scene.getHeight() - BORDER) {
       scene.setCursor(Cursor.SE_RESIZE);
       resizeH = true;
       resizeV = true;
       moveH = false;
       moveV = false;
-    } else if (t.getX() < border || t.getX() > scene.getWidth() - border) {
+    } else if (t.getX() < BORDER || t.getX() > scene.getWidth() - BORDER) {
       scene.setCursor(Cursor.E_RESIZE);
       resizeH = true;
       resizeV = false;
-      moveH = (t.getX() < border);
+      moveH = (t.getX() < BORDER);
       moveV = false;
-    } else if (t.getY() < border || t.getY() > scene.getHeight() - border) {
+    } else if (t.getY() < BORDER || t.getY() > scene.getHeight() - BORDER) {
       scene.setCursor(Cursor.N_RESIZE);
       resizeH = false;
       resizeV = true;
       moveH = false;
-      moveV = (t.getY() < border);
+      moveV = (t.getY() < BORDER);
     } else {
       scene.setCursor(Cursor.DEFAULT);
       resizeH = false;

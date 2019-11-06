@@ -2,6 +2,8 @@ package com.implemica.calculator.model;
 
 /**
  * Enum that contains possible status in calculator
+ *
+ * @author ozgreat
  */
 public enum CalculatorState {
   /**

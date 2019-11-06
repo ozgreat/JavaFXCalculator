@@ -148,7 +148,6 @@ class InputService {
   }
 
   /**
-   * 1
    * Set calculatorState to CalculatorState.AFTER to type new numbers like textArea is clear
    */
   public void clearDisplay() {
@@ -384,20 +383,22 @@ class InputService {
   }
 
   private String leftOrAfterHighFormula(Button btn, String oldFormula, String display) {
+    String formula = "";
     if (binaryOperationObject.containsKey(btn.getText())) {
       if (oldFormula.endsWith(")")) {
-        return oldFormula + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+        formula = oldFormula + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+      } else {
+        formula = display.replaceAll(",", "") + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
       }
-      return display.replaceAll(",", "") + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
     } else if (unaryOperationObject.containsKey(btn.getText()) && !btn.getText().equals("\uE94D")) {
       if (oldFormula.endsWith(")")) {
-        return operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + oldFormula + " )";
+        formula = operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + oldFormula + " )";
+      } else {
+        formula = operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + display.replaceAll(",", "") + " )";
       }
-
-      return operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + display.replaceAll(",", "") + " )";
-    } else {
-      return "";
     }
+
+    return formula;
   }
 
   private String rightHighFormula(Button btn, String oldFormula, String display) {

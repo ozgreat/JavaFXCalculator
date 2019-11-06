@@ -8,6 +8,7 @@ import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -34,6 +35,7 @@ import static com.implemica.calculator.controller.NumberFormatter.DECIMAL_SEPARA
 /**
  * FX Controller for {@link com.implemica.calculator.view.Root}
  *
+ * @author ozgreat
  * @see InputService
  * @see com.implemica.calculator.view.Root
  */
@@ -126,7 +128,6 @@ public class RootController {
   /**
    * Sidebar's opening shift value
    */
-
   private static final int SIDEBAR_SHIFT = 272;
 
   /**
@@ -339,6 +340,9 @@ public class RootController {
    */
   private int formulaEndIndex;
 
+  /**
+   * True when exception was caught
+   */
   private boolean isException = false;
 
   /**
@@ -404,6 +408,7 @@ public class RootController {
     } catch (OverflowException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
   }
@@ -447,6 +452,7 @@ public class RootController {
     } catch (CannotDivideByZeroException | DivideZeroByZeroException | OverflowException | NegativeRootException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
   }
@@ -481,6 +487,7 @@ public class RootController {
         display.setText(displayText);
       }
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
   }
@@ -500,6 +507,7 @@ public class RootController {
     } catch (CannotDivideByZeroException | DivideZeroByZeroException | NegativeRootException | OverflowException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
   }
@@ -518,6 +526,7 @@ public class RootController {
     } catch (NegativeRootException | CannotDivideByZeroException | OverflowException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
   }
@@ -535,6 +544,7 @@ public class RootController {
     } catch (OverflowException | DivideZeroByZeroException | CannotDivideByZeroException | NegativeRootException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
     display.setText(displayText);
@@ -583,6 +593,7 @@ public class RootController {
     } catch (OverflowException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
     memoryDisableIfEmpty();
@@ -598,6 +609,7 @@ public class RootController {
     } catch (OverflowException e) {
       handleException(e);
     } catch (Throwable e) {
+      alertError(e);
       e.printStackTrace();
     }
     memoryDisableIfEmpty();
@@ -622,7 +634,7 @@ public class RootController {
     memorySaveButton.setDisable(flag);
 
     Background background;
-    if (historyPane.isDisable()) {
+    if (flag) {
       background = BACKGROUND;
     } else {
       background = Background.EMPTY;
@@ -760,5 +772,17 @@ public class RootController {
 
   public String getFormulaStr() {
     return formulaStr;
+  }
+
+  private void alertError(Throwable e) {
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setTitle("Unexpected error");
+    alert.setHeaderText("Unexpected error");
+    alert.setContentText("Unexpected error was thrown with message:\n" + e.getMessage() +
+        "\nCalculator will be reset.");
+
+    isException = true;
+    memoryClearAction();
+    setNormal();
   }
 }

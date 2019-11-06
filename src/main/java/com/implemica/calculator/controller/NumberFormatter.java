@@ -78,6 +78,11 @@ class NumberFormatter {
    */
   private static final String GROUP_PATTERN = "###" + GROUP_SEPARATOR + "###" + DECIMAL_SEPARATOR;
 
+  /**
+   * Zero string
+   */
+  private static final String ZERO = "0";
+
   static {
     symbols.setGroupingSeparator(GROUP_SEPARATOR);
     symbols.setDecimalSeparator(DECIMAL_SEPARATOR);
@@ -112,7 +117,7 @@ class NumberFormatter {
     String pattern;
 
     if (numberInWork.abs().compareTo(MIN_PLAIN) < 0 && numberInWork.scale() > MAX_SYMBOLS) {
-      pattern = "0" + DECIMAL_SEPARATOR + FIFTEEN_DIEZ + DEFAULT_EXPONENT_SEPARATOR + "0";
+      pattern = ZERO + DECIMAL_SEPARATOR + FIFTEEN_DIEZ + DEFAULT_EXPONENT_SEPARATOR + ZERO;
     } else {
       int scale = numberInWork.scale();
       int precision = numberInWork.precision();
@@ -126,15 +131,15 @@ class NumberFormatter {
       intPartSize = precision - scale;
 
       if (intPartSize > MAX_SYMBOLS) {
-        pattern = "0" + DECIMAL_SEPARATOR;
+        pattern = ZERO + DECIMAL_SEPARATOR;
 
         if (scale > 0 && scale < MAX_SYMBOLS) {
-          pattern += "0".repeat(scale);
+          pattern += ZERO.repeat(scale);
         } else {
           pattern += FIFTEEN_DIEZ;
         }
 
-        pattern += DEFAULT_EXPONENT_SEPARATOR + "0";
+        pattern += DEFAULT_EXPONENT_SEPARATOR + ZERO;
       } else {
         if (intPartSize < 0) {
           intPartSize = 0;
@@ -167,7 +172,7 @@ class NumberFormatter {
       }
 
       if (trailingZerosAmount <= (MAX_SYMBOLS - intPartSize)) {
-        res += "0".repeat(trailingZerosAmount);
+        res += ZERO.repeat(trailingZerosAmount);
       }
     }
 
@@ -224,7 +229,7 @@ class NumberFormatter {
    */
   public static boolean isTooBigToInput(String number) {
     number = removeGroupSeparator(number);
-    boolean isFirstZero = number.startsWith("0") || number.startsWith("-0");
+    boolean isFirstZero = number.startsWith(ZERO) || number.startsWith("-0");
     int coef = isFirstZero ? 1 : 0;
 
     return MAX_SYMBOLS + coef < number.replace("-", "").replace(String.valueOf(DECIMAL_SEPARATOR), "").length();

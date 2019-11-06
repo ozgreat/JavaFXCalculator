@@ -1,7 +1,9 @@
 package com.implemica.calculator.model;
 
 /**
- * Enum of operation's type
+ * Enum of arithmetic operation's type in calculator
+ *
+ * @author ozgreat
  */
 public enum ArithmeticOperationType {
   /**
