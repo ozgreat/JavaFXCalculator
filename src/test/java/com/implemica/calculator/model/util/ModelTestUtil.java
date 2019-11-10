@@ -40,8 +40,7 @@ public class ModelTestUtil {
 
   protected CalculatorModel calc;
 
-  private BigDecimal patternRun(String pattern) throws DivideZeroByZeroException, OverflowException,
-      CannotDivideByZeroException, NegativeRootException {
+  private BigDecimal patternRun(String pattern) throws CalculatorException {
     pattern = patternBuilder(pattern);
     BigDecimal x = BigDecimal.ZERO;
     String[] split = pattern.split(" ");
@@ -96,8 +95,7 @@ public class ModelTestUtil {
     return patternBuilder.toString();
   }
 
-  protected void checkOperations(String pattern, String expected) throws NegativeRootException, OverflowException,
-      CannotDivideByZeroException, DivideZeroByZeroException {
+  protected void checkOperations(String pattern, String expected) throws CalculatorException {
     BigDecimal x = patternRun(pattern);
 
 
@@ -105,16 +103,15 @@ public class ModelTestUtil {
     assertEquals(0, x.compareTo(new BigDecimal(expected)));
   }
 
-  protected void checkOperations(String pattern) throws NegativeRootException, OverflowException,
-      CannotDivideByZeroException, DivideZeroByZeroException {
+  protected void checkOperations(String pattern) throws CalculatorException {
     assertNull(patternRun(pattern));
   }
 
-  protected void checkThrow(String pattern, String expectedMessage) {
+  protected void checkThrow(String pattern, CalculatorExceptionType expectedType) {
     try {
       patternRun(pattern);
-    } catch (CannotDivideByZeroException | DivideZeroByZeroException | OverflowException | NegativeRootException e) {
-      assertEquals(expectedMessage, e.getMessage());
+    } catch (CalculatorException e) {
+      assertEquals(expectedType, e.getType());
     }
   }
 }

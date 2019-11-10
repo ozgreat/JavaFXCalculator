@@ -1,7 +1,7 @@
 package com.implemica.calculator.controller;
 
+import com.implemica.calculator.model.CalculatorException;
 import com.implemica.calculator.model.CalculatorModel;
-import com.implemica.calculator.model.OverflowException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -101,7 +101,7 @@ class NumberFormatter {
    * @see DecimalFormat
    * @see DecimalFormatSymbols
    */
-  public static String format(BigDecimal number) throws OverflowException {
+  public static String format(BigDecimal number) throws CalculatorException {
     BigDecimal numberInWork;
 
     if (number.scale() == 0) {

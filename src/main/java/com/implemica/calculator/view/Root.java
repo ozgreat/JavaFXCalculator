@@ -216,7 +216,7 @@ public class Root extends Application {
     display.textProperty().addListener(observable -> {
       Text text = new Text(display.getText());
       double fontSize = display.getFont().getSize();
-      text.setFont(new Font(DEFAULT_FONT, fontSize));
+      text.setFont(Font.font(DEFAULT_FONT, fontSize));
       double width = text.getLayoutBounds().getWidth();
       Scene scene = display.getScene();
       double sceneWidth = scene.getWidth();
@@ -227,7 +227,7 @@ public class Root extends Application {
 
       while (FONT_CHANGE_WIDTH_DOWN > sceneWidth - width || heightDelta < DECREASE_HEIGHT_DELTA) {
         fontSize--;
-        text.setFont(new Font(DEFAULT_FONT, fontSize));
+        text.setFont(Font.font(DEFAULT_FONT, fontSize));
         width = text.getLayoutBounds().getWidth();
         textHeight = text.getLayoutBounds().getHeight();
         heightDelta = sceneHeight - textHeight;
@@ -237,18 +237,13 @@ public class Root extends Application {
       while (sceneWidth - width > FONT_CHANGE_WIDTH_UP && fontSize <= MAX_FONT_SIZE
           && heightDelta > GROWING_HEIGHT_DELTA) {
         fontSize++;
-        text.setFont(new Font(DEFAULT_FONT, fontSize));
+        text.setFont(Font.font(DEFAULT_FONT, fontSize));
         width = text.getLayoutBounds().getWidth();
         textHeight = text.getLayoutBounds().getHeight();
         heightDelta = sceneHeight - textHeight;
       }
 
-
-      display.setStyle(" -fx-font-size:" + fontSize + ";\n" +
-          "  -fx-font-family: \"" + DEFAULT_FONT + "\";\n" +
-          "  -fx-text-alignment: right;");
-
-
+      display.setStyle(" -fx-font-size:" + fontSize + ";");
     });
   }
 
@@ -367,13 +362,10 @@ public class Root extends Application {
   private void dragResize(MouseEvent event) {
     Stage stage = (Stage) mainPane.getScene().getWindow();
     if (resizeH) {
-      double deltaX;
       if (stage.getWidth() <= minSize.getWidth()) {
         if (moveH) {
-          deltaX = stage.getX() - event.getScreenX() + 1;
           if (event.getX() < 0) {// if new > old, it's permitted
-            stage.setWidth(deltaX + stage.getWidth());
-            stage.setX(event.getScreenX());
+            changeWidthAndX(event, stage);
           }
         } else {
           if (event.getX() + dx - stage.getWidth() > 0) {
@@ -382,9 +374,7 @@ public class Root extends Application {
         }
       } else if (stage.getWidth() > minSize.getWidth()) {
         if (moveH) {
-          deltaX = stage.getX() - event.getScreenX() + 1;
-          stage.setWidth(deltaX + stage.getWidth());
-          stage.setX(event.getScreenX());
+          changeWidthAndX(event, stage);
         } else {
           stage.setWidth(event.getX() + dx);
         }
@@ -400,8 +390,7 @@ public class Root extends Application {
             deltaY--;
           }
           if (event.getY() < 0) {
-            stage.setHeight(deltaY + stage.getHeight());
-            stage.setY(event.getScreenY());
+            changeHeightAndY(event, stage, deltaY);
           }
         } else {
           if (event.getY() + dy - stage.getHeight() > 0) {
@@ -414,13 +403,24 @@ public class Root extends Application {
           if (scene.getCursor().equals(Cursor.NE_RESIZE)) {
             deltaY--;
           }
-          stage.setHeight(deltaY + stage.getHeight());
-          stage.setY(event.getScreenY());
+          changeHeightAndY(event, stage, deltaY);
         } else {
           stage.setHeight(event.getY() + dy);
         }
       }
     }
+  }
+
+  private void changeHeightAndY(MouseEvent event, Stage stage, double deltaY) {
+    stage.setHeight(deltaY + stage.getHeight());
+    stage.setY(event.getScreenY());
+  }
+
+  private void changeWidthAndX(MouseEvent event, Stage stage) {
+    double deltaX;
+    deltaX = stage.getX() - event.getScreenX() + 1;
+    stage.setWidth(deltaX + stage.getWidth());
+    stage.setX(event.getScreenX());
   }
 
   private void moveResize(MouseEvent t) {

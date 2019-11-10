@@ -109,7 +109,7 @@ class InputService {
    * @param display numbers in textArea
    * @return new numbers in textArea
    */
-  public String enterNumberOrComma(ActionEvent event, String display) throws ParseException, OverflowException {
+  public String enterNumberOrComma(ActionEvent event, String display) throws ParseException, CalculatorException {
     Button btn = (Button) event.getSource();
     String value = btn.getText();
 
@@ -166,8 +166,7 @@ class InputService {
    * @param display numbers in textArea
    * @return result of operation if two operands exists or display if not
    */
-  public String enterOperation(ActionEvent event, String display) throws ParseException, NegativeRootException,
-      OverflowException, CannotDivideByZeroException, DivideZeroByZeroException {
+  public String enterOperation(ActionEvent event, String display) throws ParseException, CalculatorException {
     Button btn = (Button) event.getSource();
 
     if (isMemoryRecall) {
@@ -184,8 +183,7 @@ class InputService {
    * @param right right operand typed in calc
    * @return result of binary operation
    */
-  public String enterEqual(String right) throws ParseException, DivideZeroByZeroException, OverflowException,
-      CannotDivideByZeroException, NegativeRootException {
+  public String enterEqual(String right) throws ParseException, CalculatorException {
     if (isMemoryRecall) {
       isMemoryRecall = false;
 
@@ -204,8 +202,7 @@ class InputService {
    * @param display numbers in textArea
    * @return result of operation
    */
-  public String unaryOp(ActionEvent event, String display) throws ParseException, NegativeRootException,
-      OverflowException, CannotDivideByZeroException, DivideZeroByZeroException {
+  public String unaryOp(ActionEvent event, String display) throws ParseException, CalculatorException {
     Button btn = (Button) event.getSource();
 
     if (isMemoryRecall) {
@@ -230,8 +227,7 @@ class InputService {
    * @param right right operand typed in calc
    * @return result of percent operation
    */
-  public String percentOp(String right) throws ParseException, NegativeRootException, OverflowException,
-      CannotDivideByZeroException, DivideZeroByZeroException {
+  public String percentOp(String right) throws ParseException, CalculatorException {
     ArithmeticOperation op;
     if (calc.getOperation() == ArithmeticOperation.ADD || calc.getOperation() == ArithmeticOperation.SUBTRACT) {
       op = ArithmeticOperation.PERCENT_ADD_SUBTRACT;
@@ -268,7 +264,7 @@ class InputService {
    *
    * @return string with last element of memory
    */
-  public String recallFromMemory() throws OverflowException {
+  public String recallFromMemory() throws CalculatorException {
     if (calc.getCalculatorState() == CalculatorState.LEFT) {
       calc.setCalculatorState(CalculatorState.TRANSIENT);
     } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {
@@ -294,7 +290,7 @@ class InputService {
    *
    * @param display text in display of calculator
    */
-  public void addToMemory(String display) throws ParseException, OverflowException {
+  public void addToMemory(String display) throws ParseException, CalculatorException {
     calc.memoryAdd(parse(display));
   }
 
@@ -303,7 +299,7 @@ class InputService {
    *
    * @param display text in display of calculator
    */
-  public void subToMemory(String display) throws ParseException, OverflowException {
+  public void subToMemory(String display) throws ParseException, CalculatorException {
     calc.memorySub(parse(display));
   }
 

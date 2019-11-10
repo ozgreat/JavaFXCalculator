@@ -1,9 +1,8 @@
 package com.implemica.calculator.controller;
 
-import com.implemica.calculator.model.CannotDivideByZeroException;
-import com.implemica.calculator.model.DivideZeroByZeroException;
-import com.implemica.calculator.model.NegativeRootException;
-import com.implemica.calculator.model.OverflowException;
+import com.implemica.calculator.model.CalculatorException;
+import com.implemica.calculator.model.CalculatorExceptionType;
+import com.implemica.calculator.model.DigitBacspace;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,7 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.implemica.calculator.controller.InputService.DEFAULT_DISPLAY_NUMBER;
-import static com.implemica.calculator.controller.NumberFormatter.DECIMAL_SEPARATOR;
+import static com.implemica.calculator.controller.NumberFormatter.*;
 
 /**
  * FX Controller for {@link com.implemica.calculator.view.Root}
@@ -133,7 +132,7 @@ public class RootController {
   /**
    * Formula on display maximum length
    */
-  private static final int FORMULA_MAX_LENGTH = 40;
+  private static final int FORMULA_MAX_SHIFT_LENGTH = 40;
 
   /**
    * Default display font
@@ -158,6 +157,10 @@ public class RootController {
    */
   private final Map<KeyCombination, Runnable> COMBINATIONS = new HashMap<>();
 
+  /**
+   * Map, that contains messages to each type of {@link CalculatorExceptionType}
+   */
+  Map<CalculatorExceptionType, String> exceptionMessages = new HashMap<>();
 
   /**
    * Label with number, display of calculator
@@ -376,6 +379,11 @@ public class RootController {
     COMBINATIONS.put(new KeyCodeCombination(KeyCode.MULTIPLY), multiplyButton::fire);
     COMBINATIONS.put(new KeyCodeCombination(KeyCode.DIVIDE), divideButton::fire);
     COMBINATIONS.put(new KeyCodeCombination(KeyCode.SLASH), divideButton::fire);
+
+    exceptionMessages.put(CalculatorExceptionType.CANNOT_DIVIDE_BY_ZERO, "Cannot divide by zero");
+    exceptionMessages.put(CalculatorExceptionType.DIVIDING_ZERO_BY_ZERO, "Result is undefined");
+    exceptionMessages.put(CalculatorExceptionType.NEGATIVE_ROOT, "Invalid input");
+    exceptionMessages.put(CalculatorExceptionType.OVERFLOW, "Overflow");
   }
 
   /**
@@ -405,11 +413,11 @@ public class RootController {
     }
     try {
       display.setText(inputService.enterNumberOrComma(event, display.getText()));
-    } catch (OverflowException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -449,11 +457,11 @@ public class RootController {
     formulaCalc(event);
     try {
       display.setText(inputService.enterOperation(event, display.getText()));
-    } catch (CannotDivideByZeroException | DivideZeroByZeroException | OverflowException | NegativeRootException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -466,29 +474,29 @@ public class RootController {
       String displayText = display.getText();
       if (isException) {
         setNormal();
-      } else if (displayText.length() == 1 && inputService.isBackspaceAvailable()) {
-        clearEntryAction();
       } else if (inputService.isBackspaceAvailable()) {
         if (displayText.endsWith(String.valueOf(DECIMAL_SEPARATOR))) {
-          BigDecimal result = NumberFormatter.parse(displayText);
-          int scale = result.scale();
-          displayText = NumberFormatter.format(result);
-          if (scale == 1) {
+          display.setText(displayText.substring(0, displayText.length() - 1));
+        } else {
+          boolean saveDecimalSeparator = false;
+          BigDecimal result = parse(displayText);
+
+          if (result.scale() == 1) {
+            saveDecimalSeparator = true;
+          }
+
+          displayText = format(DigitBacspace.deleteLastDigit(result));
+
+          if (saveDecimalSeparator) {
             displayText += DECIMAL_SEPARATOR;
           }
-        } else if (displayText.contains(String.valueOf(DECIMAL_SEPARATOR))) {
-          String[] displayArr = displayText.split("\\.");
-          displayText = displayArr[0] + DECIMAL_SEPARATOR + displayArr[1].substring(0, displayArr[1].length() - 1);
-        } else {
-          BigDecimal result = NumberFormatter.parse(displayText.substring(0, displayText.length() - 1));
-          displayText = NumberFormatter.format(result);
-        }
 
-        display.setText(displayText);
+          display.setText(displayText);
+        }
       }
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -504,11 +512,11 @@ public class RootController {
     try {
       String value = inputService.enterEqual(display.getText());
       display.setText(value);
-    } catch (CannotDivideByZeroException | DivideZeroByZeroException | NegativeRootException | OverflowException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -523,11 +531,11 @@ public class RootController {
     try {
       String value = inputService.unaryOp(ae, display.getText());
       display.setText(value);
-    } catch (NegativeRootException | CannotDivideByZeroException | OverflowException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -541,11 +549,11 @@ public class RootController {
     String displayText = display.getText();
     try {
       displayText = inputService.percentOp(display.getText());
-    } catch (OverflowException | DivideZeroByZeroException | CannotDivideByZeroException | NegativeRootException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
     display.setText(displayText);
     formulaCalc(ae);
@@ -568,7 +576,7 @@ public class RootController {
     if (!inputService.isMemoryEmpty()) {
       try {
         display.setText(inputService.recallFromMemory());
-      } catch (OverflowException e) {
+      } catch (CalculatorException e) {
         handleException(e);
       }
     }
@@ -590,11 +598,11 @@ public class RootController {
   public void memoryPlusAction() {
     try {
       inputService.addToMemory(display.getText());
-    } catch (OverflowException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
     memoryDisableIfEmpty();
   }
@@ -606,11 +614,11 @@ public class RootController {
   public void memoryMinusAction() {
     try {
       inputService.subToMemory(display.getText());
-    } catch (OverflowException e) {
+    } catch (CalculatorException e) {
       handleException(e);
-    } catch (Throwable e) {
-      alertError(e);
+    } catch (Exception e) {
       e.printStackTrace();
+      alertError(e);
     }
     memoryDisableIfEmpty();
   }
@@ -678,18 +686,17 @@ public class RootController {
   @FXML
   public void rightFormulaButtonAction() {
     leftFormulaButton.setVisible(true);
-    if (formulaEndIndex + FORMULA_MAX_LENGTH < formulaStr.length()) {
-      formulaBegIndex += FORMULA_MAX_LENGTH;
-      formulaEndIndex += FORMULA_MAX_LENGTH;
-      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
+    if (formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH < formulaStr.length()) {
+      formulaBegIndex += FORMULA_MAX_SHIFT_LENGTH;
+      formulaEndIndex += FORMULA_MAX_SHIFT_LENGTH;
     } else {
       while (formula.getText().length() != formulaStr.length() - formulaBegIndex) {
         formulaBegIndex++;
       }
-      formula.setText(formulaStr.substring(formulaBegIndex));
       formulaEndIndex = formulaStr.length();
       rightFormulaButton.setVisible(false);
     }
+    formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
   /**
@@ -698,43 +705,51 @@ public class RootController {
   @FXML
   public void leftFormulaButtonAction() {
     rightFormulaButton.setVisible(true);
-    if (formulaBegIndex > FORMULA_MAX_LENGTH) {
-      formulaBegIndex -= FORMULA_MAX_LENGTH;
-      formulaEndIndex -= FORMULA_MAX_LENGTH;
-      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
+    /*if (formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH) {
+      formulaBegIndex -= FORMULA_MAX_SHIFT_LENGTH;
+      formulaEndIndex -= FORMULA_MAX_SHIFT_LENGTH;
     } else {
       formulaBegIndex = 0;
       formulaEndIndex = formula.getText().length();
-      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
       leftFormulaButton.setVisible(false);
-    }
+    }*/
+    boolean isBeginGreaterThanMax = formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH;
+    int beginBuff = formulaBegIndex;
+    leftFormulaButton.setVisible(isBeginGreaterThanMax);
+    formulaBegIndex = isBeginGreaterThanMax ? formulaBegIndex - FORMULA_MAX_SHIFT_LENGTH : 0;
+    formulaEndIndex -= Math.abs(beginBuff - formulaBegIndex);
+    formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
   private void formulaCalc(ActionEvent event) {
     formulaStr = inputService.highFormula(event, formulaStr, display.getText());
     Text text = new Text(formulaStr);
     text.setFont(DEFAULT_FONT);
-    if (text.getLayoutBounds().getWidth() > formula.getWidth()) {
-      leftFormulaButton.setVisible(true);
-      for (int i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) {
-        text.setText(formulaStr.substring(i));
-        formulaBegIndex = i;
-      }
-      formulaEndIndex = formulaStr.length();
-    } else {
+//    if (text.getLayoutBounds().getWidth() > formula.getWidth()) {
+    int i;
+    leftFormulaButton.setVisible(text.getLayoutBounds().getWidth() > formula.getWidth());
+    for (i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) {
+      text.setText(formulaStr.substring(i));
+    }
+    formulaBegIndex = i;
+    formulaEndIndex = formulaStr.length();
+    /*} else {
       leftFormulaButton.setVisible(false);
       rightFormulaButton.setVisible(false);
-      text.setText(formulaStr);
-    }
+    }*/
+    rightFormulaButton.setVisible(false);
     formula.setText(text.getText());
   }
 
-  private void handleException(Exception e) {
+  private void handleException(CalculatorException e) {
     isException = true;
 
-    display.setText(e.getMessage());
-
-    disableButtonIfError();
+    if (exceptionMessages.containsKey(e.getType())) {
+      display.setText(exceptionMessages.get(e.getType()));
+      disableButtonIfError();
+    } else {
+      alertError(e);
+    }
   }
 
   private void setNormal() {
@@ -774,12 +789,12 @@ public class RootController {
     return formulaStr;
   }
 
-  private void alertError(Throwable e) {
+  private void alertError(Exception e) {
     Alert alert = new Alert(Alert.AlertType.ERROR);
     alert.setTitle("Unexpected error");
     alert.setHeaderText("Unexpected error");
     alert.setContentText("Unexpected error was thrown with message:\n" + e.getMessage() +
-        "\nCalculator will be reset.");
+        "\nCalculator will be reset and you will be able to continue using");
 
     isException = true;
     memoryClearAction();

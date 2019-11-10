@@ -1,7 +1,5 @@
 package com.implemica.calculator.controller;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import javafx.scene.input.KeyCode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -9,12 +7,14 @@ import org.loadui.testfx.utils.FXTestUtils;
 import org.testfx.api.FxAssert;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
 public class RootControllerKeyboardTest extends RootControllerMouseTest {
-  private static final BiMap<String, KeyCode[]> operationsKeyCode = HashBiMap.create();
+  private static final Map<String, KeyCode[]> operationsKeyCode =  new HashMap<>();
 
   private static final List<KeyCode> digits = Arrays.asList(KeyCode.DIGIT0, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,
       KeyCode.DIGIT4, KeyCode.DIGIT5, KeyCode.DIGIT6, KeyCode.DIGIT7, KeyCode.DIGIT8, KeyCode.DIGIT9);
