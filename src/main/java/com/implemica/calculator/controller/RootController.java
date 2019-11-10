@@ -685,7 +685,7 @@ public class RootController {
    */
   @FXML
   public void rightFormulaButtonAction() {
-    leftFormulaButton.setVisible(true);
+    /*leftFormulaButton.setVisible(true);
     if (formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH < formulaStr.length()) {
       formulaBegIndex += FORMULA_MAX_SHIFT_LENGTH;
       formulaEndIndex += FORMULA_MAX_SHIFT_LENGTH;
@@ -695,7 +695,13 @@ public class RootController {
       }
       formulaEndIndex = formulaStr.length();
       rightFormulaButton.setVisible(false);
-    }
+    }*/
+    boolean isMoveToEnd = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH >= formulaStr.length();
+    int endBuff = formulaEndIndex;
+    formulaEndIndex = isMoveToEnd ? formulaStr.length() : formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;
+    formulaBegIndex += formulaEndIndex - endBuff;
+    leftFormulaButton.setVisible(true);
+    rightFormulaButton.setVisible(!isMoveToEnd);
     formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
