@@ -2,7 +2,7 @@ package com.implemica.calculator.controller;
 
 import com.implemica.calculator.model.CalculatorException;
 import com.implemica.calculator.model.CalculatorExceptionType;
-import com.implemica.calculator.model.DigitBacspace;
+import com.implemica.calculator.model.DigitBackspace;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -122,12 +122,12 @@ public class RootController {
   /**
    * Duration of opening sidebar
    */
-  private static final int OPEN_SIDEBAR_DURATION = 200;
+  private static final int OPEN_SIDEBAR_DURATION_IN_MILLIS = 200;
 
   /**
    * Sidebar's opening shift value
    */
-  private static final int SIDEBAR_SHIFT = 272;
+  private static final int SIDEBAR_SHIFT_IN_PIXELS = 272;
 
   /**
    * Formula on display maximum length
@@ -160,7 +160,7 @@ public class RootController {
   /**
    * Map, that contains messages to each type of {@link CalculatorExceptionType}
    */
-  Map<CalculatorExceptionType, String> exceptionMessages = new HashMap<>();
+  private Map<CalculatorExceptionType, String> exceptionMessages = new HashMap<>();
 
   /**
    * Label with number, display of calculator
@@ -460,6 +460,7 @@ public class RootController {
     } catch (CalculatorException e) {
       handleException(e);
     } catch (Exception e) {
+      // todo comment
       e.printStackTrace();
       alertError(e);
     }
@@ -485,7 +486,7 @@ public class RootController {
             saveDecimalSeparator = true;
           }
 
-          displayText = format(DigitBacspace.deleteLastDigit(result));
+          displayText = format(DigitBackspace.deleteLastDigit(result));
 
           if (saveDecimalSeparator) {
             displayText += DECIMAL_SEPARATOR;
@@ -657,12 +658,12 @@ public class RootController {
    */
   @FXML
   public void openSideBar() {
-    Duration duration = Duration.millis(OPEN_SIDEBAR_DURATION);
+    Duration duration = Duration.millis(OPEN_SIDEBAR_DURATION_IN_MILLIS);
     TranslateTransition transition = new TranslateTransition(duration, sideMenuBorderPane);
     if (isSideBarOpened) {
-      transition.setByX(-SIDEBAR_SHIFT);
+      transition.setByX(-SIDEBAR_SHIFT_IN_PIXELS);
     } else {
-      transition.setByX(SIDEBAR_SHIFT);
+      transition.setByX(SIDEBAR_SHIFT_IN_PIXELS);
     }
     transition.play();
     standardLabel.setVisible(!standardLabel.isVisible());
@@ -685,23 +686,15 @@ public class RootController {
    */
   @FXML
   public void rightFormulaButtonAction() {
-    /*leftFormulaButton.setVisible(true);
-    if (formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH < formulaStr.length()) {
-      formulaBegIndex += FORMULA_MAX_SHIFT_LENGTH;
-      formulaEndIndex += FORMULA_MAX_SHIFT_LENGTH;
-    } else {
-      while (formula.getText().length() != formulaStr.length() - formulaBegIndex) {
-        formulaBegIndex++;
-      }
-      formulaEndIndex = formulaStr.length();
-      rightFormulaButton.setVisible(false);
-    }*/
     boolean isMoveToEnd = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH >= formulaStr.length();
     int endBuff = formulaEndIndex;
-    formulaEndIndex = isMoveToEnd ? formulaStr.length() : formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;
+
+    formulaEndIndex = isMoveToEnd ? formulaStr.length() : formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;//todo if
     formulaBegIndex += formulaEndIndex - endBuff;
+
     leftFormulaButton.setVisible(true);
     rightFormulaButton.setVisible(!isMoveToEnd);
+
     formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
@@ -710,20 +703,16 @@ public class RootController {
    */
   @FXML
   public void leftFormulaButtonAction() {
-    rightFormulaButton.setVisible(true);
-    /*if (formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH) {
-      formulaBegIndex -= FORMULA_MAX_SHIFT_LENGTH;
-      formulaEndIndex -= FORMULA_MAX_SHIFT_LENGTH;
-    } else {
-      formulaBegIndex = 0;
-      formulaEndIndex = formula.getText().length();
-      leftFormulaButton.setVisible(false);
-    }*/
+
     boolean isBeginGreaterThanMax = formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH;
     int beginBuff = formulaBegIndex;
-    leftFormulaButton.setVisible(isBeginGreaterThanMax);
+
     formulaBegIndex = isBeginGreaterThanMax ? formulaBegIndex - FORMULA_MAX_SHIFT_LENGTH : 0;
     formulaEndIndex -= Math.abs(beginBuff - formulaBegIndex);
+
+    rightFormulaButton.setVisible(true);
+    leftFormulaButton.setVisible(isBeginGreaterThanMax);
+
     formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
@@ -731,19 +720,14 @@ public class RootController {
     formulaStr = inputService.highFormula(event, formulaStr, display.getText());
     Text text = new Text(formulaStr);
     text.setFont(DEFAULT_FONT);
-//    if (text.getLayoutBounds().getWidth() > formula.getWidth()) {
-    int i;
+    rightFormulaButton.setVisible(false);
     leftFormulaButton.setVisible(text.getLayoutBounds().getWidth() > formula.getWidth());
-    for (i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) {
+    int i;
+    for (i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) { // todo while
       text.setText(formulaStr.substring(i));
     }
     formulaBegIndex = i;
     formulaEndIndex = formulaStr.length();
-    /*} else {
-      leftFormulaButton.setVisible(false);
-      rightFormulaButton.setVisible(false);
-    }*/
-    rightFormulaButton.setVisible(false);
     formula.setText(text.getText());
   }
 

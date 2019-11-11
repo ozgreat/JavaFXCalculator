@@ -4,7 +4,6 @@ public class CalculatorException extends Exception {
   private final CalculatorExceptionType type;
 
   public CalculatorException(CalculatorExceptionType type) {
-    super();
     this.type = type;
   }
 

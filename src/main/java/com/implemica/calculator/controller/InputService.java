@@ -139,7 +139,7 @@ class InputService {
     if (calc.getCalculatorState() == CalculatorState.AFTER) {
       calc.setCalculatorState(CalculatorState.LEFT);
       return NumberFormatter.format(new BigDecimal(value));
-    } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {
+    } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {//todo copypaste
       calc.setCalculatorState(CalculatorState.RIGHT);
       return NumberFormatter.format(new BigDecimal(value));
     }

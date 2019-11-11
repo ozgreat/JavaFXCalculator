@@ -170,7 +170,9 @@ public class CalculatorModel {
   private BigDecimal getUnaryOperationResult(ArithmeticOperation op, BigDecimal number) throws CalculatorException {
     if (number.equals(BigDecimal.ZERO) && op == REVERSE) {
       throw new CalculatorException(CalculatorExceptionType.CANNOT_DIVIDE_BY_ZERO);
-    } else if (number.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
+    }
+
+    if (number.compareTo(BigDecimal.ZERO) < 0 && op == SQRT) {
       throw new CalculatorException(CalculatorExceptionType.NEGATIVE_ROOT);
     }
 
