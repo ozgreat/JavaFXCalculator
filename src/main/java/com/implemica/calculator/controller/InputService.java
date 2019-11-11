@@ -255,8 +255,8 @@ class InputService {
    *
    * @param display number in textArea
    */
-  public void saveToMemory(String display) {
-    calc.memorySave(new BigDecimal(display.replaceAll(",", "")));
+  public void saveToMemory(String display) throws ParseException {
+    calc.memorySave(parse(display));
   }
 
   /**
@@ -275,14 +275,14 @@ class InputService {
 
     isMemoryRecall = true;
 
-    return NumberFormatter.format(calc.recallMemory());
+    return NumberFormatter.format(calc.memoryRecall());
   }
 
   /**
    * Call clear memory in model
    */
   public void clearMemory() {
-    calc.clearMemory();
+    calc.memoryClear();
   }
 
   /**

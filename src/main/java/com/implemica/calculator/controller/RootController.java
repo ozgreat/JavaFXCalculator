@@ -21,6 +21,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -565,8 +566,14 @@ public class RootController {
    */
   @FXML
   public void memorySaveAction() {
-    inputService.saveToMemory(display.getText());
-    memoryDisableIfEmpty();
+    try {
+      inputService.saveToMemory(display.getText());
+      memoryDisableIfEmpty();
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
+    }
+
   }
 
   /**
@@ -615,13 +622,13 @@ public class RootController {
   public void memoryMinusAction() {
     try {
       inputService.subToMemory(display.getText());
+      memoryDisableIfEmpty();
     } catch (CalculatorException e) {
       handleException(e);
     } catch (Exception e) {
       e.printStackTrace();
       alertError(e);
     }
-    memoryDisableIfEmpty();
   }
 
   /**
@@ -689,7 +696,12 @@ public class RootController {
     boolean isMoveToEnd = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH >= formulaStr.length();
     int endBuff = formulaEndIndex;
 
-    formulaEndIndex = isMoveToEnd ? formulaStr.length() : formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;//todo if
+    if (isMoveToEnd) {
+      formulaEndIndex = formulaStr.length();
+    } else {
+      formulaEndIndex = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;
+    }
+
     formulaBegIndex += formulaEndIndex - endBuff;
 
     leftFormulaButton.setVisible(true);
@@ -707,7 +719,12 @@ public class RootController {
     boolean isBeginGreaterThanMax = formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH;
     int beginBuff = formulaBegIndex;
 
-    formulaBegIndex = isBeginGreaterThanMax ? formulaBegIndex - FORMULA_MAX_SHIFT_LENGTH : 0;
+    if (isBeginGreaterThanMax) {
+      formulaBegIndex = formulaBegIndex - FORMULA_MAX_SHIFT_LENGTH;
+    } else {
+      formulaBegIndex = 0;
+    }
+
     formulaEndIndex -= Math.abs(beginBuff - formulaBegIndex);
 
     rightFormulaButton.setVisible(true);
@@ -722,9 +739,10 @@ public class RootController {
     text.setFont(DEFAULT_FONT);
     rightFormulaButton.setVisible(false);
     leftFormulaButton.setVisible(text.getLayoutBounds().getWidth() > formula.getWidth());
-    int i;
-    for (i = 0; text.getLayoutBounds().getWidth() > formula.getWidth(); ++i) { // todo while
+    int i = 0;
+    while (text.getLayoutBounds().getWidth() > formula.getWidth()) {
       text.setText(formulaStr.substring(i));
+      ++i;
     }
     formulaBegIndex = i;
     formulaEndIndex = formulaStr.length();
