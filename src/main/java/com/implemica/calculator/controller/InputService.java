@@ -47,6 +47,32 @@ class InputService {
   static final String DEFAULT_DISPLAY_NUMBER = "0";
 
   /**
+   * Bracket, that close unary operation
+   */
+  public static final String END_OF_UNARY_OPERATION = ")";
+  /**
+   * Bracket, that open unary operation
+   */
+  public static final String BEGIN_OF_UNARY_OPERATION = "(";
+
+  /**
+   * Plus symbol
+   */
+  public static final String PLUS_SYMBOL = "+";
+  /**
+   * Multiply symbol
+   */
+  public static final String MULTIPLY_SYMBOL = "×";
+  /**
+   * Divide symbol
+   */
+  public static final String DIVIDE_SYMBOL = "÷";
+  /**
+   * Minus symbol
+   */
+  public static final String MINUS_SYMBOL = "-";
+
+  /**
    * Calculator model to do calculations
    */
   private CalculatorModel calc;
@@ -68,10 +94,10 @@ class InputService {
     binaryOperationObject.put("\uE94A", ArithmeticOperation.DIVIDE);
     binaryOperationObject.put("/", ArithmeticOperation.DIVIDE);
     binaryOperationObject.put("*", ArithmeticOperation.MULTIPLY);
-    binaryOperationObject.put("+", ArithmeticOperation.ADD);
-    binaryOperationObject.put("-", ArithmeticOperation.SUBTRACT);
-    binaryOperationObject.put("×", ArithmeticOperation.MULTIPLY);
-    binaryOperationObject.put("÷", ArithmeticOperation.DIVIDE);
+    binaryOperationObject.put(PLUS_SYMBOL, ArithmeticOperation.ADD);
+    binaryOperationObject.put(MINUS_SYMBOL, ArithmeticOperation.SUBTRACT);
+    binaryOperationObject.put(MULTIPLY_SYMBOL, ArithmeticOperation.MULTIPLY);
+    binaryOperationObject.put(DIVIDE_SYMBOL, ArithmeticOperation.DIVIDE);
 
     unaryOperationObject.put("\uE94B", ArithmeticOperation.SQRT);
     unaryOperationObject.put("\uE94D", ArithmeticOperation.NEGATE);
@@ -82,16 +108,19 @@ class InputService {
     unaryOperationObject.put("√", ArithmeticOperation.SQRT);
     unaryOperationObject.put("1/", ArithmeticOperation.REVERSE);
 
-    operationSymbols.put(ArithmeticOperation.ADD, "+");
-    operationSymbols.put(ArithmeticOperation.DIVIDE, "÷");
-    operationSymbols.put(ArithmeticOperation.MULTIPLY, "×");
-    operationSymbols.put(ArithmeticOperation.SUBTRACT, "-");
+    operationSymbols.put(ArithmeticOperation.ADD, PLUS_SYMBOL);
+    operationSymbols.put(ArithmeticOperation.DIVIDE, DIVIDE_SYMBOL);
+    operationSymbols.put(ArithmeticOperation.MULTIPLY, MULTIPLY_SYMBOL);
+    operationSymbols.put(ArithmeticOperation.SUBTRACT, MINUS_SYMBOL);
     operationSymbols.put(ArithmeticOperation.SQRT, "√");
     operationSymbols.put(ArithmeticOperation.NEGATE, "negate");
     operationSymbols.put(ArithmeticOperation.REVERSE, "1/");
     operationSymbols.put(ArithmeticOperation.POW, "sqr");
   }
 
+  /**
+   * Default constructor for {@code InputService} class
+   */
   public InputService() {
     calc = new CalculatorModel();
   }
@@ -111,20 +140,19 @@ class InputService {
    */
   public String enterNumberOrComma(ActionEvent event, String display) throws ParseException, CalculatorException {
     Button btn = (Button) event.getSource();
-    String value = btn.getText();
+    String buttonText = btn.getText();
+    CalculatorState state = calc.getCalculatorState();
 
-    boolean isNotEditable = NumberFormatter.isTooBigToInput(display + value)
-        && (calc.getCalculatorState() == CalculatorState.LEFT || calc.getCalculatorState() == CalculatorState.RIGHT);
-    if (isNotEditable) {
-      return display;
-    }
-
-
-    if (value.equals(String.valueOf(DECIMAL_SEPARATOR))) {
-      if (calc.getCalculatorState() == CalculatorState.AFTER) {
+    String result;
+    boolean isTooBig = isTooBigToInput(display + buttonText);
+    boolean isStateLeftOrRight = state == CalculatorState.LEFT || state == CalculatorState.RIGHT;
+    if (isTooBig && isStateLeftOrRight) {
+      result = display;
+    } else if (buttonText.equals(String.valueOf(DECIMAL_SEPARATOR))) {
+      if (state == CalculatorState.AFTER) {
         calc.setCalculatorState(CalculatorState.LEFT);
         display = DEFAULT_DISPLAY_NUMBER;
-      } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {
+      } else if (state == CalculatorState.TRANSIENT) {
         calc.setCalculatorState(CalculatorState.RIGHT);
         display = DEFAULT_DISPLAY_NUMBER;
       }
@@ -133,18 +161,22 @@ class InputService {
         display += DECIMAL_SEPARATOR;
       }
 
-      return display;
+      result = display;
+    } else {
+      String valueToParse = buttonText;
+      if (state == CalculatorState.AFTER) {
+        state = CalculatorState.LEFT;
+      } else if (state == CalculatorState.TRANSIENT) {
+        state = CalculatorState.RIGHT;
+      } else {
+        valueToParse = removeGroupSeparator(display + buttonText);
+      }
+
+      result = format(parse(valueToParse));
+      calc.setCalculatorState(state);
     }
 
-    if (calc.getCalculatorState() == CalculatorState.AFTER) {
-      calc.setCalculatorState(CalculatorState.LEFT);
-      return NumberFormatter.format(new BigDecimal(value));
-    } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {//todo copypaste
-      calc.setCalculatorState(CalculatorState.RIGHT);
-      return NumberFormatter.format(new BigDecimal(value));
-    }
-
-    return NumberFormatter.format(parse(removeGroupSeparator(display + value)));
+    return result;
   }
 
   /**
@@ -167,15 +199,19 @@ class InputService {
    * @return result of operation if two operands exists or display if not
    */
   public String enterOperation(ActionEvent event, String display) throws ParseException, CalculatorException {
-    Button btn = (Button) event.getSource();
+    ArithmeticOperation operation = getArithmeticOperationFromEvent(event);
 
+    BigDecimal result;
     if (isMemoryRecall) {
       isMemoryRecall = false;
-      return NumberFormatter.format(calc.calculate(formatOperation(btn.getText()), calc.getMemory()));
+      result = calc.calculate(operation, calc.getMemory());
+    } else {
+      result = calc.calculate(operation, parse(display));
     }
 
-    return NumberFormatter.format(calc.calculate(formatOperation(btn.getText()), parse(display)));
+    return format(result);
   }
+
 
   /**
    * Typing equal
@@ -184,15 +220,17 @@ class InputService {
    * @return result of binary operation
    */
   public String enterEqual(String right) throws ParseException, CalculatorException {
+    BigDecimal result;
     if (isMemoryRecall) {
       isMemoryRecall = false;
-
-      return NumberFormatter.format(calc.calculate(calc.getMemory()));
+      result = calc.calculate(calc.getMemory());
+    } else {
+      result = calc.calculate(parse(right));
     }
 
     isBackspacePossible = false;
 
-    return NumberFormatter.format(calc.calculate(parse(right)));
+    return format(result);
   }
 
   /**
@@ -203,22 +241,23 @@ class InputService {
    * @return result of operation
    */
   public String unaryOp(ActionEvent event, String display) throws ParseException, CalculatorException {
-    Button btn = (Button) event.getSource();
+    ArithmeticOperation operation = getArithmeticOperationFromEvent(event);
 
+    BigDecimal result;
     if (isMemoryRecall) {
       isMemoryRecall = false;
-      return NumberFormatter.format(calc.calculate(formatOperation(btn.getText()), calc.getMemory()));
+      result = calc.calculate(operation, calc.getMemory());
+    } else {
+      if (calc.getCalculatorState() == CalculatorState.AFTER) {
+        result = calc.calculate(operation);
+      } else {
+        result = calc.calculate(operation, parse(display));
+      }
     }
 
     isBackspacePossible = false;
 
-    if (calc.getCalculatorState() == CalculatorState.AFTER) {
-      return NumberFormatter.format(calc.calculate(formatOperation(btn.getText())));
-    }
-
-
-    BigDecimal res = calc.calculate(formatOperation(btn.getText()), parse(display));
-    return NumberFormatter.format(res);
+    return format(result);
   }
 
   /**
@@ -228,26 +267,35 @@ class InputService {
    * @return result of percent operation
    */
   public String percentOp(String right) throws ParseException, CalculatorException {
-    ArithmeticOperation op;
-    if (calc.getOperation() == ArithmeticOperation.ADD || calc.getOperation() == ArithmeticOperation.SUBTRACT) {
-      op = ArithmeticOperation.PERCENT_ADD_SUBTRACT;
-    } else if (calc.getOperation() == ArithmeticOperation.MULTIPLY || calc.getOperation() == ArithmeticOperation.DIVIDE) {
-      op = ArithmeticOperation.PERCENT_MUL_DIVIDE;
-    } else {
-      return "0";
-    }
+    ArithmeticOperation currentOperation = calc.getOperation();
 
-    String result;
+    BigDecimal number;
     if (isMemoryRecall) {
       isMemoryRecall = false;
-      result = NumberFormatter.format(calc.calculate(op, calc.getMemory()));
+      number = calc.getMemory();
     } else {
-      result = NumberFormatter.format(calc.calculate(op, parse(right)));
+      number = parse(right);
     }
+
+    ArithmeticOperation percentOperation;
+    BigDecimal result;
+    if (currentOperation == null) {
+      result = BigDecimal.ZERO;
+    } else {
+      if (currentOperation == ArithmeticOperation.ADD || currentOperation == ArithmeticOperation.SUBTRACT) {
+        percentOperation = ArithmeticOperation.PERCENT_ADD_SUBTRACT;
+      } else if (currentOperation == ArithmeticOperation.MULTIPLY || currentOperation == ArithmeticOperation.DIVIDE) {
+        percentOperation = ArithmeticOperation.PERCENT_MUL_DIVIDE;
+      } else {
+        throw new IllegalStateException("Unsupported operation: " + currentOperation);
+      }
+      result = calc.calculate(percentOperation, number);
+    }
+
 
     isBackspacePossible = false;
 
-    return result;
+    return format(result);
   }
 
   /**
@@ -255,7 +303,7 @@ class InputService {
    *
    * @param display number in textArea
    */
-  public void saveToMemory(String display) throws ParseException {
+  public void memorySave(String display) throws ParseException {
     calc.memorySave(parse(display));
   }
 
@@ -264,24 +312,28 @@ class InputService {
    *
    * @return string with last element of memory
    */
-  public String recallFromMemory() throws CalculatorException {
-    if (calc.getCalculatorState() == CalculatorState.LEFT) {
-      calc.setCalculatorState(CalculatorState.TRANSIENT);
-    } else if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {
-      calc.setCalculatorState(CalculatorState.RIGHT);
-    } else if (calc.getCalculatorState() == CalculatorState.AFTER) {
-      calc.setCalculatorState(CalculatorState.LEFT);
+  public String memoryRecall() throws CalculatorException {
+    CalculatorState currentState = calc.getCalculatorState();
+
+    if (currentState == CalculatorState.LEFT) {
+      currentState = CalculatorState.TRANSIENT;
+    } else if (currentState == CalculatorState.TRANSIENT) {
+      currentState = CalculatorState.RIGHT;
+    } else if (currentState == CalculatorState.AFTER) {
+      currentState = CalculatorState.LEFT;
     }
+
+    calc.setCalculatorState(currentState);
 
     isMemoryRecall = true;
 
-    return NumberFormatter.format(calc.memoryRecall());
+    return format(calc.memoryRecall());
   }
 
   /**
    * Call clear memory in model
    */
-  public void clearMemory() {
+  public void memoryClear() {
     calc.memoryClear();
   }
 
@@ -290,7 +342,7 @@ class InputService {
    *
    * @param display text in display of calculator
    */
-  public void addToMemory(String display) throws ParseException, CalculatorException {
+  public void memoryAdd(String display) throws ParseException, CalculatorException {
     calc.memoryAdd(parse(display));
   }
 
@@ -299,7 +351,7 @@ class InputService {
    *
    * @param display text in display of calculator
    */
-  public void subToMemory(String display) throws ParseException, CalculatorException {
+  public void memorySub(String display) throws ParseException, CalculatorException {
     calc.memorySub(parse(display));
   }
 
@@ -321,24 +373,28 @@ class InputService {
    * @return new formula or old formula if there is nothing to change
    */
   public String highFormula(ActionEvent event, String oldFormula, String display) {
-    Button btn = (Button) event.getSource();
-
-    if (display.endsWith(".")) {
+    if (display.endsWith(String.valueOf(DECIMAL_SEPARATOR))) {
       display = display.substring(0, display.length() - 1);
     }
 
-    if (calc.getCalculatorState() == CalculatorState.TRANSIENT && oldFormula.isBlank()) {
-      calc.setCalculatorState(CalculatorState.LEFT);
+    CalculatorState state = calc.getCalculatorState();
+    if (state == CalculatorState.TRANSIENT && oldFormula.isBlank()) {
+      state = CalculatorState.LEFT;
+      calc.setCalculatorState(state);
     }
 
-
-    if (calc.getCalculatorState() == CalculatorState.TRANSIENT) {
-      return transientHighFormula(btn, oldFormula, display);
-    } else if (calc.getCalculatorState() == CalculatorState.RIGHT) {
-      return rightHighFormula(btn, oldFormula, display);
+    String result;
+    if (state == CalculatorState.TRANSIENT) {
+      result = transientHighFormula(event, oldFormula, display);
+    } else if (state == CalculatorState.RIGHT) {
+      result = rightHighFormula(event, oldFormula, display);
+    } else if (state == CalculatorState.LEFT || state == CalculatorState.AFTER) {
+      result = leftOrAfterHighFormula(event, oldFormula, display);
     } else {
-      return leftOrAfterHighFormula(btn, oldFormula, display);
+      throw new IllegalStateException("Unsupported state: " + state);
     }
+
+    return result;
   }
 
   /**
@@ -350,81 +406,119 @@ class InputService {
     return calc.getMemory() == null;
   }
 
-  private String transientHighFormula(Button btn, String oldFormula, String display) {
-    if (binaryOperationObject.containsKey(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        return oldFormula + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+  private String transientHighFormula(ActionEvent event, String oldFormula, String display) {
+    ArithmeticOperation operation = getArithmeticOperationFromEvent(event);
+    ArithmeticOperationType type = operation.getType();
+    String operationSymbol = operationSymbols.get(operation);
+    boolean isEndsWithBracket = oldFormula.endsWith(END_OF_UNARY_OPERATION);
+    display = removeGroupSeparator(display);
+
+    String result;
+    if (type == ArithmeticOperationType.BINARY) {
+      if (isEndsWithBracket) { // if there brackets, than we already have second operand at formula, so just add symbol
+        result = oldFormula + " " + operationSymbol;
+      } else {
+        result = oldFormula.substring(0, oldFormula.length() - 1) + operationSymbol; // changing previous symbol of binary operation
       }
-      return oldFormula.substring(0, oldFormula.length() - 1) + operationSymbols.get(binaryOperationObject.get(btn.getText()));
-    } else if (unaryOperationObject.containsKey(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
+    } else if (type == ArithmeticOperationType.UNARY) {
+      if (isEndsWithBracket) { // wrapping one unary operation in another
         String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) + operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( "
-            + str + " )";
+        result = oldFormula.substring(0, oldFormula.indexOf(str)) + operationSymbol + BEGIN_OF_UNARY_OPERATION + " "
+            + str + " " + END_OF_UNARY_OPERATION;
+      } else {
+        if (operation == ArithmeticOperation.NEGATE && calc.getOperation() == null) { // if negate or no op, we dont change history
+          result = oldFormula;
+        } else {
+          if (!oldFormula.isBlank()) {
+            oldFormula += " ";
+          }
+          result = oldFormula + operationSymbol + BEGIN_OF_UNARY_OPERATION + " " + display + " " + END_OF_UNARY_OPERATION;
+        }
       }
-      if (unaryOperationObject.get(btn.getText()) == ArithmeticOperation.NEGATE && calc.getOperation() == null) {
-        return oldFormula;
+    } else if (type == ArithmeticOperationType.PERCENT) {
+      if (oldFormula.isBlank()) { //if we don't have history, that means, that we don't have what to calc with percent
+        result = "";
+      } else {
+        result = oldFormula + " " + display;
       }
-      if (!oldFormula.isBlank()) {
-        oldFormula += " ";
-      }
-      return oldFormula + operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + display.replaceAll(",", "") + " )";
-    } else if (btn.getText().equals("\uE94C")) { //%
-      if (oldFormula.isBlank()) {
-        return "";
-      }
-      return oldFormula + " " + display.replaceAll(",", "");
+    } else {
+      throw new IllegalStateException("Unsupported type of operation: " + type);
     }
-    return "";
+    return result;
   }
 
-  private String leftOrAfterHighFormula(Button btn, String oldFormula, String display) {
-    String formula = "";
-    if (binaryOperationObject.containsKey(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
-        formula = oldFormula + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+  private String leftOrAfterHighFormula(ActionEvent event, String oldFormula, String display) {
+    ArithmeticOperation operation = getArithmeticOperationFromEvent(event);
+    ArithmeticOperationType type = operation.getType();
+    String operationSymbol = operationSymbols.get(operation);
+    boolean isEndsWithBracket = oldFormula.endsWith(END_OF_UNARY_OPERATION);
+    display = removeGroupSeparator(display);
+
+    String result;
+    if (type == ArithmeticOperationType.BINARY) {
+      if (isEndsWithBracket) {
+        // if there brackets, than we already have second operand at formula, so just add symbol
+        result = oldFormula + " " + operationSymbol;
       } else {
-        formula = display.replaceAll(",", "") + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+        result = display + " " + operationSymbol;
       }
-    } else if (unaryOperationObject.containsKey(btn.getText()) && !btn.getText().equals("\uE94D")) {
-      if (oldFormula.endsWith(")")) {
-        formula = operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + oldFormula + " )";
+    } else if (type == ArithmeticOperationType.UNARY && operation != ArithmeticOperation.NEGATE) {
+      if (isEndsWithBracket) { // wrapping one unary operation in another
+        result = operationSymbol + BEGIN_OF_UNARY_OPERATION + " " + oldFormula + " " + END_OF_UNARY_OPERATION;
       } else {
-        formula = operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( " + display.replaceAll(",", "") + " )";
+        result = operationSymbol + BEGIN_OF_UNARY_OPERATION + " " + display + " " + END_OF_UNARY_OPERATION;
       }
+    } else if (operation.getType() == ArithmeticOperationType.PERCENT || operation == ArithmeticOperation.NEGATE) {
+      // if negate or no percent, formula have to be blank
+      result = "";
+    } else {
+      throw new IllegalStateException("Unsupported type in this state: " + type);
     }
 
-    return formula;
+    return result;
   }
 
-  private String rightHighFormula(Button btn, String oldFormula, String display) {
-    if (binaryOperationObject.containsKey(btn.getText())) {
-      if (Character.isDigit(oldFormula.charAt(oldFormula.length() - 1)) || oldFormula.endsWith(")")) {
-        return oldFormula + " " + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+  private String rightHighFormula(ActionEvent event, String oldFormula, String display) {
+    ArithmeticOperation operation = getArithmeticOperationFromEvent(event);
+    ArithmeticOperationType type = operation.getType();
+    String operationSymbol = operationSymbols.get(operation);
+    boolean isEndsWithBracket = oldFormula.endsWith(END_OF_UNARY_OPERATION);
+    display = removeGroupSeparator(display);
+
+    String result;
+    if (type == ArithmeticOperationType.BINARY) {
+      if (Character.isDigit(oldFormula.charAt(oldFormula.length() - 1)) || isEndsWithBracket) {
+        // if there brackets or digit, than we already have an operand at formula, so just add symbol
+        result = oldFormula + " " + operationSymbol;
       } else {
-        return oldFormula + " " + display.replaceAll(",", "") + " "
-            + operationSymbols.get(binaryOperationObject.get(btn.getText()));
+        result = oldFormula + " " + display + " " + operationSymbol;
       }
-    } else if (unaryOperationObject.containsKey(btn.getText())) {
-      if (oldFormula.endsWith(")")) {
+    } else if (type == ArithmeticOperationType.UNARY) {
+      if (isEndsWithBracket) {
+        // wrapping one unary operation in another
         String str = unaryOpSubStringFinder(oldFormula);
-        return oldFormula.substring(0, oldFormula.indexOf(str)) +
-            operationSymbols.get(unaryOperationObject.get(btn.getText())) + "(" + str + " )";
+        result = oldFormula.substring(0, oldFormula.indexOf(str)) + operationSymbol + BEGIN_OF_UNARY_OPERATION + str +
+            " " + END_OF_UNARY_OPERATION;
+      } else {
+        result = oldFormula + " " + operationSymbol + BEGIN_OF_UNARY_OPERATION + " " + display + " " + END_OF_UNARY_OPERATION;
       }
-      return oldFormula + " " + operationSymbols.get(unaryOperationObject.get(btn.getText())) + "( "
-          + display.replaceAll(",", "") + " )";
-    } else if (btn.getText().equals("\uE94C")) { //%
+    } else if (type == ArithmeticOperationType.PERCENT) {
       if (oldFormula.isBlank() || !containsBinaryOperator(oldFormula)) {
-        return "";
-      } else if (oldFormula.endsWith(")")) {
-        int index = indexOfLastBinary(oldFormula);
-        oldFormula = oldFormula.substring(0, index + 1);
-      }
+        // if we don't do binary op before, we don't have what to do
+        result = "";
+      } else {
+        if (isEndsWithBracket) { //changing all unary on our number
+          int index = indexOfLastBinary(oldFormula);
+          oldFormula = oldFormula.substring(0, index + 1);
+        }
 
-      return oldFormula + " " + display.replaceAll(",", "");
+        result = oldFormula + " " + display;
+      }
+    } else {
+      throw new IllegalStateException("Unsupported type in this state: " + type);
     }
 
-    return "";
+    return result;
   }
 
   private String unaryOpSubStringFinder(String formula) {
@@ -452,25 +546,33 @@ class InputService {
   }
 
   private ArithmeticOperation formatOperation(String op) {
-    ArithmeticOperation formatted = binaryOperationObject.get(op);
-    if (formatted != null) {
-      return formatted;
+    ArithmeticOperation formatted;
+
+    if (binaryOperationObject.containsKey(op)) {
+      formatted = binaryOperationObject.get(op);
+    } else {
+      formatted = unaryOperationObject.getOrDefault(op, ArithmeticOperation.PERCENT_ADD_SUBTRACT);
     }
 
-    formatted = unaryOperationObject.get(op);
     return formatted;
   }
 
   private int indexOfLastBinary(String formula) {
-    int indexOfLastPlus = formula.lastIndexOf("+"),
-        indexOfLastMinus = formula.lastIndexOf("-"),
-        indexOfLastMultiply = formula.lastIndexOf("×"),
-        indexOfLastDivide = formula.lastIndexOf("÷");
+    int indexOfLastPlus = formula.lastIndexOf(PLUS_SYMBOL);
+    int indexOfLastMinus = formula.lastIndexOf(MINUS_SYMBOL);
+    int indexOfLastMultiply = formula.lastIndexOf(MULTIPLY_SYMBOL);
+    int indexOfLastDivide = formula.lastIndexOf(DIVIDE_SYMBOL);
 
     return max(max(indexOfLastDivide, indexOfLastMinus), max(indexOfLastMultiply, indexOfLastPlus));
   }
 
   private boolean containsBinaryOperator(String formula) {
-    return formula.contains("+") || formula.contains("-") || formula.contains("×") || formula.contains("÷");
+    return formula.contains(PLUS_SYMBOL) || formula.contains(MINUS_SYMBOL) || formula.contains(MULTIPLY_SYMBOL)
+        || formula.contains(DIVIDE_SYMBOL);
+  }
+
+  private ArithmeticOperation getArithmeticOperationFromEvent(ActionEvent event) {
+    Button btn = (Button) event.getSource();
+    return formatOperation(btn.getText());
   }
 }

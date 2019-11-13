@@ -3,7 +3,6 @@ package com.implemica.calculator.view;
 import com.implemica.calculator.controller.util.ControllerTestUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
 import javafx.scene.input.MouseButton;
@@ -24,9 +23,12 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static com.implemica.calculator.view.DragPoint.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.testfx.matcher.control.LabeledMatchers.hasText;
 
+/**
+ * Enum of coefficient for coordinate in most common case(Edges and corners of stage)
+ */
 enum DragPoint {
   LEFT_CENTER(-1, 0),
   LEFT_BOTTOM(-1, 1),
@@ -54,9 +56,39 @@ enum DragPoint {
   }
 }
 
+/**
+ * Test class for {@link Root} class, that tests view elements like resize, move window, color of buttons.
+ * Also tests window buttons
+ */
 public class RootViewTest extends ControllerTestUtils {
-  private Scene scene;
+  /**
+   * Default button's color
+   */
+  private static final Color ACTION_BUTTON_STANDARD_COLOR = Color.valueOf("#f0f0f0");
+  /**
+   * Common color for hovered buttons
+   */
+  private static final Color STANDARD_BUTTON_HOVER_COLOR = Color.valueOf("#e6e6e6");
+  /**
+   * Digit buttons color
+   */
+  private static final Color DIGIT_BUTTON_COLOR = Color.valueOf("#fafafa");
+  /**
+   * Arithmetic buttons color
+   */
+  private static final Color ARITHMETIC_BUTTON_COLOR = Color.valueOf("#4c4a48");
+  /**
+   * Color of sidebar
+   */
+  private static final Color SIDEBAR_COLOR = Color.valueOf("#cfcfcf");
+  /**
+   * Height of windows panel
+   */
+  private static final double HEIGHT_OF_WINDOWS_PANEL = 40.0d;
 
+  /**
+   * Map for function to drag for edges and corners of stage {@link DragPoint}
+   */
   private static Map<DragPoint, Function<Window, Point2D>> dragFunc = new HashMap<>();
 
   static {
@@ -70,17 +102,31 @@ public class RootViewTest extends ControllerTestUtils {
     dragFunc.put(CENTER_TOP, w -> new Point2D(w.getX() + w.getWidth() / 2, w.getY() + 1.0d));
   }
 
+  /**
+   * Stage in work
+   */
+  private Stage testStage;
+
   @Override
   public void start(Stage stage) throws AWTException, IOException {
     awtRobot = new Robot();
     Root root = Root.getRoot();
-    scene = root.getScene();
-    stage.setScene(scene);
-    stage.show();
+    testStage = stage;
+    root.start(stage);
   }
 
   @Test
+  void allTests() {
+    dragTest();
+    moveTest();
+    colorChangeTest();
+    checkButtons();
+    testFullScreen();
+    closeTest();
+  }
+
   void dragTest() {
+    //don't move
     checkDrag(LEFT_CENTER, 0, 0);
     checkDrag(RIGHT_BOTTOM, 0, 0);
     checkDrag(LEFT_TOP, 0, 0);
@@ -153,88 +199,105 @@ public class RootViewTest extends ControllerTestUtils {
     checkDrag(CENTER_BOTTOM, -50, 0);
   }
 
-  @Test
   void moveTest() {
     final double MAX_X = Screen.getPrimary().getBounds().getMaxX() - 100.0d;
     final double MAX_Y = Screen.getPrimary().getBounds().getMaxY() - 100.0d;
-    final double CUR_X = Window.getWindows().get(0).getX();
-    final double CUR_Y = Window.getWindows().get(0).getY();
+    final Window window = getCurrentWindow();
+    final double INITIAL_X = window.getX();
+    final double INITIAL_Y = window.getY();
 
+    //Zero by x in all y
     moveCheck(0, 0);
     moveCheck(0, 1);
     moveCheck(0, MAX_Y);
     moveCheck(0, MAX_Y / 2);
     moveCheck(0, MAX_Y / 4);
     moveCheck(0, MAX_Y * 0.75);
+
+    //1 by x in all y
     moveCheck(1, 0);
     moveCheck(1, 1);
     moveCheck(1, MAX_Y);
     moveCheck(1, MAX_Y / 2);
     moveCheck(1, MAX_Y / 4);
     moveCheck(1, MAX_Y * 0.75);
+
+    //max x in all  y
     moveCheck(MAX_X, 0);
     moveCheck(MAX_X, 1);
     moveCheck(MAX_X, MAX_Y);
     moveCheck(MAX_X, MAX_Y / 2);
     moveCheck(MAX_X, MAX_Y / 4);
     moveCheck(MAX_X, MAX_Y * 0.75);
+
+    //half of max x in all y
     moveCheck(MAX_X / 2, 0);
     moveCheck(MAX_X / 2, 1);
     moveCheck(MAX_X / 2, MAX_Y);
     moveCheck(MAX_X / 2, MAX_Y / 2);
     moveCheck(MAX_X / 2, MAX_Y / 4);
     moveCheck(MAX_X / 2, MAX_Y * 0.75);
+
+    //Quarter of max in all y
     moveCheck(MAX_X / 4, 0);
     moveCheck(MAX_X / 4, 1);
     moveCheck(MAX_X / 4, MAX_Y);
     moveCheck(MAX_X / 4, MAX_Y / 2);
     moveCheck(MAX_X / 4, MAX_Y / 4);
     moveCheck(MAX_X / 4, MAX_Y * 0.75);
+
+    //3/4 of max in all y
     moveCheck(MAX_X * 0.75, 0);
     moveCheck(MAX_X * 0.75, 1);
     moveCheck(MAX_X * 0.75, MAX_Y);
     moveCheck(MAX_X * 0.75, MAX_Y / 2);
     moveCheck(MAX_X * 0.75, MAX_Y / 4);
     moveCheck(MAX_X * 0.75, MAX_Y * 0.75);
-    moveCheck(CUR_X, CUR_Y);
+
+    //move to initial x and y
+    moveCheck(INITIAL_X, INITIAL_Y);
   }
 
-  @Test
   void colorChangeTest() {
-    checkColor("C", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor("CE", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor("\uE94B", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor("\uD835\uDC65²", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor("⅟\uD835\uDC65", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor("\uE94F", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor(".", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
-    checkColor("\uE94D", Color.valueOf("#f0f0f0"), Color.valueOf("#e6e6e6"));
+    //checking action buttons
+    checkColor("C", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor("CE", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor("\uE94B", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor("\uD835\uDC65²", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor("⅟\uD835\uDC65", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor("\uE94F", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor(".", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+    checkColor("\uE94D", ACTION_BUTTON_STANDARD_COLOR, STANDARD_BUTTON_HOVER_COLOR);
 
-    checkColor(robot.lookup("#sideMenuButton").queryButton(), Color.TRANSPARENT, Color.valueOf("#cfcfcf"));
+    //Check menu buttons
+    checkColor(robot.lookup("#sideMenuButton").queryButton(), Color.TRANSPARENT, SIDEBAR_COLOR);
     checkColor(robot.lookup("#history").queryButton(), Color.TRANSPARENT, Color.TRANSPARENT);
 
-    checkColor(robot.lookup(".digitButton").queryAllAs(Labeled.class), Color.valueOf("#fafafa"), Color.valueOf("#e6e6e6"));
-    checkColor(robot.lookup(".arithmeticButton").queryAllAs(Labeled.class), Color.valueOf("#f0f0f0"), Color.valueOf("#4c4a48"));
+    //check all digit buttons
+    checkColor(robot.lookup(".digitButton").queryAllAs(Labeled.class), DIGIT_BUTTON_COLOR, STANDARD_BUTTON_HOVER_COLOR);
+
+    //check all arithmetic buttons(+,-,etc)
+    checkColor(robot.lookup(".arithmeticButton").queryAllAs(Labeled.class), ACTION_BUTTON_STANDARD_COLOR, ARITHMETIC_BUTTON_COLOR);
   }
 
-  @Test
   void testFullScreen() {
-    Window window = Window.getWindows().get(0);
+    Window window = getCurrentWindow();
     double height = window.getHeight();
     double width = window.getWidth();
-    Button full = robot.lookup("#maximizeButton").queryButton();
+    Button fullScreen = robot.lookup("#maximizeButton").queryButton();
 
-    robot.clickOn(full);
+    //make fullscreen
+    robot.clickOn(fullScreen);
     assertEquals(Screen.getPrimary().getBounds().getWidth(), window.getWidth());
-    assertEquals(Screen.getPrimary().getBounds().getHeight() - 40.0d, window.getHeight());
+    assertEquals(Screen.getPrimary().getBounds().getHeight() - HEIGHT_OF_WINDOWS_PANEL, window.getHeight());
 
-    robot.clickOn(full);
+    //turn off fullscreen and back to previous size
+    robot.clickOn(fullScreen);
     FXTestUtils.awaitEvents();
     assertEquals(width, window.getWidth());
     assertEquals(height, window.getHeight());
   }
 
-  @Test
   void checkButtons() {
     clickOn("C");
     clickOn("1");
@@ -253,9 +316,24 @@ public class RootViewTest extends ControllerTestUtils {
     FxAssert.verifyThat(robot.lookup("#display"), hasText("0"));
   }
 
+  @Test
+  void minimizeTest() {
+    assertFalse(testStage.isIconified());
+    clickOn(lookup("#minimizeWindow").queryButton());
+    assertTrue(testStage.isIconified());
+  }
+
+  @Test
+  void closeTest() {
+    assertTrue(testStage.isShowing());
+    clickOn(lookup("#closeButton").queryButton());
+//    fail();
+    assertFalse(testStage.isShowing());
+  }
+
   private void checkDrag(DragPoint dragPoint, int x, int y) {
     awtRobot.mouseMove(0, 0);
-    Window window = Window.getWindows().get(0);
+    Window window = getCurrentWindow();
     int prevHeight = (int) window.getHeight();
     int prevWidth = (int) window.getWidth();
     Point2D point = getPoint(dragPoint, window);
@@ -279,7 +357,7 @@ public class RootViewTest extends ControllerTestUtils {
   }
 
   private void moveCheck(double x, double y) {
-    Window window = Window.getWindows().get(0);
+    Window window = getCurrentWindow();
 
     double initialX = window.getX() + window.getWidth() / 2.0;
     double initialY = window.getY() + 10.0;
@@ -298,15 +376,6 @@ public class RootViewTest extends ControllerTestUtils {
     robot.drop();
   }
 
-  private void checkColor(String nodeName, Color expectedBefore, Color expectedAfter) {
-    Button btn = robot.from(lookup(".numpad")).lookup(hasText(nodeName)).queryButton();
-    assertEquals(btn.getBackground().getFills().get(0).getFill(), expectedBefore);
-    Bounds bounds = btn.localToScreen(btn.getBoundsInLocal());
-    awtRobot.mouseMove((int) (bounds.getCenterX()), (int) (bounds.getCenterY()));
-    FXTestUtils.awaitEvents();
-    assertEquals(btn.getBackground().getFills().get(0).getFill(), expectedAfter);
-  }
-
   private void checkColor(Labeled btn, Color expectedBefore, Color expectedAfter) {
     assertEquals(btn.getBackground().getFills().get(0).getFill(), expectedBefore);
     Bounds bounds = btn.localToScreen(btn.getBoundsInLocal());
@@ -319,5 +388,14 @@ public class RootViewTest extends ControllerTestUtils {
     for (Labeled node : nodes) {
       checkColor(node, expectedBefore, expectedAfter);
     }
+  }
+
+  private void checkColor(String nodeName, Color expectedBefore, Color expectedAfter) {
+    Button btn = robot.from(lookup(".numpad")).lookup(hasText(nodeName)).queryButton();
+    checkColor(btn, expectedBefore, expectedAfter);
+  }
+
+  private Window getCurrentWindow() {
+    return Window.getWindows().get(0);
   }
 }

@@ -96,7 +96,6 @@ class NumberFormatter {
    *
    * @param number Number that we have to format
    * @return Result of formatting
-   *
    * @see BigDecimal
    * @see DecimalFormat
    * @see DecimalFormatSymbols
@@ -153,14 +152,17 @@ class NumberFormatter {
 
     String res = formatter.format(numberInWork);
 
+    //Adding decimal separator to exponent, if they haven't
     if (res.contains(DEFAULT_EXPONENT_SEPARATOR) && !res.contains(String.valueOf(DECIMAL_SEPARATOR))) {
       res = res.replace(DEFAULT_EXPONENT_SEPARATOR, DECIMAL_SEPARATOR + DEFAULT_EXPONENT_SEPARATOR);
     }
 
+    //Deleting tailing decimal separator if it is
     if (res.endsWith(String.valueOf(DECIMAL_SEPARATOR))) {
       res = res.substring(0, res.length() - 1);
     }
 
+    //Adding tailing zeros
     int intPartSize = numberInWork.precision() - numberInWork.scale();
     if (trailingZerosAmount != 0) {
       if (trailingZerosAmount > (MAX_SYMBOLS - intPartSize)) {
@@ -201,7 +203,6 @@ class NumberFormatter {
    * @param str number that we have to parse in {@link BigDecimal}
    * @return {@link BigDecimal} object that parsed from str
    * @throws ParseException if pattern in {@link DecimalFormat} object is wrong
-   *
    * @see DecimalFormat
    * @see ParseException
    */
@@ -230,8 +231,8 @@ class NumberFormatter {
   public static boolean isTooBigToInput(String number) {
     number = removeGroupSeparator(number);
     boolean isFirstZero = number.startsWith(ZERO) || number.startsWith("-0");
-    int coef = isFirstZero ? 1 : 0;
+    int coefficient = isFirstZero ? 1 : 0;
 
-    return MAX_SYMBOLS + coef < number.replace("-", "").replace(String.valueOf(DECIMAL_SEPARATOR), "").length();
+    return MAX_SYMBOLS + coefficient < number.replace("-", "").replace(String.valueOf(DECIMAL_SEPARATOR), "").length();
   }
 }
