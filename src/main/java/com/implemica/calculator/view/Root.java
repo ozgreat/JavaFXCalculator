@@ -168,9 +168,7 @@ public class Root extends Application {
   }
 
   private void initAll() throws IOException {
-    if (parent == null) {
-      parent = loader.load();
-    }
+    parent = loader.load();
     scene = new Scene(parent);
     initWindowsButtons();
     initWindowResizing();
@@ -279,8 +277,7 @@ public class Root extends Application {
   }
 
   private void closeWindow(MouseEvent event) {
-//    stage.hide();
-    System.exit(0);
+    stage.hide();
   }
 
   private void minimizeWindow(MouseEvent event) {

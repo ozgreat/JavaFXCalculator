@@ -61,9 +61,6 @@ public class ControllerTestUtils extends ApplicationTest {
         continue;
       } else if (operations.containsKey(s)) {
         clickOn(operations.get(s));
-        if(s.equals("%")){
-          s =s;
-        }
       } else if (memoryOp.containsKey(s)) {
         clickOnMemory(memoryOp.get(s));
       } else if (arrows.containsKey(s)) {

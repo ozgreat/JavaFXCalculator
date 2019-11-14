@@ -56,7 +56,6 @@ public class CalculatorModel {
    * {@link MathContext} for sqrt operation
    */
   private static final MathContext SQRT_CONTEXT = new MathContext(10000);
-  private static final BigDecimal DIVISOR_FOR_PERCENT = BigDecimal.valueOf(100);
 
 
   /**
@@ -137,7 +136,7 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private static BigDecimal getBinaryOperationResult(ArithmeticOperation operation, BigDecimal leftOperand, BigDecimal rightOperand) throws CalculatorException {
+  private BigDecimal getBinaryOperationResult() throws CalculatorException {
     if (rightOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
       if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
         throw new CalculatorException(CalculatorExceptionType.DIVIDING_ZERO_BY_ZERO);
@@ -145,12 +144,11 @@ public class CalculatorModel {
       throw new CalculatorException(CalculatorExceptionType.CANNOT_DIVIDE_BY_ZERO);
     }
 
-    BigDecimal res;
     if (leftOperand.compareTo(BigDecimal.ZERO) == 0 && operation == DIVIDE) {
-      res = BigDecimal.ZERO;
-    } else {
-      res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
+      return BigDecimal.ZERO;
     }
+
+    BigDecimal res = binaryOperations.get(operation).apply(leftOperand, rightOperand);
 
     if (res.compareTo(leftOperand) == 0 && operation == DIVIDE && rightOperand.compareTo(BigDecimal.ONE) != 0
         && leftOperand.compareTo(MIN_POSITIVE) == 0) {
@@ -169,7 +167,7 @@ public class CalculatorModel {
    * @param number    number, that we calc
    * @return string with result of calculation
    */
-  private static BigDecimal getUnaryOperationResult(ArithmeticOperation operation, BigDecimal number) throws CalculatorException {
+  private BigDecimal getUnaryOperationResult(ArithmeticOperation operation, BigDecimal number) throws CalculatorException {
     if (number.equals(BigDecimal.ZERO) && operation == REVERSE) {
       throw new CalculatorException(CalculatorExceptionType.CANNOT_DIVIDE_BY_ZERO);
     }
@@ -190,26 +188,27 @@ public class CalculatorModel {
    *
    * @return string with result of calculation
    */
-  private static BigDecimal getPercentOperation(ArithmeticOperation operation, BigDecimal leftOperand, BigDecimal rightOperand)
+  private BigDecimal getPercentOperation(ArithmeticOperation operation, BigDecimal leftOperand, BigDecimal rightOperand)
       throws CalculatorException {
-    BigDecimal res;
-    if (operation == PERCENT_MUL_DIVIDE) {
-      res = rightOperand.divide(DIVISOR_FOR_PERCENT, DIVIDE_SCALE, RoundingMode.HALF_UP);
-    } else if (operation == PERCENT_ADD_SUBTRACT) {
-      if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
-        res = BigDecimal.ZERO;
-      } else {
-        res = leftOperand.multiply(rightOperand.divide(DIVISOR_FOR_PERCENT, DIVIDE_SCALE, RoundingMode.HALF_UP));
+    BigDecimal res = BigDecimal.ZERO;
+
+    if (operation != null) {
+      if ((operation == PERCENT_ADD_SUBTRACT) && leftOperand.compareTo(BigDecimal.ZERO) != 0) {
+        res = leftOperand.multiply(rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, RoundingMode.HALF_UP));
+      } else if (operation == PERCENT_MUL_DIVIDE) {
+        res = rightOperand.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, RoundingMode.HALF_UP);
       }
-    } else {
-      throw new IllegalStateException("Unsupported operation: " + operation);
     }
 
 
+    this.rightOperand = res;
     checkOverflow(res);
     return res.stripTrailingZeros();
   }
 
+  private BigDecimal getPercentOperation(ArithmeticOperation operation) throws CalculatorException {
+    return getPercentOperation(operation, leftOperand, rightOperand);
+  }
 
   /**
    * Get memory and setup them as operand if have to
@@ -312,10 +311,11 @@ public class CalculatorModel {
       throws CalculatorException {
     BigDecimal result;
     if (operation.getType() == ArithmeticOperationType.BINARY) { // calculating binary operation
+      leftOperand = firstOperand;
       rightOperand = secondOperand;
       this.operation = operation;
       calculatorState = CalculatorState.AFTER;
-      leftOperand = getBinaryOperationResult(operation, firstOperand, secondOperand);
+      leftOperand = getBinaryOperationResult();
       result = leftOperand;
     } else if (operation.getType() == ArithmeticOperationType.UNARY) { // calculating unary operation
       if (firstOperand == null) { // setting first if them is null
@@ -372,11 +372,12 @@ public class CalculatorModel {
         }
 
         if (this.operation.getType() == ArithmeticOperationType.BINARY) { // result of binary operation
-          leftOperand = getBinaryOperationResult(this.operation, leftOperand, rightOperand);
+          leftOperand = getBinaryOperationResult();
           calculatorState = CalculatorState.AFTER;
           result = leftOperand;
         } else if (this.operation.getType() == ArithmeticOperationType.PERCENT) { // result of percent operation
-          rightOperand = getPercentOperation(this.operation, leftOperand, firstOperand);
+          rightOperand = firstOperand;
+          rightOperand = getPercentOperation(this.operation);
           this.operation = prevOperation;
           result = rightOperand;
         } else { // otherwise return left operand
@@ -433,7 +434,7 @@ public class CalculatorModel {
         prevOperation = this.operation;
         this.operation = operation;
         result = leftOperand;
-      } else if (leftOperand != null) { // calculating percent result and
+      }else if (leftOperand != null) { // calculating percent result and
         rightOperand = firstOperand;
         if (calculatorState == CalculatorState.TRANSIENT) {
           calculatorState = CalculatorState.RIGHT;

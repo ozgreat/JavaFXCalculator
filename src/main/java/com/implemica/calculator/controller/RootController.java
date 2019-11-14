@@ -21,6 +21,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -408,13 +409,16 @@ public class RootController {
    */
   @FXML
   public void addNumberOrDot(ActionEvent event) { // buttons 0-9 and '.'
+    if (isException) {
+      setNormal();
+    }
     try {
-      if (isException) {
-        setNormal();
-      }
       display.setText(inputService.enterNumberOrComma(event, display.getText()));
-    } catch (Exception e) { // see method, if e is CalculatorException there is one algorithm, else different
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -423,17 +427,12 @@ public class RootController {
    */
   @FXML
   public void clearAction() { //button C
-    try {
-      if (isException) {
-        setNormal();
-      } else {
-        display.setText(DEFAULT_DISPLAY_NUMBER);
-        inputService.clearDisplay();
-        clearFormula();
-      }
-    } catch (Exception e) {
-      handleException(e);
+    if (isException) {
+      setNormal();
     }
+    display.setText(DEFAULT_DISPLAY_NUMBER);
+    inputService.clearDisplay();
+    clearFormula();
   }
 
   /**
@@ -441,17 +440,12 @@ public class RootController {
    */
   @FXML
   public void clearEntryAction() {
-    try {
-      if (isException) {
-        setNormal();
-      } else {
-        display.setText(DEFAULT_DISPLAY_NUMBER);
-        inputService.setMemoryRecall(false);
-        inputService.setBackspacePossible(true);
-      }
-    } catch (Exception e) {
-      handleException(e);
+    if (isException) {
+      setNormal();
     }
+    display.setText(DEFAULT_DISPLAY_NUMBER);
+    inputService.setMemoryRecall(false);
+    inputService.setBackspacePossible(true);
   }
 
   /**
@@ -461,11 +455,15 @@ public class RootController {
    */
   @FXML
   public void operationButtonAction(ActionEvent event) {
+    formulaCalc(event);
     try {
-      formulaCalc(event);
       display.setText(inputService.enterOperation(event, display.getText()));
-    } catch (Exception e) {// see method, if e is CalculatorException there is one algorithm, else different
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      // todo comment
+      e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -480,7 +478,7 @@ public class RootController {
         setNormal();
       } else if (inputService.isBackspaceAvailable()) {
         if (displayText.endsWith(String.valueOf(DECIMAL_SEPARATOR))) {
-          displayText = displayText.substring(0, displayText.length() - 1);
+          display.setText(displayText.substring(0, displayText.length() - 1));
         } else {
           boolean saveDecimalSeparator = false;
           BigDecimal result = parse(displayText);
@@ -494,11 +492,13 @@ public class RootController {
           if (saveDecimalSeparator) {
             displayText += DECIMAL_SEPARATOR;
           }
+
+          display.setText(displayText);
         }
-        display.setText(displayText);
       }
-    } catch (Exception e) { // see method, if e is CalculatorException there is one algorithm, else different
-      handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -507,15 +507,18 @@ public class RootController {
    */
   @FXML
   public void equalAction() {
+    if (isException) {
+      setNormal();
+    }
+    clearFormula();
     try {
-      if (isException) {
-        setNormal();
-      }
-      clearFormula();
       String value = inputService.enterEqual(display.getText());
       display.setText(value);
-    } catch (Exception e) { // see method, if e is CalculatorException there is one algorithm, else different
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -526,12 +529,15 @@ public class RootController {
    */
   @FXML
   public void unaryOperationAction(ActionEvent ae) {
+    formulaCalc(ae);
     try {
-      formulaCalc(ae);
       String value = inputService.unaryOp(ae, display.getText());
       display.setText(value);
-    } catch (Exception e) {// see method, if e is CalculatorException there is one algorithm, else different
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -542,13 +548,17 @@ public class RootController {
    */
   @FXML
   public void percentAction(ActionEvent ae) {
+    String displayText = display.getText();
     try {
-      String displayText = inputService.percentOp(display.getText());
-      display.setText(displayText);
-      formulaCalc(ae);
-    } catch (Exception e) {
+      displayText = inputService.percentOp(display.getText());
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
+    display.setText(displayText);
+    formulaCalc(ae);
   }
 
   /**
@@ -557,10 +567,11 @@ public class RootController {
   @FXML
   public void memorySaveAction() {
     try {
-      inputService.memorySave(display.getText());
+      inputService.saveToMemory(display.getText());
       memoryDisableIfEmpty();
-    } catch (Exception e) {// see method, if e is CalculatorException there is one algorithm, else different
-      handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
 
   }
@@ -572,8 +583,8 @@ public class RootController {
   public void memoryRecallAction() {
     if (!inputService.isMemoryEmpty()) {
       try {
-        display.setText(inputService.memoryRecall());
-      } catch (Exception e) {// see method, if e is CalculatorException there is one algorithm, else different
+        display.setText(inputService.recallFromMemory());
+      } catch (CalculatorException e) {
         handleException(e);
       }
     }
@@ -584,7 +595,7 @@ public class RootController {
    */
   @FXML
   public void memoryClearAction() {
-    inputService.memoryClear();
+    inputService.clearMemory();
     memoryDisableIfEmpty();
   }
 
@@ -594,11 +605,14 @@ public class RootController {
   @FXML
   public void memoryPlusAction() {
     try {
-      inputService.memoryAdd(display.getText());
-      memoryDisableIfEmpty();
-    } catch (Exception e) {// see method, if e is CalculatorException there is one algorithm, else different
+      inputService.addToMemory(display.getText());
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
+    memoryDisableIfEmpty();
   }
 
   /**
@@ -607,10 +621,13 @@ public class RootController {
   @FXML
   public void memoryMinusAction() {
     try {
-      inputService.memorySub(display.getText());
+      inputService.subToMemory(display.getText());
       memoryDisableIfEmpty();
-    } catch (Exception e) {// see method, if e is CalculatorException there is one algorithm, else different
+    } catch (CalculatorException e) {
       handleException(e);
+    } catch (Exception e) {
+      e.printStackTrace();
+      alertError(e);
     }
   }
 
@@ -619,31 +636,27 @@ public class RootController {
    */
   @FXML
   public void historyAction() {
-    try {
-      boolean flag = historyPane.isDisable();
+    boolean flag = historyPane.isDisable();
 
-      historyPane.setDisable(!flag);
-      historyUpperPane.setDisable(!flag);
-      historyLabel.setVisible(flag);
-      historyUpperPane.setVisible(flag);
-      memoryRecallButton.setDisable(flag);
-      memoryClearButton.setDisable(flag);
-      memoryPlusButton.setDisable(flag);
-      memoryMinusButton.setDisable(flag);
-      memoryShow.setDisable(flag);
-      memorySaveButton.setDisable(flag);
+    historyPane.setDisable(!flag);
+    historyUpperPane.setDisable(!flag);
+    historyLabel.setVisible(flag);
+    historyUpperPane.setVisible(flag);
+    memoryRecallButton.setDisable(flag);
+    memoryClearButton.setDisable(flag);
+    memoryPlusButton.setDisable(flag);
+    memoryMinusButton.setDisable(flag);
+    memoryShow.setDisable(flag);
+    memorySaveButton.setDisable(flag);
 
-      Background background;
-      if (flag) {
-        background = BACKGROUND;
-      } else {
-        background = Background.EMPTY;
-        memoryDisableIfEmpty();
-      }
-      historyPane.setBackground(background);
-    } catch (Exception e) {
-      handleException(e);
+    Background background;
+    if (flag) {
+      background = BACKGROUND;
+    } else {
+      background = Background.EMPTY;
+      memoryDisableIfEmpty();
     }
+    historyPane.setBackground(background);
   }
 
 
@@ -652,23 +665,17 @@ public class RootController {
    */
   @FXML
   public void openSideBar() {
-    try {
-      Duration duration = Duration.millis(OPEN_SIDEBAR_DURATION_IN_MILLIS);
-      TranslateTransition transition = new TranslateTransition(duration, sideMenuBorderPane);
-      int shift;
-      if (isSideBarOpened) {
-        shift = -SIDEBAR_SHIFT_IN_PIXELS;
-      } else {
-        shift = SIDEBAR_SHIFT_IN_PIXELS;
-      }
-      transition.setByX(shift);
-      transition.play();
-      standardLabel.setVisible(!standardLabel.isVisible());
-      sideBarOffPane.setVisible(!sideBarOffPane.isVisible());
-      isSideBarOpened = !isSideBarOpened;
-    } catch (Exception e) {
-      handleException(e);
+    Duration duration = Duration.millis(OPEN_SIDEBAR_DURATION_IN_MILLIS);
+    TranslateTransition transition = new TranslateTransition(duration, sideMenuBorderPane);
+    if (isSideBarOpened) {
+      transition.setByX(-SIDEBAR_SHIFT_IN_PIXELS);
+    } else {
+      transition.setByX(SIDEBAR_SHIFT_IN_PIXELS);
     }
+    transition.play();
+    standardLabel.setVisible(!standardLabel.isVisible());
+    sideBarOffPane.setVisible(!sideBarOffPane.isVisible());
+    isSideBarOpened = !isSideBarOpened;
   }
 
   /**
@@ -676,13 +683,9 @@ public class RootController {
    */
   @FXML
   public void memoryShowAction() {
-    try {
-      historyAction();
-      historyLabel.setVisible(false);
-      memoryShow.setDisable(inputService.isMemoryEmpty());
-    } catch (Exception e) {
-      handleException(e);
-    }
+    historyAction();
+    historyLabel.setVisible(false);
+    memoryShow.setDisable(inputService.isMemoryEmpty());
   }
 
   /**
@@ -690,25 +693,21 @@ public class RootController {
    */
   @FXML
   public void rightFormulaButtonAction() {
-    try {
-      boolean isMoveToEnd = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH >= formulaStr.length();
-      int endBuff = formulaEndIndex;
+    boolean isMoveToEnd = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH >= formulaStr.length();
+    int endBuff = formulaEndIndex;
 
-      if (isMoveToEnd) {
-        formulaEndIndex = formulaStr.length();
-      } else {
-        formulaEndIndex = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;
-      }
-
-      formulaBegIndex += formulaEndIndex - endBuff;
-
-      leftFormulaButton.setVisible(true);
-      rightFormulaButton.setVisible(!isMoveToEnd);
-
-      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
-    } catch (Exception e) {
-      handleException(e);
+    if (isMoveToEnd) {
+      formulaEndIndex = formulaStr.length();
+    } else {
+      formulaEndIndex = formulaEndIndex + FORMULA_MAX_SHIFT_LENGTH;
     }
+
+    formulaBegIndex += formulaEndIndex - endBuff;
+
+    leftFormulaButton.setVisible(true);
+    rightFormulaButton.setVisible(!isMoveToEnd);
+
+    formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
   /**
@@ -716,50 +715,41 @@ public class RootController {
    */
   @FXML
   public void leftFormulaButtonAction() {
-    try {
-      boolean isBeginGreaterThanMax = formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH;
-      int beginBuff = formulaBegIndex;
 
-      if (isBeginGreaterThanMax) {
-        formulaBegIndex = formulaBegIndex - FORMULA_MAX_SHIFT_LENGTH;
-      } else {
-        formulaBegIndex = 0;
-      }
+    boolean isBeginGreaterThanMax = formulaBegIndex > FORMULA_MAX_SHIFT_LENGTH;
+    int beginBuff = formulaBegIndex;
 
-      formulaEndIndex -= Math.abs(beginBuff - formulaBegIndex);
-
-      rightFormulaButton.setVisible(true);
-      leftFormulaButton.setVisible(isBeginGreaterThanMax);
-
-      formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
-    } catch (Exception e) {
-      handleException(e);
+    if (isBeginGreaterThanMax) {
+      formulaBegIndex = formulaBegIndex - FORMULA_MAX_SHIFT_LENGTH;
+    } else {
+      formulaBegIndex = 0;
     }
+
+    formulaEndIndex -= Math.abs(beginBuff - formulaBegIndex);
+
+    rightFormulaButton.setVisible(true);
+    leftFormulaButton.setVisible(isBeginGreaterThanMax);
+
+    formula.setText(formulaStr.substring(formulaBegIndex, formulaEndIndex));
   }
 
   private void formulaCalc(ActionEvent event) {
-    try {
-      formulaStr = inputService.highFormula(event, formulaStr, display.getText());
-      Text text = new Text(formulaStr);
-      text.setFont(DEFAULT_FONT);
-      rightFormulaButton.setVisible(false);
-      leftFormulaButton.setVisible(text.getLayoutBounds().getWidth() > formula.getWidth());
-      int i = 0;
-
-      while (text.getLayoutBounds().getWidth() > formula.getWidth()) {
-        text.setText(formulaStr.substring(i));
-        ++i;
-      }
-
-      formulaBegIndex = i;
-      formulaEndIndex = formulaStr.length();
-      formula.setText(text.getText());
-    } catch (Exception e) {
-      handleException(e);
+    formulaStr = inputService.highFormula(event, formulaStr, display.getText());
+    Text text = new Text(formulaStr);
+    text.setFont(DEFAULT_FONT);
+    rightFormulaButton.setVisible(false);
+    leftFormulaButton.setVisible(text.getLayoutBounds().getWidth() > formula.getWidth());
+    int i = 0;
+    while (text.getLayoutBounds().getWidth() > formula.getWidth()) {
+      text.setText(formulaStr.substring(i));
+      ++i;
     }
+    formulaBegIndex = i;
+    formulaEndIndex = formulaStr.length();
+    formula.setText(text.getText());
   }
 
-  private void handleCalculatorException(CalculatorException e) {
+  private void handleException(CalculatorException e) {
     isException = true;
 
     if (exceptionMessages.containsKey(e.getType())) {
@@ -817,14 +807,5 @@ public class RootController {
     isException = true;
     memoryClearAction();
     setNormal();
-  }
-
-  private void handleException(Exception e) {
-    if (e.getClass() == CalculatorException.class) {
-      handleCalculatorException((CalculatorException) e);
-    } else {
-      e.printStackTrace();
-      alertError(e);
-    }
   }
 }
