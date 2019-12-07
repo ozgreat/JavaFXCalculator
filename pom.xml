@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>implemica</groupId>
+    <groupId>ozgreat</groupId>
     <artifactId>calculator</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -88,7 +88,7 @@
                     <source>11</source>
                     <target>11</target>
                     <release>11</release>
-                    <mainClass>com.implemica.calculator.Main</mainClass>
+                    <mainClass>com.ozgreat.calculator.Main</mainClass>
                 </configuration>
             </plugin>
 

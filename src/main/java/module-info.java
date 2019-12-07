@@ -3,7 +3,7 @@ module calculator {
   requires javafx.base;
   requires javafx.controls;
 
-  opens com.implemica.calculator;
-  opens com.implemica.calculator.controller;
-  opens com.implemica.calculator.view;
+  opens com.ozgreat.calculator;
+  opens com.ozgreat.calculator.controller;
+  opens com.ozgreat.calculator.view;
 }
